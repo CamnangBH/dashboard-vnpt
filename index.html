@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Cổng Điều Hành Nghiệp Vụ – VNPT Hải Phòng</title>
+<!-- Font hỗ trợ tiếng Việt. Nếu không tải được, trình duyệt dùng font hệ thống (Segoe UI / Roboto). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap">
+<!--
+=====================================================================
+  CỔNG ĐIỀU HÀNH NGHIỆP VỤ – VNPT HẢI PHÒNG | ONE VNPT
+  ---------------------------------------------------------------
+  LƯU Ý AN TOÀN (đọc trước khi triển khai):
+  • Đây là trang HTML tĩnh. Việc kiểm tra đăng nhập chạy bằng JavaScript
+    trong trình duyệt nên CHỈ là cơ chế bảo vệ giao diện cơ bản: ai xem được
+    mã nguồn đều có thể đọc mã băm hoặc bỏ qua bước kiểm tra.
+    KHÔNG coi đây là hệ thống xác thực an toàn.
+  • File không chứa mật khẩu dạng văn bản thuần; chỉ chứa SHA-256 của
+    "tên_đăng_nhập:mật_khẩu" (cùng định dạng với 4 ứng dụng con).
+  • Cổng KHÔNG gửi mật khẩu đến trang đích, không đưa thông tin xác thực
+    vào URL và không tự điền mật khẩu vào trang khác.
+  • SSO thật cần nhà cung cấp danh tính (OIDC) + backend. Xem hướng dẫn kèm theo.
+=====================================================================
+-->
+<style>
+/* ---------------- 1. Design tokens ---------------- */
+:root{
+  --vnpt:#0066B3;        /* xanh VNPT */
+  --vnpt-deep:#004A87;
+  --cyan:#00AEEF;        /* xanh cyan */
+  --orange:#F7941D;      /* cam nhấn */
+  --amber:#FDB913;       /* vàng nhấn */
+  --ink:#0F2A44;
+  --ink-2:#3D5670;
+  --ink-3:#6B8199;
+  --line:rgba(15,42,68,.10);
+  --glass:rgba(255,255,255,.72);
+  --glass-strong:rgba(255,255,255,.88);
+  --ok:#0E8A5F; --ok-bg:#E6F6EF;
+  --warn:#9A5B00; --warn-bg:#FFF4DE;
+  --err:#B42318; --err-bg:#FEECEB;
+  --info-bg:#E8F4FD;
+  --radius:18px; --radius-sm:12px;
+  --shadow-1:0 1px 2px rgba(15,42,68,.06),0 4px 14px rgba(15,42,68,.06);
+  --shadow-2:0 2px 6px rgba(15,42,68,.08),0 18px 40px rgba(0,102,179,.14);
+  --font:'Be Vietnam Pro','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.55;
+  background:#F3F8FD;
+  background-image:
+    radial-gradient(900px 520px at 8% -10%,rgba(0,174,239,.22),transparent 60%),
+    radial-gradient(800px 520px at 105% 0%,rgba(0,102,179,.18),transparent 60%),
+    radial-gradient(700px 420px at 60% 115%,rgba(253,185,19,.14),transparent 60%),
+    linear-gradient(180deg,#F7FBFF 0%,#EEF5FC 100%);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+}
+/* lưới mờ trang trí kiểu Fabric */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,102,179,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(0,102,179,.045) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:radial-gradient(ellipse at 50% 30%,#000 30%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 30%,#000 30%,transparent 75%);
+}
+button,input{font:inherit;color:inherit}
+a{color:var(--vnpt)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid rgba(0,174,239,.55);outline-offset:2px;border-radius:8px}
+[hidden]{display:none!important}
+.view{position:relative;z-index:1;min-height:100vh;min-height:100dvh;animation:fadeUp .45s var(--ease)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------------- 2. Thương hiệu ---------------- */
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-mark{
+  width:44px;height:44px;border-radius:12px;flex:none;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--vnpt),var(--cyan));color:#fff;box-shadow:0 6px 16px rgba(0,102,179,.28);
+}
+.brand-mark img{width:100%;height:100%;object-fit:contain;border-radius:inherit;background:#fff}
+.brand-mark.has-logo{background:#fff;padding:4px}
+.brand-text{min-width:0}
+.brand-title{font-weight:800;letter-spacing:.04em;font-size:15px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-sub{font-size:11.5px;font-weight:600;letter-spacing:.14em;color:var(--vnpt);white-space:nowrap}
+.brand-sub b{color:var(--orange);font-weight:700}
+
+/* ---------------- 3. Màn hình đăng nhập ---------------- */
+#loginView{display:grid;grid-template-columns:1.1fr 1fr;align-items:stretch}
+.login-hero{
+  position:relative;overflow:hidden;padding:56px clamp(28px,5vw,72px);display:flex;flex-direction:column;justify-content:space-between;
+  background:linear-gradient(145deg,#004A87 0%,#0066B3 45%,#0094D8 100%);color:#fff;
+}
+.login-hero::after{ /* vòng sáng trang trí */
+  content:"";position:absolute;width:620px;height:620px;right:-220px;bottom:-260px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,174,239,.55),transparent 65%);
+}
+.login-hero .brand-mark{background:rgba(255,255,255,.16);box-shadow:none;border:1px solid rgba(255,255,255,.28)}
+.login-hero .brand-sub{color:#BFE6FA}
+.hero-copy{position:relative;z-index:1;max-width:520px}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--amber);text-transform:uppercase}
+.hero-kicker::before{content:"";width:22px;height:3px;border-radius:3px;background:var(--orange)}
+.hero-copy h1{font-size:clamp(30px,3.6vw,46px);line-height:1.12;margin:14px 0 14px;font-weight:800;letter-spacing:.01em}
+.hero-copy p{color:#D6ECFA;margin:0;font-size:15.5px;max-width:440px}
+.hero-apps{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:460px}
+.hero-app{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);font-size:13px;font-weight:600;backdrop-filter:blur(6px)}
+.hero-app span{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:rgba(255,255,255,.18);font-size:11px;font-weight:800;flex:none}
+.login-side{display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.login-card{
+  width:100%;max-width:420px;padding:34px 30px 26px;border-radius:24px;
+  background:var(--glass-strong);border:1px solid rgba(255,255,255,.9);
+  box-shadow:var(--shadow-2);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.login-card h2{margin:0 0 4px;font-size:24px;font-weight:800}
+.login-card .muted{margin:0 0 22px;color:var(--ink-3);font-size:14px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink-2)}
+.input-wrap{position:relative;display:flex;align-items:center}
+.input-wrap svg.lead{position:absolute;left:13px;width:18px;height:18px;color:var(--ink-3);pointer-events:none}
+.input-wrap input{
+  width:100%;height:48px;padding:0 46px 0 42px;border-radius:12px;border:1.5px solid #D5E2EE;background:#fff;
+  transition:border-color .2s,box-shadow .2s;font-size:15px;
+}
+.input-wrap input:hover{border-color:#B8CDE0}
+.input-wrap input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 4px rgba(0,174,239,.16)}
+.input-wrap input[aria-invalid="true"]{border-color:#E8A39C}
+.eye{position:absolute;right:6px;width:38px;height:38px;border:0;border-radius:10px;background:transparent;cursor:pointer;color:var(--ink-3);display:grid;place-items:center}
+.eye:hover{background:#EEF4FA;color:var(--vnpt)}
+.hint{font-size:12px;color:var(--ink-3);margin-top:6px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:12px;border:1px solid transparent;
+  font-weight:700;cursor:pointer;transition:transform .15s var(--ease),box-shadow .2s,background .2s,border-color .2s;white-space:nowrap;text-decoration:none
+}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{cursor:not-allowed;opacity:.7}
+.btn-primary{background:linear-gradient(135deg,var(--vnpt),#0083CF);color:#fff;box-shadow:0 6px 18px rgba(0,102,179,.28)}
+.btn-primary:hover:not([disabled]){box-shadow:0 10px 26px rgba(0,102,179,.36);background:linear-gradient(135deg,var(--vnpt-deep),var(--vnpt))}
+.btn-ghost{background:#fff;border-color:#D5E2EE;color:var(--ink)}
+.btn-ghost:hover:not([disabled]){border-color:var(--vnpt);color:var(--vnpt)}
+.btn-block{width:100%;height:50px;font-size:15.5px}
+.spinner{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.45);border-top-color:#fff;animation:spin .8s linear infinite}
+.btn-ghost .spinner{border-color:rgba(0,102,179,.25);border-top-color:var(--vnpt)}
+
+/* ---------------- 4. Thông báo ---------------- */
+.alert{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:12px;font-size:13.5px;margin-bottom:16px;border:1px solid transparent}
+.alert svg{flex:none;width:18px;height:18px;margin-top:1px}
+.alert-err{background:var(--err-bg);color:var(--err);border-color:#F7C9C4}
+.alert-warn{background:var(--warn-bg);color:var(--warn);border-color:#F6DFAE}
+.alert-info{background:var(--info-bg);color:#0B4F80;border-color:#C7E3F6}
+.alert-ok{background:var(--ok-bg);color:var(--ok);border-color:#BFE5D3}
+.security-note{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);font-size:12px;color:var(--ink-3);display:flex;gap:8px}
+.security-note svg{flex:none;width:16px;height:16px;margin-top:2px;color:var(--orange)}
+
+/* ---------------- 5. Dashboard ---------------- */
+.topbar{
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px clamp(16px,4vw,40px);background:rgba(255,255,255,.78);border-bottom:1px solid var(--line);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.top-right{display:flex;align-items:center;gap:10px;flex:none}
+.session-chip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:999px;background:var(--ok-bg);color:var(--ok);font-size:12.5px;font-weight:600}
+.session-chip i{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px rgba(14,138,95,.18)}
+.session-chip.warn{background:var(--warn-bg);color:var(--warn)}
+.user-chip{display:flex;align-items:center;gap:9px;height:40px;padding:0 12px 0 5px;border-radius:999px;background:#fff;border:1px solid var(--line)}
+.avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--orange),var(--amber));color:#fff;font-weight:800;font-size:13px;text-transform:uppercase}
+.user-meta{line-height:1.15}
+.user-meta b{display:block;font-size:13.5px}
+.user-meta small{font-size:11px;color:var(--ink-3)}
+.btn-signout{height:40px;background:#fff;border-color:#F3C8C3;color:var(--err)}
+.btn-signout:hover{background:var(--err-bg);border-color:var(--err)}
+main.wrap{max-width:1160px;margin:0 auto;padding:30px clamp(16px,4vw,40px) 48px}
+.welcome{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+.welcome .eyebrow{font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--vnpt);text-transform:uppercase}
+.welcome h1{margin:6px 0 4px;font-size:clamp(24px,3vw,32px);font-weight:800}
+.welcome h1 span{background:linear-gradient(90deg,var(--vnpt),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.welcome p{margin:0;color:var(--ink-2)}
+.legend{display:flex;gap:8px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.tag-info{background:var(--info-bg);color:#0B4F80}
+.tag-warn{background:var(--warn-bg);color:var(--warn)}
+.tag-ok{background:var(--ok-bg);color:var(--ok)}
+.tag i{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.card{
+  position:relative;display:flex;flex-direction:column;gap:14px;min-height:220px;padding:22px 22px 20px;border-radius:var(--radius);
+  background:var(--glass);border:1px solid rgba(255,255,255,.95);box-shadow:var(--shadow-1);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  color:inherit;text-decoration:none;cursor:pointer;overflow:hidden;
+  transition:transform .25s var(--ease),box-shadow .25s var(--ease),border-color .25s;
+  animation:fadeUp .5s var(--ease) both;
+}
+.card::before{ /* dải màu nhấn trên cùng */
+  content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--vnpt),var(--cyan));opacity:.85;transition:height .25s var(--ease)
+}
+.card::after{ /* vầng sáng khi hover */
+  content:"";position:absolute;width:260px;height:260px;right:-90px;top:-110px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,174,239,.20),transparent 70%);opacity:0;transition:opacity .3s
+}
+.card:hover,.card:focus-visible{transform:translateY(-4px);box-shadow:var(--shadow-2);border-color:rgba(0,174,239,.55)}
+.card:hover::after,.card:focus-visible::after{opacity:1}
+.card:hover::before{height:5px}
+.card:hover .card-icon{transform:scale(1.06) rotate(-3deg)}
+.card:hover .go{background:var(--vnpt);color:#fff;border-color:var(--vnpt)}
+.card:hover .go svg{transform:translateX(3px)}
+.card.busy{pointer-events:none;opacity:.8}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:relative;z-index:1}
+.card-icon{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;color:#fff;transition:transform .3s var(--ease);flex:none}
+.card-icon svg{width:28px;height:28px}
+.card-no{font-size:40px;font-weight:800;line-height:1;color:rgba(0,102,179,.12);letter-spacing:-.02em}
+.card h3{margin:0;font-size:20px;font-weight:800;position:relative;z-index:1}
+.card .desc{margin:0;color:var(--ink-2);font-size:14px;position:relative;z-index:1;flex:1}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;position:relative;z-index:1}
+.card-url{font-size:12px;color:var(--ink-3);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.card-tags{display:flex;gap:6px;flex-wrap:wrap}
+.go{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:10px;border:1.5px solid #CFE0EF;background:#fff;color:var(--vnpt);font-weight:700;font-size:14px;transition:all .2s var(--ease)}
+.go svg{width:16px;height:16px;transition:transform .2s var(--ease)}
+.card .spinner{border-color:rgba(0,102,179,.25);border-top-color:var(--vnpt);width:16px;height:16px}
+.c1 .card-icon{background:linear-gradient(135deg,#0066B3,#2A8FD8)}
+.c2 .card-icon{background:linear-gradient(135deg,#F7941D,#FDB913)}
+.c3 .card-icon{background:linear-gradient(135deg,#00AEEF,#33C6F4)}
+.c4 .card-icon{background:linear-gradient(135deg,#004A87,#00AEEF)}
+.c2::before{background:linear-gradient(90deg,var(--orange),var(--amber))}
+
+.panel{margin-top:26px;padding:20px 22px;border-radius:var(--radius);background:var(--glass);border:1px solid rgba(255,255,255,.95);box-shadow:var(--shadow-1)}
+.panel h2{margin:0 0 6px;font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px}
+.panel p{margin:0 0 10px;color:var(--ink-2);font-size:13.5px}
+.panel ul{margin:0;padding-left:18px;color:var(--ink-2);font-size:13.5px}
+.panel li{margin:3px 0}
+details.panel summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px}
+details.panel summary::-webkit-details-marker{display:none}
+details.panel summary .chev{transition:transform .2s}
+details.panel[open] summary .chev{transform:rotate(180deg)}
+.snip-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 10px}
+.snip-tab{height:34px;padding:0 12px;border-radius:9px;border:1px solid #D5E2EE;background:#fff;cursor:pointer;font-size:13px;font-weight:600}
+.snip-tab[aria-selected="true"]{background:var(--vnpt);border-color:var(--vnpt);color:#fff}
+.snip-where{font-size:13px;color:var(--ink-2);margin:0 0 8px}
+pre.code{margin:0;max-height:340px;overflow:auto;padding:14px;border-radius:12px;background:#0F2A44;color:#D8ECFA;font:12.5px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
+.row-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+footer.foot{text-align:center;font-size:12px;color:var(--ink-3);padding:0 16px 28px}
+
+/* ---------------- 6. Hộp thoại & toast ---------------- */
+.modal-backdrop{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:rgba(15,42,68,.42);backdrop-filter:blur(4px);animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{width:100%;max-width:500px;max-height:calc(100dvh - 32px);overflow:auto;border-radius:20px;background:#fff;box-shadow:0 30px 80px rgba(15,42,68,.35);padding:24px;animation:pop .25s var(--ease)}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+.modal h3{margin:0 0 4px;font-size:19px;font-weight:800}
+.modal .sub{margin:0 0 14px;color:var(--ink-3);font-size:13px;word-break:break-all;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.modal .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.modal p{margin:0 0 12px;color:var(--ink-2);font-size:14px}
+.check{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-2);margin:6px 0 4px;cursor:pointer}
+.check input{width:17px;height:17px;accent-color:var(--vnpt)}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;flex-wrap:wrap}
+.toasts{position:fixed;z-index:60;left:50%;bottom:20px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;width:min(520px,calc(100% - 32px))}
+.toast{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:#0F2A44;color:#fff;font-size:13.5px;box-shadow:0 14px 34px rgba(15,42,68,.3);animation:fadeUp .3s var(--ease)}
+.toast svg{flex:none;width:18px;height:18px;margin-top:1px}
+.toast.ok svg{color:#6EE7B7}.toast.warn svg{color:var(--amber)}.toast.err svg{color:#FCA5A5}.toast.info svg{color:#7DD3FC}
+
+/* ---------------- 7. Responsive ---------------- */
+@media (max-width:980px){
+  #loginView{grid-template-columns:1fr}
+  .login-hero{padding:28px 20px 30px;gap:22px}
+  .hero-copy h1{font-size:28px;margin:10px 0 8px}
+  .hero-apps{display:none}
+  .login-side{padding:0 16px 32px;margin-top:-18px}
+}
+@media (max-width:760px){
+  .grid{grid-template-columns:1fr;gap:14px}
+  .card{min-height:0}
+  .user-meta,.session-chip span.long{display:none}
+  .user-chip{padding-right:5px}
+  .brand-title{font-size:13px}
+  .brand-sub{font-size:10px;letter-spacing:.1em}
+  .brand-mark{width:38px;height:38px}
+}
+@media (max-width:420px){
+  .session-chip{display:none}
+  .btn-signout span{display:none}
+  .btn-signout{width:40px;padding:0}
+  .login-card{padding:26px 20px 20px}
+  .modal-actions .btn{flex:1}
+}
+</style>
+</head>
+<body>
+
+<!-- ======================= MÀN HÌNH ĐĂNG NHẬP ======================= -->
+<section id="loginView" class="view" aria-labelledby="loginTitle">
+  <div class="login-hero">
+    <div class="brand" data-brand></div>
+    <div class="hero-copy">
+      <div class="hero-kicker">One VNPT</div>
+      <h1>CỔNG ĐIỀU HÀNH NGHIỆP VỤ</h1>
+      <p>Điểm truy cập tập trung tới các ứng dụng điều hành nghiệp vụ của VNPT Hải Phòng.</p>
+    </div>
+    <div class="hero-apps" id="heroApps" aria-hidden="true"></div>
+  </div>
+
+  <div class="login-side">
+    <form class="login-card" id="loginForm" novalidate autocomplete="on">
+      <h2 id="loginTitle">Đăng nhập hệ thống</h2>
+      <p class="muted">Sử dụng tài khoản được cấp để truy cập cổng.</p>
+
+      <div id="loginAlert" role="alert" aria-live="assertive"></div>
+
+      <div class="field">
+        <label for="lgUser">Tên đăng nhập</label>
+        <div class="input-wrap">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input id="lgUser" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required maxlength="64" placeholder="Nhập tên đăng nhập">
+        </div>
+        <div class="hint">Tên đăng nhập không phân biệt chữ hoa/thường; khoảng trắng đầu/cuối được bỏ qua.</div>
+      </div>
+
+      <div class="field">
+        <label for="lgPass">Mật khẩu</label>
+        <div class="input-wrap">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input id="lgPass" name="password" type="password" autocomplete="current-password" required maxlength="128" placeholder="Nhập mật khẩu">
+          <button type="button" class="eye" id="lgEye" aria-label="Hiện mật khẩu" aria-pressed="false" title="Hiện/ẩn mật khẩu"></button>
+        </div>
+        <div class="hint">Mật khẩu phân biệt chữ hoa/thường.</div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="lgBtn">
+        <span id="lgBtnText">Đăng nhập</span>
+      </button>
+
+      <div class="security-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>Cơ chế bảo vệ giao diện cơ bản (kiểm tra trên trình duyệt), không thay thế xác thực phía máy chủ. Phiên đăng nhập tự xóa khi đóng tab/trình duyệt.</span>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ======================= DASHBOARD CHÍNH ======================= -->
+<section id="dashView" class="view" hidden>
+  <header class="topbar">
+    <div class="brand" data-brand></div>
+    <div class="top-right">
+      <div class="session-chip" id="sessionChip" title="Trạng thái phiên đăng nhập tại Cổng"><i></i><span class="long" id="sessionText">Phiên hoạt động</span></div>
+      <div class="user-chip" title="Tài khoản đang đăng nhập">
+        <div class="avatar" id="avatar">?</div>
+        <div class="user-meta"><b id="userName">—</b><small id="userRole">—</small></div>
+      </div>
+      <button class="btn btn-signout" id="btnSignout" type="button" title="Đăng xuất khỏi Cổng">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        <span>Sign out</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="welcome">
+      <div>
+        <div class="eyebrow">Cổng điều hành nghiệp vụ</div>
+        <h1>Xin chào, <span id="helloName">—</span></h1>
+        <p>Truy cập nhanh các ứng dụng điều hành nghiệp vụ</p>
+      </div>
+      <div class="legend">
+        <span class="tag tag-info"><i></i>Chuyển hướng thông thường</span>
+        <span class="tag tag-warn"><i></i>SSO chưa hỗ trợ</span>
+      </div>
+    </div>
+
+    <div id="dashAlert" aria-live="polite"></div>
+
+    <nav class="grid" id="appGrid" aria-label="Ứng dụng nghiệp vụ"></nav>
+
+    <section class="panel" aria-labelledby="ssoTitle">
+      <h2 id="ssoTitle">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--vnpt)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        Về đăng nhập tại các ứng dụng con
+      </h2>
+      <ul>
+        <li>Cổng chỉ <b>mở đúng địa chỉ</b> của ứng dụng; <b>chưa có SSO</b>. Mỗi ứng dụng có màn hình đăng nhập riêng, bạn đăng nhập lại bằng tài khoản được cấp.</li>
+        <li>Cổng <b>không</b> gửi mật khẩu sang ứng dụng khác, không đưa thông tin đăng nhập vào URL.</li>
+        <li><b>Sign out tại Cổng</b> chỉ xóa phiên của Cổng. Phiên tại từng ứng dụng con do ứng dụng đó tự quản lý (thường tự xóa khi đóng tab).</li>
+      </ul>
+    </section>
+
+    <!-- Chỉ hiển thị với vai trò admin: sinh đoạn mã "Sign out → về Dashboard" cho từng ứng dụng con -->
+    <details class="panel" id="integrationPanel" hidden>
+      <summary>
+        <h2 style="margin:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Quản trị: mã tích hợp “Sign out” cho ứng dụng con
+        </h2>
+        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div style="margin-top:12px">
+        <p>Đoạn mã chỉ có tác dụng sau khi được thêm vào mã nguồn của ứng dụng con. Khi chưa thêm, các ứng dụng con vẫn dùng nút đăng xuất cũ.</p>
+        <div id="integrationAlert"></div>
+        <div class="snip-tabs" role="tablist" id="snipTabs"></div>
+        <p class="snip-where" id="snipWhere"></p>
+        <pre class="code" id="snipCode" tabindex="0"></pre>
+        <div class="row-actions">
+          <button class="btn btn-ghost" type="button" id="btnCopy">Sao chép đoạn mã</button>
+        </div>
+      </div>
+    </details>
+  </main>
+  <footer class="foot">VNPT HẢI PHÒNG | ONE VNPT · Trang tĩnh – bảo vệ giao diện cơ bản, không thay thế xác thực máy chủ.</footer>
+</section>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div id="modalRoot"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   A. CẤU HÌNH – chỉnh tại đây khi triển khai
+   ===================================================================== */
+const CONFIG = Object.freeze({
+  /* URL công khai của chính Dashboard sau khi triển khai (vd: https://<tên>.github.io/<repo>/).
+     Bắt buộc đặt đúng để các ứng dụng con quay về. Để trống = "chưa cấu hình". KHÔNG tự suy đoán. */
+  DASHBOARD_URL: '',
+  /* Logo VNPT chính thức (đường dẫn/URL tới file logo được cấp). Để trống = không hiển thị logo. */
+  LOGO_URL: '',
+  SESSION_IDLE_MINUTES: 30,   // tự đăng xuất nếu không thao tác
+  SESSION_MAX_HOURS: 8,       // thời hạn tối đa của một phiên
+  OPEN_IN_NEW_TAB: false,     // false = mở trong tab hiện tại (để Sign out ở trang con quay lại đúng phiên Cổng)
+  REACHABILITY_TIMEOUT_MS: 5000,
+  MAX_FAILED_ATTEMPTS: 5,
+  LOCKOUT_SECONDS: 30
+});
+
+/* Tài khoản: chỉ lưu SHA-256("tên_đăng_nhập_viết_thường:mật_khẩu"). Không có mật khẩu dạng thuần.
+   Để đổi mật khẩu: tính lại mã băm (xem hướng dẫn) và thay giá trị h. */
+const ACCOUNTS = Object.freeze({
+  'nstg.hpg': { h: '27da04a4b7d857d0561deb1bbdcd50c51f1b55ec801e02a24c525790c1cdc2a2', role: 'viewer', label: 'Người dùng' },
+  'admin':    { h: 'bdd8d1253d81b210be056b9fe2d27231dc425b3d890da6d5c326f408617b9270', role: 'admin',  label: 'Quản trị' }
+});
+
+/* Nguồn dữ liệu DUY NHẤT cho 04 mục chức năng (theo Dashboard.xlsx).
+   sso: 'none' = chưa hỗ trợ SSO → chuyển hướng thông thường.
+   targetAccounts: tài khoản mà trang đích hiện chấp nhận (đã kiểm tra mã nguồn ngày 15/10/2026); null = không giới hạn.
+   integration: thông tin dùng để sinh đoạn mã Sign out cho ứng dụng con. */
+const APPS = Object.freeze([
+  { no: 1, name: 'Cơ chế - Chính sách', url: 'https://camnangbh.github.io/Coche-Tinhluong/',
+    desc: 'Tra cứu nội dung cơ chế, chính sách.', icon: 'doc', sso: 'none',
+    targetAccounts: ['nstg.hpg'],
+    integration: { keys: ['vnpt_hpg_auth'], mode: 'replace',
+      where: 'Trong khối <script> "ĐĂNG NHẬP" cuối file index.html: thay dòng window.vnptLogout=function(){ ss.set(null); location.reload(); }; bằng đoạn dưới. Nút "Đăng xuất" trên header đã gọi vnptLogout().' } },
+  { no: 2, name: '90 Ngày đêm', url: 'https://camnangbh.github.io/90Ngaydem/',
+    desc: 'Theo dõi chương trình 90 Ngày đêm.', icon: 'target', sso: 'none',
+    targetAccounts: null,
+    integration: { keys: ['vthp_role', 'vthp_user', 'vthp_mk', 'vthp_results'], mode: 'inject',
+      where: 'Ứng dụng chưa có nút đăng xuất và nội dung được mã hóa rồi nạp bằng document.write(). Thêm đoạn dưới vào cuối <body> của NỘI DUNG GỐC trước khi mã hóa (khuyến nghị); hoặc trong trình nạp, đặt ngay sau document.close().' } },
+  { no: 3, name: 'Bán hàng tổng lực', url: 'https://camnangbh.github.io/Banhangtongluc/',
+    desc: 'Theo dõi chương trình Bán hàng tổng lực.', icon: 'growth', sso: 'none',
+    targetAccounts: null,
+    integration: { keys: ['tl-dash-session'], mode: 'hook', fn: 'logout',
+      where: 'Trong file index.html, ở hàm function logout(){ ... } (gắn với nút #btnLogout): thêm lệnh chuyển hướng ở cuối hàm, như đoạn dưới.' } },
+  { no: 4, name: 'Điểm tin tuần', url: 'https://camnangbh.github.io/Diemtintuan/',
+    desc: 'Xem điểm tin tổng hợp hằng tuần.', icon: 'news', sso: 'none',
+    targetAccounts: null,
+    integration: { keys: ['vnpt_hpg_dash_session'], mode: 'hook', fn: 'logout',
+      where: 'Trong module App của index.html, ở hàm function logout() { ... }: thêm lệnh chuyển hướng ở cuối hàm, như đoạn dưới.' } }
+]);
+
+/* =====================================================================
+   B. TIỆN ÍCH
+   ===================================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const SS_KEY = 'vnpt_hpg_portal_session';    // phiên Cổng (không chứa mật khẩu/mã băm)
+const SS_SKIP = 'vnpt_hpg_portal_skip_notice'; // "không hỏi lại trong phiên này"
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ss = {
+  get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { sessionStorage.setItem(k, v); return true; } catch (e) { return false; } },
+  del(k) { try { sessionStorage.removeItem(k); } catch (e) {} }
+};
+const ICONS = {
+  doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>',
+  target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><path d="M19 5l-5.5 5.5"/><path d="M19 5v-2M19 5h2"/></svg>',
+  growth: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/><line x1="3" y1="21" x2="21" y2="21"/></svg>',
+  news: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><rect x="10" y="6" width="6" height="4" rx="1"/><line x1="10" y1="14" x2="16" y2="14"/><line x1="10" y1="18" x2="14" y2="18"/></svg>',
+  portal: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+  eye: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
+  err: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+};
+function alertHTML(type, msg) { return `<div class="alert alert-${type}">${ICONS[type === 'err' ? 'err' : type]}<div>${msg}</div></div>`; }
+function toast(msg, type = 'info', ms = 4200) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type; el.setAttribute('role', 'status');
+  el.innerHTML = ICONS[type] + '<div>' + msg + '</div>';
+  $('#toasts').appendChild(el);
+  setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 320); }, ms);
+}
+
+/* SHA-256: dùng Web Crypto; dự phòng bằng JS thuần nếu trình duyệt không cấp crypto.subtle */
+async function sha256Hex(str) {
+  const data = new TextEncoder().encode(str);
+  if (window.crypto && crypto.subtle) {
+    try { const d = await crypto.subtle.digest('SHA-256', data); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); } catch (e) { /* rơi xuống dự phòng */ }
+  }
+  return sha256Fallback(data);
+}
+function sha256Fallback(bytes) {
+  const K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+  const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+  const l = bytes.length, n = ((l + 9 + 63) >> 6) << 6, m = new Uint8Array(n);
+  m.set(bytes); m[l] = 0x80; const dv = new DataView(m.buffer);
+  dv.setUint32(n - 4, (l * 8) >>> 0); dv.setUint32(n - 8, Math.floor(l / 0x20000000));
+  const W = new Uint32Array(64), r = (x, s) => (x >>> s) | (x << (32 - s));
+  for (let o = 0; o < n; o += 64) {
+    for (let i = 0; i < 16; i++) W[i] = dv.getUint32(o + i * 4);
+    for (let i = 16; i < 64; i++) { const s0 = r(W[i-15],7) ^ r(W[i-15],18) ^ (W[i-15] >>> 3), s1 = r(W[i-2],17) ^ r(W[i-2],19) ^ (W[i-2] >>> 10); W[i] = (W[i-16] + s0 + W[i-7] + s1) >>> 0; }
+    let [a,b,c,d,e,f,g,h] = H;
+    for (let i = 0; i < 64; i++) {
+      const t1 = (h + (r(e,6) ^ r(e,11) ^ r(e,25)) + ((e & f) ^ (~e & g)) + K[i] + W[i]) >>> 0;
+      const t2 = ((r(a,2) ^ r(a,13) ^ r(a,22)) + ((a & b) ^ (a & c) ^ (b & c))) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    H[0]+=a; H[1]+=b; H[2]+=c; H[3]+=d; H[4]+=e; H[5]+=f; H[6]+=g; H[7]+=h;
+  }
+  return [...H].map(x => x.toString(16).padStart(8, '0')).join('');
+}
+/* So sánh chuỗi thời gian hằng (tránh rò rỉ qua thời gian so sánh) */
+function safeEqual(a, b) { if (a.length !== b.length) return false; let x = 0; for (let i = 0; i < a.length; i++) x |= a.charCodeAt(i) ^ b.charCodeAt(i); return x === 0; }
+const normUser = u => String(u || '').trim().toLowerCase();
+function validUrl(u) { try { const x = new URL(u); return x.protocol === 'https:' ? x : null; } catch (e) { return null; } }
+
+/* =====================================================================
+   C. PHIÊN ĐĂNG NHẬP CỔNG (sessionStorage – chỉ dữ liệu không nhạy cảm)
+   - Lưu: tên đăng nhập, thời điểm bắt đầu, thời điểm thao tác gần nhất.
+   - Không lưu mật khẩu/mã băm. sessionStorage tự xóa khi đóng tab/trình duyệt
+     → không tự đăng nhập lại sau khi đóng trình duyệt.
+   - Phiên này KHÔNG phải bằng chứng xác thực cho ứng dụng khác (không phải SSO).
+   ===================================================================== */
+const Session = {
+  read() {
+    let s = null; try { s = JSON.parse(ss.get(SS_KEY) || 'null'); } catch (e) { s = null; }
+    if (!s || typeof s.u !== 'string' || !ACCOUNTS[s.u]) return null;
+    return s;
+  },
+  status(s) {
+    if (!s) return 'none';
+    const now = Date.now();
+    if (now - s.iat > CONFIG.SESSION_MAX_HOURS * 3600e3) return 'expired';
+    if (now - s.last > CONFIG.SESSION_IDLE_MINUTES * 60e3) return 'expired';
+    return 'active';
+  },
+  start(u) { const t = Date.now(); return ss.set(SS_KEY, JSON.stringify({ u, iat: t, last: t })); },
+  touch() { const s = this.read(); if (s && this.status(s) === 'active') { s.last = Date.now(); ss.set(SS_KEY, JSON.stringify(s)); } },
+  clear() { ss.del(SS_KEY); ss.del(SS_SKIP); }
+};
+
+/* =====================================================================
+   D. GIAO DIỆN ĐĂNG NHẬP
+   ===================================================================== */
+let failCount = 0, lockUntil = 0, busy = false;
+const form = $('#loginForm'), uIn = $('#lgUser'), pIn = $('#lgPass'), btn = $('#lgBtn'), eye = $('#lgEye');
+
+function renderBrand() {
+  const mark = CONFIG.LOGO_URL
+    ? `<div class="brand-mark has-logo"><img src="${esc(CONFIG.LOGO_URL)}" alt="Logo VNPT"></div>`
+    : `<div class="brand-mark" aria-hidden="true">${ICONS.portal}</div>`;
+  document.querySelectorAll('[data-brand]').forEach(el => {
+    el.innerHTML = mark + `<div class="brand-text"><div class="brand-title">CỔNG ĐIỀU HÀNH NGHIỆP VỤ</div><div class="brand-sub">VNPT HẢI PHÒNG <b>|</b> ONE VNPT</div></div>`;
+  });
+  // Nếu logo không tải được thì quay về biểu tượng cổng, không hiển thị ảnh lỗi
+  document.querySelectorAll('.brand-mark img').forEach(img => img.addEventListener('error', () => {
+    const m = img.parentElement; m.classList.remove('has-logo'); m.innerHTML = ICONS.portal;
+  }, { once: true }));
+  $('#heroApps').innerHTML = APPS.map(a => `<div class="hero-app"><span>${a.no}</span>${esc(a.name)}</div>`).join('');
+}
+function setEye(show) {
+  pIn.type = show ? 'text' : 'password';
+  eye.innerHTML = show ? ICONS.eyeOff : ICONS.eye;
+  eye.setAttribute('aria-pressed', String(show));
+  eye.setAttribute('aria-label', show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+}
+eye.addEventListener('click', () => { setEye(pIn.type === 'password'); pIn.focus(); });
+
+function loginMsg(type, msg) { $('#loginAlert').innerHTML = msg ? alertHTML(type, msg) : ''; }
+function setBusy(on) {
+  busy = on; btn.disabled = on; btn.setAttribute('aria-busy', String(on));
+  btn.innerHTML = on ? '<span class="spinner" aria-hidden="true"></span><span>Đang đăng nhập…</span>' : '<span>Đăng nhập</span>';
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (busy) return;                       // chống nhấn liên tục
+  const now = Date.now();
+  if (now < lockUntil) { loginMsg('warn', `Bạn đã nhập sai nhiều lần. Vui lòng thử lại sau <b>${Math.ceil((lockUntil - now) / 1000)}</b> giây.`); return; }
+  const user = normUser(uIn.value), pass = pIn.value;
+  uIn.setAttribute('aria-invalid', 'false'); pIn.setAttribute('aria-invalid', 'false');
+  if (!user || !pass) {
+    loginMsg('err', 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.');
+    (!user ? uIn : pIn).setAttribute('aria-invalid', 'true'); (!user ? uIn : pIn).focus(); return;
+  }
+  setBusy(true); loginMsg(null);
+  try {
+    const [hash] = await Promise.all([sha256Hex(user + ':' + pass), new Promise(r => setTimeout(r, 650))]);
+    const acc = ACCOUNTS[user];
+    const expected = acc ? acc.h : '0'.repeat(64);  // vẫn so sánh khi user không tồn tại → thông báo chung
+    if (!acc || !safeEqual(hash, expected)) {
+      failCount++; pIn.value = ''; pIn.setAttribute('aria-invalid', 'true');
+      if (failCount >= CONFIG.MAX_FAILED_ATTEMPTS) {
+        failCount = 0; lockUntil = Date.now() + CONFIG.LOCKOUT_SECONDS * 1000;
+        loginMsg('warn', `Sai thông tin ${CONFIG.MAX_FAILED_ATTEMPTS} lần liên tiếp. Tạm khóa đăng nhập ${CONFIG.LOCKOUT_SECONDS} giây.`);
+      } else {
+        loginMsg('err', 'Tên đăng nhập hoặc mật khẩu không đúng.');
+      }
+      pIn.focus(); return;
+    }
+    failCount = 0; pIn.value = ''; setEye(false);
+    if (!Session.start(user)) { loginMsg('err', 'Trình duyệt đang chặn lưu phiên (sessionStorage). Hãy tắt chế độ chặn dữ liệu trang hoặc thử trình duyệt khác.'); return; }
+    showDashboard();
+  } catch (err) {
+    loginMsg('err', 'Không thể xử lý đăng nhập lúc này. Vui lòng tải lại trang và thử lại.');
+  } finally { setBusy(false); }
+});
+
+/* =====================================================================
+   E. DASHBOARD
+   ===================================================================== */
+let sessionTimer = null, activityBound = false;
+
+function showLogin(msgType, msg) {
+  clearInterval(sessionTimer);
+  $('#appGrid').innerHTML = '';             // gỡ liên kết khi chưa đăng nhập
+  $('#integrationPanel').hidden = true;
+  closeModal(true);
+  $('#dashView').hidden = true; $('#loginView').hidden = false;
+  loginMsg(msgType, msg);
+  document.title = 'Đăng nhập – Cổng Điều Hành Nghiệp Vụ';
+  setTimeout(() => uIn.focus(), 60);
+}
+
+function showDashboard() {
+  const s = Session.read(); if (!s) return showLogin();
+  const acc = ACCOUNTS[s.u];
+  $('#loginView').hidden = true; $('#dashView').hidden = false; loginMsg(null);
+  $('#userName').textContent = s.u; $('#helloName').textContent = s.u;
+  $('#userRole').textContent = acc.label; $('#avatar').textContent = s.u.charAt(0);
+  document.title = 'Cổng Điều Hành Nghiệp Vụ – VNPT Hải Phòng';
+  renderApps(s.u);
+  renderConfigWarnings(acc);
+  $('#integrationPanel').hidden = acc.role !== 'admin';
+  if (acc.role === 'admin') renderIntegration(0);
+  updateSessionChip();
+  clearInterval(sessionTimer); sessionTimer = setInterval(checkSession, 20000);
+  if (!activityBound) {
+    activityBound = true;
+    let t = 0; const onAct = () => { const n = Date.now(); if (n - t > 15000) { t = n; Session.touch(); updateSessionChip(); } };
+    ['pointerdown', 'keydown', 'scroll'].forEach(ev => addEventListener(ev, onAct, { passive: true }));
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) checkSession(); });
+  }
+}
+
+function renderConfigWarnings(acc) {
+  const box = $('#dashAlert'); const msgs = [];
+  if (!CONFIG.DASHBOARD_URL && acc.role === 'admin')
+    msgs.push(alertHTML('warn', '<b>Chưa cấu hình URL dashboard chính</b> (<code>CONFIG.DASHBOARD_URL</code>). Các ứng dụng con chưa thể được cấu hình để quay về Cổng sau khi Sign out.'));
+  if (location.protocol === 'file:' && acc.role === 'admin')
+    msgs.push(alertHTML('info', 'Cổng đang chạy từ file trên máy (file://). Để ứng dụng con quay về được, hãy triển khai Cổng lên một địa chỉ https.'));
+  box.innerHTML = msgs.join('');
+}
+
+function updateSessionChip() {
+  const s = Session.read(); if (!s) return;
+  const idleLeft = CONFIG.SESSION_IDLE_MINUTES * 60e3 - (Date.now() - s.last);
+  const maxLeft = CONFIG.SESSION_MAX_HOURS * 3600e3 - (Date.now() - s.iat);
+  const left = Math.max(0, Math.min(idleLeft, maxLeft)), mins = Math.ceil(left / 60e3);
+  const chip = $('#sessionChip');
+  chip.classList.toggle('warn', mins <= 5);
+  $('#sessionText').textContent = `Phiên hoạt động · còn ${mins} phút`;
+  chip.title = `Phiên tại Cổng tự kết thúc sau ${CONFIG.SESSION_IDLE_MINUTES} phút không thao tác hoặc tối đa ${CONFIG.SESSION_MAX_HOURS} giờ.`;
+}
+function checkSession() {
+  const s = Session.read(), st = Session.status(s);
+  if (st === 'active') { updateSessionChip(); return true; }
+  Session.clear();
+  if (!$('#dashView').hidden || st === 'expired') showLogin('warn', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+  return false;
+}
+
+function renderApps(user) {
+  $('#appGrid').innerHTML = APPS.map((a, i) => {
+    const u = validUrl(a.url);
+    const restricted = a.targetAccounts && !a.targetAccounts.includes(user);
+    return `<a class="card c${a.no}" href="${u ? esc(u.href) : '#'}" data-i="${i}" ${CONFIG.OPEN_IN_NEW_TAB ? 'target="_blank" rel="noopener noreferrer"' : ''}
+               style="animation-delay:${i * 70}ms" aria-label="${esc(a.no + '. ' + a.name)} – Truy cập">
+      <div class="card-head"><div class="card-icon" aria-hidden="true">${ICONS[a.icon]}</div><div class="card-no" aria-hidden="true">${String(a.no).padStart(2, '0')}</div></div>
+      <h3>${esc(a.name)}</h3>
+      <p class="desc">${esc(a.desc)}</p>
+      <div class="card-tags">
+        <span class="tag tag-info"><i></i>Chuyển hướng</span>
+        <span class="tag tag-warn"><i></i>SSO chưa hỗ trợ</span>
+        ${restricted ? '<span class="tag tag-warn" style="background:#FEECEB;color:#B42318"><i></i>Tài khoản chưa được trang đích cấp</span>' : ''}
+      </div>
+      <div class="card-foot">
+        <span class="card-url">${esc(u ? u.host + u.pathname : a.url)}</span>
+        <span class="go" data-go>Truy cập ${ICONS.arrow}</span>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+/* Toàn bộ thẻ có thể nhấp. Ctrl/⌘/chuột giữa → để trình duyệt mở tab mới như liên kết thường. */
+$('#appGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('.card'); if (!card) return;
+  if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) { if (!checkSession()) e.preventDefault(); return; }
+  e.preventDefault();
+  if (!checkSession()) return;
+  openApp(APPS[+card.dataset.i], card);
+});
+
+/* ---------- Mở ứng dụng ---------- */
+function openApp(app, card) {
+  const url = validUrl(app.url);
+  if (!url) { toast('Không mở được: địa chỉ ứng dụng không hợp lệ. Vui lòng liên hệ quản trị.', 'err'); return; }
+  const user = Session.read().u;
+  const restricted = app.targetAccounts && !app.targetAccounts.includes(user);
+  // Luôn hỏi khi tài khoản không có quyền ở trang đích; còn lại hỏi một lần mỗi phiên
+  if (!restricted && ss.get(SS_SKIP) === '1') { checkAndGo(app, url, card); return; }
+  confirmModal(app, url, restricted, card);
+}
+
+/* Kiểm tra kết nối tới trang đích (fetch no-cors chỉ xác định có kết nối được hay không; không gửi thông tin đăng nhập). */
+async function reachable(url) {
+  if (navigator.onLine === false) return false;
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), CONFIG.REACHABILITY_TIMEOUT_MS);
+  try { await fetch(url.href, { mode: 'no-cors', cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer', signal: ctl.signal }); return true; }
+  catch (e) { return false; } finally { clearTimeout(t); }
+}
+async function checkAndGo(app, url, card, force = false) {
+  if (!force) {
+    setCardBusy(card, true);
+    const ok = await reachable(url);
+    setCardBusy(card, false);
+    if (!ok) { unreachableModal(app, url, card); return; }
+  }
+  navigate(url);
+}
+function navigate(url) {
+  Session.touch();
+  if (CONFIG.OPEN_IN_NEW_TAB) {
+    // Với 'noopener', window.open luôn trả về null nên không dùng giá trị trả về để báo lỗi chặn popup.
+    window.open(url.href, '_blank', 'noopener,noreferrer');
+  } else {
+    location.assign(url.href);
+  }
+}
+function setCardBusy(card, on) {
+  if (!card) return; card.classList.toggle('busy', on);
+  const go = card.querySelector('[data-go]');
+  go.innerHTML = on ? '<span class="spinner" aria-hidden="true"></span> Đang kiểm tra…' : 'Truy cập ' + ICONS.arrow;
+}
+
+/* ---------- Hộp thoại ---------- */
+let lastFocus = null, modalOnClose = null;
+function openModal(html, onClose) {
+  lastFocus = document.activeElement; modalOnClose = onClose || null;
+  $('#modalRoot').innerHTML = `<div class="modal-backdrop" data-close><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">${html}</div></div>`;
+  const first = $('#modalRoot [data-primary]') || $('#modalRoot button'); if (first) first.focus();
+}
+function closeModal(silent) {
+  if (!$('#modalRoot').innerHTML) return;
+  $('#modalRoot').innerHTML = '';
+  const cb = modalOnClose; modalOnClose = null;
+  if (!silent && cb) cb();
+  if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus();
+}
+$('#modalRoot').addEventListener('click', (e) => { if (e.target.matches('[data-close]')) closeModal(); });
+document.addEventListener('keydown', (e) => {
+  if (!$('#modalRoot').innerHTML) return;
+  if (e.key === 'Escape') { e.preventDefault(); closeModal(); }
+  if (e.key === 'Tab') { // giữ focus trong hộp thoại
+    const f = [...$('#modalRoot').querySelectorAll('button,input,a[href]')]; if (!f.length) return;
+    const i = f.indexOf(document.activeElement);
+    if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+  }
+});
+const onCancel = () => toast('Đã hủy thao tác. Bạn vẫn ở Cổng điều hành.', 'info', 2600);
+
+function confirmModal(app, url, restricted, card) {
+  const user = Session.read().u;
+  openModal(`
+    <h3 id="mTitle">Mở “${esc(app.name)}”</h3>
+    <p class="sub">${esc(url.href)}</p>
+    <div class="tags"><span class="tag tag-info"><i></i>Chuyển hướng thông thường</span><span class="tag tag-warn"><i></i>SSO chưa hỗ trợ</span></div>
+    ${restricted ? alertHTML('err', `<b>Không có quyền truy cập:</b> trang đích hiện chỉ chấp nhận tài khoản <b>${esc(app.targetAccounts.join(', '))}</b>. Tài khoản <b>${esc(user)}</b> sẽ không đăng nhập được tại đó. Vui lòng liên hệ quản trị để được cấp quyền.`) : ''}
+    <p>Ứng dụng này có <b>màn hình đăng nhập riêng</b>. Sau khi chuyển trang, bạn cần đăng nhập lại bằng tài khoản được cấp.</p>
+    <p>Cổng <b>không</b> gửi mật khẩu của bạn sang trang đích.</p>
+    ${CONFIG.OPEN_IN_NEW_TAB ? '' : '<p style="font-size:13px;color:var(--ink-3)">Trang sẽ mở trong tab hiện tại. Dùng nút Quay lại của trình duyệt để về Cổng (phiên Cổng vẫn giữ trong tab này).</p>'}
+    ${restricted ? '' : '<label class="check"><input type="checkbox" id="mSkip"> Không hỏi lại trong phiên này</label>'}
+    <div class="modal-actions">
+      <button class="btn btn-ghost" type="button" id="mCancel">Hủy</button>
+      <button class="btn btn-primary" type="button" id="mGo" data-primary>${restricted ? 'Vẫn mở trang' : 'Mở trang'}</button>
+    </div>`, onCancel);
+  $('#mCancel').onclick = () => closeModal();
+  $('#mGo').onclick = async () => {
+    const skip = $('#mSkip'); if (skip && skip.checked) ss.set(SS_SKIP, '1');
+    const b = $('#mGo'); b.disabled = true; $('#mCancel').disabled = true;
+    b.innerHTML = '<span class="spinner" aria-hidden="true"></span> Đang kiểm tra kết nối…';
+    const ok = await reachable(url);
+    if (!$('#modalRoot').innerHTML) return;   // người dùng đã đóng hộp thoại
+    closeModal(true);
+    if (ok) navigate(url); else unreachableModal(app, url, card);
+  };
+}
+function unreachableModal(app, url, card) {
+  openModal(`
+    <h3 id="mTitle">Không mở được trang đích</h3>
+    <p class="sub">${esc(url.href)}</p>
+    ${alertHTML('err', navigator.onLine === false
+      ? 'Thiết bị đang <b>mất kết nối mạng</b>. Vui lòng kiểm tra kết nối và thử lại.'
+      : `Không kết nối được tới “${esc(app.name)}” trong ${CONFIG.REACHABILITY_TIMEOUT_MS / 1000} giây. Trang có thể đang bảo trì, mạng nội bộ chặn địa chỉ này, hoặc kết nối chậm.`)}
+    <div class="modal-actions">
+      <button class="btn btn-ghost" type="button" id="mCancel">Hủy</button>
+      <button class="btn btn-ghost" type="button" id="mForce">Vẫn mở</button>
+      <button class="btn btn-primary" type="button" id="mRetry" data-primary>Thử lại</button>
+    </div>`, onCancel);
+  $('#mCancel').onclick = () => closeModal();
+  $('#mForce').onclick = () => { closeModal(true); navigate(url); };
+  $('#mRetry').onclick = () => { closeModal(true); checkAndGo(app, url, card); };
+}
+
+/* ---------- Sign out tại Cổng ---------- */
+$('#btnSignout').addEventListener('click', () => {
+  Session.clear();
+  showLogin('ok', 'Đã đăng xuất khỏi Cổng. Lưu ý: phiên tại các ứng dụng con (nếu đang mở ở tab khác) được quản lý riêng và cần đăng xuất tại ứng dụng đó.');
+  uIn.value = '';
+});
+
+/* =====================================================================
+   F. QUẢN TRỊ: sinh đoạn mã "Sign out → về Dashboard" cho ứng dụng con
+   (Trường hợp A/B: chỉ hoạt động sau khi thêm vào mã nguồn ứng dụng con)
+   ===================================================================== */
+let snipIndex = 0;
+function buildSnippet(app, dash) {
+  const it = app.integration, keys = JSON.stringify(it.keys), D = JSON.stringify(dash);
+  if (it.mode === 'replace') return (
+`// [Cổng VNPT HPG] Sign out: xóa phiên của ứng dụng này rồi quay về Dashboard
+var DASHBOARD_URL = ${D};
+window.vnptLogout = function(){
+  ss.set(null);                                   // xóa phiên '${it.keys[0]}'
+  if (DASHBOARD_URL) location.replace(DASHBOARD_URL);
+  else location.reload();                         // chưa cấu hình → giữ hành vi cũ
+};`);
+  if (it.mode === 'hook') return (
+`// [Cổng VNPT HPG] Thêm 2 dòng dưới vào CUỐI thân hàm ${it.fn}() hiện có.
+// Hàm này đã xóa phiên ${keys}; chỉ bổ sung bước quay về Dashboard.
+var DASHBOARD_URL = ${D};
+if (DASHBOARD_URL) location.replace(DASHBOARD_URL);`);
+  return ( // inject: thêm nút nổi cho ứng dụng chưa có nút đăng xuất
+`<!-- [Cổng VNPT HPG] Nút Sign out → xóa phiên ứng dụng và quay về Dashboard -->
+<button id="vnptPortalSignout" type="button" title="Đăng xuất và về Cổng"
+  style="position:fixed;right:16px;bottom:16px;z-index:2147483000;display:flex;align-items:center;gap:6px;
+         padding:10px 14px;border:0;border-radius:12px;background:#0066B3;color:#fff;font:600 14px/1 system-ui,sans-serif;
+         box-shadow:0 8px 22px rgba(0,102,179,.35);cursor:pointer">⎋ Sign out</button>
+<script>
+(function(){
+  var DASHBOARD_URL = ${D};
+  var KEYS = ${keys};
+  document.getElementById('vnptPortalSignout').addEventListener('click', function(){
+    try { KEYS.forEach(function(k){ sessionStorage.removeItem(k); }); } catch(e){}
+    if (DASHBOARD_URL) location.replace(DASHBOARD_URL);
+    else location.reload();
+  });
+})();
+<\/script>`);
+}
+function renderIntegration(i) {
+  snipIndex = i;
+  const dash = CONFIG.DASHBOARD_URL && validUrl(CONFIG.DASHBOARD_URL) ? CONFIG.DASHBOARD_URL : '';
+  $('#integrationAlert').innerHTML = dash ? '' :
+    alertHTML('warn', CONFIG.DASHBOARD_URL ? '<b>URL dashboard chính không hợp lệ</b> (cần bắt đầu bằng https://). Sửa <code>CONFIG.DASHBOARD_URL</code>.'
+      : '<b>Chưa cấu hình URL dashboard chính.</b> Đặt <code>CONFIG.DASHBOARD_URL</code> trong file Cổng rồi tải lại để mã sinh ra có địa chỉ quay về. Khi để trống, nút Sign out ở ứng dụng con chỉ xóa phiên và tải lại trang.');
+  $('#snipTabs').innerHTML = APPS.map((a, j) => `<button class="snip-tab" role="tab" type="button" data-j="${j}" aria-selected="${j === i}">${a.no}. ${esc(a.name)}</button>`).join('');
+  const app = APPS[i];
+  $('#snipWhere').innerHTML = '<b>Vị trí thêm:</b> ' + esc(app.integration.where);
+  $('#snipCode').textContent = buildSnippet(app, dash);
+}
+$('#snipTabs').addEventListener('click', e => { const b = e.target.closest('[data-j]'); if (b) renderIntegration(+b.dataset.j); });
+$('#btnCopy').addEventListener('click', async () => {
+  const text = $('#snipCode').textContent;
+  try { await navigator.clipboard.writeText(text); toast('Đã sao chép đoạn mã.', 'ok', 2200); }
+  catch (e) { // dự phòng khi trình duyệt chặn clipboard
+    const r = document.createRange(); r.selectNodeContents($('#snipCode'));
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    toast('Trình duyệt chặn sao chép tự động. Đoạn mã đã được bôi đen – nhấn Ctrl+C để sao chép.', 'warn');
+  }
+});
+
+/* =====================================================================
+   G. KHỞI ĐỘNG
+   ===================================================================== */
+(function init() {
+  renderBrand(); setEye(false);
+  const s = Session.read(), st = Session.status(s);
+  if (st === 'active') showDashboard();
+  else if (st === 'expired') { Session.clear(); showLogin('warn', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'); }
+  else showLogin();
+  // Khi quay lại bằng nút Back (bfcache), kiểm tra lại phiên
+  addEventListener('pageshow', (e) => { if (e.persisted) { const x = Session.read(); if (Session.status(x) === 'active') showDashboard(); else showLogin(Session.status(x) === 'expired' ? 'warn' : null, Session.status(x) === 'expired' ? 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' : null); } });
+})();
+</script>
+</body>
+</html>
