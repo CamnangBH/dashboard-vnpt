@@ -21,9 +21,11 @@
     KHÔNG coi đây là hệ thống xác thực an toàn.
   • File không chứa mật khẩu dạng văn bản thuần; chỉ chứa SHA-256 của
     "tên_đăng_nhập:mật_khẩu" (cùng định dạng với 4 ứng dụng con).
-  • Cổng KHÔNG gửi mật khẩu đến trang đích, không đưa thông tin xác thực
-    vào URL và không tự điền mật khẩu vào trang khác.
-  • SSO thật cần nhà cung cấp danh tính (OIDC) + backend. Xem hướng dẫn kèm theo.
+  • SSO: sau đăng nhập, Cổng tạo phiên dùng chung trong sessionStorage (cùng tab,
+    cùng tên miền) gồm mã băm và một khóa dẫn xuất – KHÔNG có mật khẩu, không đưa
+    gì vào URL. 4 ứng dụng con đọc phiên này để vào thẳng.
+  • Bắt buộc triển khai Cổng và 4 ứng dụng trên CÙNG một tên miền (cấu trúc thư mục
+    kèm theo). SSO phía máy chủ (OIDC) vẫn là phương án an toàn hơn về lâu dài.
 =====================================================================
 -->
 <style>
@@ -368,8 +370,7 @@ footer.foot{text-align:center;font-size:12px;color:var(--ink-3);padding:0 16px 2
         <p>Truy cập nhanh các ứng dụng điều hành nghiệp vụ</p>
       </div>
       <div class="legend">
-        <span class="tag tag-info"><i></i>Chuyển hướng thông thường</span>
-        <span class="tag tag-warn"><i></i>SSO chưa hỗ trợ</span>
+        <span class="tag tag-ok"><i></i>Đăng nhập một lần (SSO) cho 4 ứng dụng</span>
       </div>
     </div>
 
@@ -380,37 +381,18 @@ footer.foot{text-align:center;font-size:12px;color:var(--ink-3);padding:0 16px 2
     <section class="panel" aria-labelledby="ssoTitle">
       <h2 id="ssoTitle">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--vnpt)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-        Về đăng nhập tại các ứng dụng con
+        Đăng nhập một lần
       </h2>
       <ul>
-        <li>Cổng chỉ <b>mở đúng địa chỉ</b> của ứng dụng; <b>chưa có SSO</b>. Mỗi ứng dụng có màn hình đăng nhập riêng, bạn đăng nhập lại bằng tài khoản được cấp.</li>
-        <li>Cổng <b>không</b> gửi mật khẩu sang ứng dụng khác, không đưa thông tin đăng nhập vào URL.</li>
-        <li><b>Sign out tại Cổng</b> chỉ xóa phiên của Cổng. Phiên tại từng ứng dụng con do ứng dụng đó tự quản lý (thường tự xóa khi đóng tab).</li>
+        <li>Đã đăng nhập tại Cổng thì mở cả 4 ứng dụng <b>không cần nhập lại</b> tài khoản.</li>
+        <li><b>Đăng xuất trong ứng dụng con</b>: rời ứng dụng đó và quay về Cổng, vẫn giữ đăng nhập.</li>
+        <li><b>Sign out tại Cổng</b>: kết thúc phiên ở Cổng và cả 4 ứng dụng.</li>
+        <li>Cổng dành cho tài khoản đăng nhập một lần. Các tài khoản khác đăng nhập trực tiếp tại từng ứng dụng.</li>
+        <li>Phiên chỉ tồn tại trong tab này; đóng tab/trình duyệt, hoặc <span id="idleMins">30</span> phút không thao tác, phải đăng nhập lại.</li>
       </ul>
     </section>
-
-    <!-- Chỉ hiển thị với vai trò admin: sinh đoạn mã "Sign out → về Dashboard" cho từng ứng dụng con -->
-    <details class="panel" id="integrationPanel" hidden>
-      <summary>
-        <h2 style="margin:0">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          Quản trị: mã tích hợp “Sign out” cho ứng dụng con
-        </h2>
-        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </summary>
-      <div style="margin-top:12px">
-        <p>Đoạn mã chỉ có tác dụng sau khi được thêm vào mã nguồn của ứng dụng con. Khi chưa thêm, các ứng dụng con vẫn dùng nút đăng xuất cũ.</p>
-        <div id="integrationAlert"></div>
-        <div class="snip-tabs" role="tablist" id="snipTabs"></div>
-        <p class="snip-where" id="snipWhere"></p>
-        <pre class="code" id="snipCode" tabindex="0"></pre>
-        <div class="row-actions">
-          <button class="btn btn-ghost" type="button" id="btnCopy">Sao chép đoạn mã</button>
-        </div>
-      </div>
-    </details>
   </main>
-  <footer class="foot">VNPT HẢI PHÒNG | ONE VNPT · Trang tĩnh – bảo vệ giao diện cơ bản, không thay thế xác thực máy chủ.</footer>
+  <footer class="foot">VNPT HẢI PHÒNG | ONE VNPT · Trang tĩnh – SSO trong trình duyệt, không thay thế xác thực phía máy chủ.</footer>
 </section>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
@@ -419,62 +401,46 @@ footer.foot{text-align:center;font-size:12px;color:var(--ink-3);padding:0 16px 2
 <script>
 'use strict';
 /* =====================================================================
-   A. CẤU HÌNH – chỉnh tại đây khi triển khai
+   A. CẤU HÌNH
    ===================================================================== */
 const CONFIG = Object.freeze({
-  /* URL công khai của chính Dashboard sau khi triển khai (vd: https://<tên>.github.io/<repo>/).
-     Bắt buộc đặt đúng để các ứng dụng con quay về. Để trống = "chưa cấu hình". KHÔNG tự suy đoán. */
-  DASHBOARD_URL: '',
-  /* Logo VNPT chính thức (đường dẫn/URL tới file logo được cấp). Để trống = không hiển thị logo. */
-  LOGO_URL: '',
-  SESSION_IDLE_MINUTES: 30,   // tự đăng xuất nếu không thao tác
-  SESSION_MAX_HOURS: 8,       // thời hạn tối đa của một phiên
-  OPEN_IN_NEW_TAB: false,     // false = mở trong tab hiện tại (để Sign out ở trang con quay lại đúng phiên Cổng)
-  REACHABILITY_TIMEOUT_MS: 5000,
+  LOGO_URL: '',                 // logo VNPT chính thức (nếu có). Để trống = biểu tượng cổng trung tính
+  SESSION_IDLE_MINUTES: 30,     // PHẢI giống SSO_IDLE_MIN trong 4 ứng dụng con
+  SESSION_MAX_HOURS: 8,         // PHẢI giống SSO_MAX_HOURS trong 4 ứng dụng con
   MAX_FAILED_ATTEMPTS: 5,
-  LOCKOUT_SECONDS: 30
+  LOCKOUT_SECONDS: 30,
+  CHECK_TIMEOUT_MS: 5000
 });
 
-/* Tài khoản: chỉ lưu SHA-256("tên_đăng_nhập_viết_thường:mật_khẩu"). Không có mật khẩu dạng thuần.
-   Để đổi mật khẩu: tính lại mã băm (xem hướng dẫn) và thay giá trị h. */
+/* Tài khoản: chỉ lưu SHA-256("tên_đăng_nhập_viết_thường:mật_khẩu") – trùng mã băm trong 4 ứng dụng con. */
 const ACCOUNTS = Object.freeze({
-  'nstg.hpg': { h: '27da04a4b7d857d0561deb1bbdcd50c51f1b55ec801e02a24c525790c1cdc2a2', role: 'viewer', label: 'Người dùng' },
-  'admin':    { h: 'bdd8d1253d81b210be056b9fe2d27231dc425b3d890da6d5c326f408617b9270', role: 'admin',  label: 'Quản trị' }
+  /* Chỉ tài khoản SSO đăng nhập tại Cổng. Các tài khoản khác (nstg.hpg, admin…) đăng nhập riêng tại từng ứng dụng. */
+  'vnpt.hpg': { h: '06d45f47017a0deb599accdea49f5e56708b5e9809d9f93b47b9bdabefab099a', role: 'viewer', label: 'Người dùng' }
 });
 
-/* Nguồn dữ liệu DUY NHẤT cho 04 mục chức năng (theo Dashboard.xlsx).
-   sso: 'none' = chưa hỗ trợ SSO → chuyển hướng thông thường.
-   targetAccounts: tài khoản mà trang đích hiện chấp nhận (đã kiểm tra mã nguồn ngày 15/10/2026); null = không giới hạn.
-   integration: thông tin dùng để sinh đoạn mã Sign out cho ứng dụng con. */
+/* Nguồn dữ liệu DUY NHẤT cho 04 mục (tên theo Dashboard.xlsx).
+   url: đường dẫn TƯƠNG ĐỐI tới ứng dụng nằm cùng thư mục triển khai với trang chính (bắt buộc cùng origin để SSO hoạt động).
+   Bản công khai gốc: https://camnangbh.github.io/<thư mục>/ */
 const APPS = Object.freeze([
-  { no: 1, name: 'Cơ chế - Chính sách', url: 'https://camnangbh.github.io/Coche-Tinhluong/',
-    desc: 'Tra cứu nội dung cơ chế, chính sách.', icon: 'doc', sso: 'none',
-    targetAccounts: ['nstg.hpg'],
-    integration: { keys: ['vnpt_hpg_auth'], mode: 'replace',
-      where: 'Trong khối <script> "ĐĂNG NHẬP" cuối file index.html: thay dòng window.vnptLogout=function(){ ss.set(null); location.reload(); }; bằng đoạn dưới. Nút "Đăng xuất" trên header đã gọi vnptLogout().' } },
-  { no: 2, name: '90 Ngày đêm', url: 'https://camnangbh.github.io/90Ngaydem/',
-    desc: 'Theo dõi chương trình 90 Ngày đêm.', icon: 'target', sso: 'none',
-    targetAccounts: null,
-    integration: { keys: ['vthp_role', 'vthp_user', 'vthp_mk', 'vthp_results'], mode: 'inject',
-      where: 'Ứng dụng chưa có nút đăng xuất và nội dung được mã hóa rồi nạp bằng document.write(). Thêm đoạn dưới vào cuối <body> của NỘI DUNG GỐC trước khi mã hóa (khuyến nghị); hoặc trong trình nạp, đặt ngay sau document.close().' } },
-  { no: 3, name: 'Bán hàng tổng lực', url: 'https://camnangbh.github.io/Banhangtongluc/',
-    desc: 'Theo dõi chương trình Bán hàng tổng lực.', icon: 'growth', sso: 'none',
-    targetAccounts: null,
-    integration: { keys: ['tl-dash-session'], mode: 'hook', fn: 'logout',
-      where: 'Trong file index.html, ở hàm function logout(){ ... } (gắn với nút #btnLogout): thêm lệnh chuyển hướng ở cuối hàm, như đoạn dưới.' } },
-  { no: 4, name: 'Điểm tin tuần', url: 'https://camnangbh.github.io/Diemtintuan/',
-    desc: 'Xem điểm tin tổng hợp hằng tuần.', icon: 'news', sso: 'none',
-    targetAccounts: null,
-    integration: { keys: ['vnpt_hpg_dash_session'], mode: 'hook', fn: 'logout',
-      where: 'Trong module App của index.html, ở hàm function logout() { ... }: thêm lệnh chuyển hướng ở cuối hàm, như đoạn dưới.' } }
+  { id: 'coche', no: 1, name: 'Cơ chế - Chính sách', url: 'Coche-Tinhluong/index.html', desc: 'Tra cứu nội dung cơ chế, chính sách.', icon: 'doc' },
+  { id: '90nd',  no: 2, name: '90 Ngày đêm',         url: '90Ngaydem/index.html',       desc: 'Theo dõi chương trình 90 Ngày đêm.', icon: 'target' },
+  { id: 'bhtl',  no: 3, name: 'Bán hàng tổng lực',   url: 'Banhangtongluc/index.html',  desc: 'Theo dõi chương trình Bán hàng tổng lực.', icon: 'growth' },
+  { id: 'dtt',   no: 4, name: 'Điểm tin tuần',       url: 'Diemtintuan/index.html',     desc: 'Xem điểm tin tổng hợp hằng tuần.', icon: 'news' }
 ]);
+
+/* ---- Hợp đồng SSO dùng chung với 4 ứng dụng con (KHÔNG đổi một phía) ----
+   sessionStorage['vnpt_hpg_sso'] = {v:1, u, role, h, k, iat, last}
+     h  : SHA-256(u:p) – ứng dụng con đối chiếu với danh sách tài khoản của mình
+     k  : khóa SSO = SHA-256 lặp ITER lần trên (SALT, u:p) – dùng để mở khóa giải mã nội dung đã bọc sẵn trong ứng dụng
+   Không có mật khẩu. sessionStorage gắn với từng tab và tự xóa khi đóng tab/trình duyệt. */
+const SSO = Object.freeze({ KEY: 'vnpt_hpg_sso', SALT: 'VNPT-HPG-SSO-2026', ITER: 20000 });
+/* Khóa phiên riêng của từng ứng dụng – Cổng xóa hết khi Sign out */
+const APP_LOCAL_KEYS = ['vnpt_hpg_auth', 'vthp_role', 'vthp_user', 'vthp_mk', 'vthp_results', 'vthp_sso', 'tl-dash-session', 'vnpt_hpg_dash_session'];
 
 /* =====================================================================
    B. TIỆN ÍCH
    ===================================================================== */
 const $ = (s, r = document) => r.querySelector(s);
-const SS_KEY = 'vnpt_hpg_portal_session';    // phiên Cổng (không chứa mật khẩu/mã băm)
-const SS_SKIP = 'vnpt_hpg_portal_skip_notice'; // "không hỏi lại trong phiên này"
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ss = {
   get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
@@ -495,7 +461,7 @@ const ICONS = {
   ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
 };
-function alertHTML(type, msg) { return `<div class="alert alert-${type}">${ICONS[type === 'err' ? 'err' : type]}<div>${msg}</div></div>`; }
+function alertHTML(type, msg) { return `<div class="alert alert-${type}">${ICONS[type]}<div>${msg}</div></div>`; }
 function toast(msg, type = 'info', ms = 4200) {
   const el = document.createElement('div');
   el.className = 'toast ' + type; el.setAttribute('role', 'status');
@@ -504,66 +470,67 @@ function toast(msg, type = 'info', ms = 4200) {
   setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 320); }, ms);
 }
 
-/* SHA-256: dùng Web Crypto; dự phòng bằng JS thuần nếu trình duyệt không cấp crypto.subtle */
-async function sha256Hex(str) {
-  const data = new TextEncoder().encode(str);
-  if (window.crypto && crypto.subtle) {
-    try { const d = await crypto.subtle.digest('SHA-256', data); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); } catch (e) { /* rơi xuống dự phòng */ }
-  }
-  return sha256Fallback(data);
-}
-function sha256Fallback(bytes) {
+/* SHA-256 thuần JS (chạy cả trên file:// và http; trùng kết quả với Web Crypto) */
+const sha256 = (function () {
   const K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
-  const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
-  const l = bytes.length, n = ((l + 9 + 63) >> 6) << 6, m = new Uint8Array(n);
-  m.set(bytes); m[l] = 0x80; const dv = new DataView(m.buffer);
-  dv.setUint32(n - 4, (l * 8) >>> 0); dv.setUint32(n - 8, Math.floor(l / 0x20000000));
-  const W = new Uint32Array(64), r = (x, s) => (x >>> s) | (x << (32 - s));
-  for (let o = 0; o < n; o += 64) {
-    for (let i = 0; i < 16; i++) W[i] = dv.getUint32(o + i * 4);
-    for (let i = 16; i < 64; i++) { const s0 = r(W[i-15],7) ^ r(W[i-15],18) ^ (W[i-15] >>> 3), s1 = r(W[i-2],17) ^ r(W[i-2],19) ^ (W[i-2] >>> 10); W[i] = (W[i-16] + s0 + W[i-7] + s1) >>> 0; }
-    let [a,b,c,d,e,f,g,h] = H;
-    for (let i = 0; i < 64; i++) {
-      const t1 = (h + (r(e,6) ^ r(e,11) ^ r(e,25)) + ((e & f) ^ (~e & g)) + K[i] + W[i]) >>> 0;
-      const t2 = ((r(a,2) ^ r(a,13) ^ r(a,22)) + ((a & b) ^ (a & c) ^ (b & c))) >>> 0;
-      h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+  const W = new Uint32Array(64);
+  return function (msg) {
+    const l = msg.length, nb = ((l + 9 + 63) >> 6) << 6, m = new Uint8Array(nb); m.set(msg); m[l] = 0x80;
+    const bits = l * 8; m[nb-4] = bits >>> 24; m[nb-3] = (bits >>> 16) & 255; m[nb-2] = (bits >>> 8) & 255; m[nb-1] = bits & 255; m[nb-5] = Math.floor(l / 0x20000000) & 255;
+    let h0=0x6a09e667,h1=0xbb67ae85,h2=0x3c6ef372,h3=0xa54ff53a,h4=0x510e527f,h5=0x9b05688c,h6=0x1f83d9ab,h7=0x5be0cd19;
+    for (let o = 0; o < nb; o += 64) {
+      for (let i = 0; i < 16; i++) W[i] = (m[o+i*4] << 24) | (m[o+i*4+1] << 16) | (m[o+i*4+2] << 8) | m[o+i*4+3];
+      for (let i = 16; i < 64; i++) { const a = W[i-15], b = W[i-2]; W[i] = (W[i-16] + (((a>>>7)|(a<<25)) ^ ((a>>>18)|(a<<14)) ^ (a>>>3)) + W[i-7] + (((b>>>17)|(b<<15)) ^ ((b>>>19)|(b<<13)) ^ (b>>>10))) | 0; }
+      let a=h0,b=h1,c=h2,d=h3,e=h4,f=h5,g=h6,h=h7;
+      for (let i = 0; i < 64; i++) { const t1 = (h + (((e>>>6)|(e<<26)) ^ ((e>>>11)|(e<<21)) ^ ((e>>>25)|(e<<7))) + ((e&f) ^ (~e&g)) + K[i] + W[i]) | 0; const t2 = ((((a>>>2)|(a<<30)) ^ ((a>>>13)|(a<<19)) ^ ((a>>>22)|(a<<10))) + ((a&b) ^ (a&c) ^ (b&c))) | 0; h=g; g=f; f=e; e=(d+t1)|0; d=c; c=b; b=a; a=(t1+t2)|0; }
+      h0=(h0+a)|0; h1=(h1+b)|0; h2=(h2+c)|0; h3=(h3+d)|0; h4=(h4+e)|0; h5=(h5+f)|0; h6=(h6+g)|0; h7=(h7+h)|0;
     }
-    H[0]+=a; H[1]+=b; H[2]+=c; H[3]+=d; H[4]+=e; H[5]+=f; H[6]+=g; H[7]+=h;
-  }
-  return [...H].map(x => x.toString(16).padStart(8, '0')).join('');
+    const out = new Uint8Array(32); [h0,h1,h2,h3,h4,h5,h6,h7].forEach((v, i) => { out[i*4] = v >>> 24; out[i*4+1] = (v >>> 16) & 255; out[i*4+2] = (v >>> 8) & 255; out[i*4+3] = v & 255; }); return out;
+  };
+})();
+const u8 = s => new TextEncoder().encode(s);
+const cat = (a, b) => { const o = new Uint8Array(a.length + b.length); o.set(a); o.set(b, a.length); return o; };
+const toHex = b => Array.from(b, x => x.toString(16).padStart(2, '0')).join('');
+/* Khóa SSO: không đảo ngược được về mật khẩu; ứng dụng con dùng nó để mở phần khóa đã bọc sẵn */
+function deriveSsoKey(user, pass) {
+  const salt = u8(SSO.SALT); let k = sha256(cat(salt, u8(user + ':' + pass)));
+  for (let i = 0; i < SSO.ITER; i++) k = sha256(cat(k, salt));
+  return toHex(k);
 }
-/* So sánh chuỗi thời gian hằng (tránh rò rỉ qua thời gian so sánh) */
 function safeEqual(a, b) { if (a.length !== b.length) return false; let x = 0; for (let i = 0; i < a.length; i++) x |= a.charCodeAt(i) ^ b.charCodeAt(i); return x === 0; }
 const normUser = u => String(u || '').trim().toLowerCase();
-function validUrl(u) { try { const x = new URL(u); return x.protocol === 'https:' ? x : null; } catch (e) { return null; } }
+const appById = id => APPS.find(a => a.id === id) || null;
 
 /* =====================================================================
-   C. PHIÊN ĐĂNG NHẬP CỔNG (sessionStorage – chỉ dữ liệu không nhạy cảm)
-   - Lưu: tên đăng nhập, thời điểm bắt đầu, thời điểm thao tác gần nhất.
-   - Không lưu mật khẩu/mã băm. sessionStorage tự xóa khi đóng tab/trình duyệt
-     → không tự đăng nhập lại sau khi đóng trình duyệt.
-   - Phiên này KHÔNG phải bằng chứng xác thực cho ứng dụng khác (không phải SSO).
+   C. PHIÊN SSO
    ===================================================================== */
 const Session = {
   read() {
-    let s = null; try { s = JSON.parse(ss.get(SS_KEY) || 'null'); } catch (e) { s = null; }
-    if (!s || typeof s.u !== 'string' || !ACCOUNTS[s.u]) return null;
+    let s = null; try { s = JSON.parse(ss.get(SSO.KEY) || 'null'); } catch (e) { s = null; }
+    if (!s || s.v !== 1 || typeof s.u !== 'string' || !ACCOUNTS[s.u] || ACCOUNTS[s.u].h !== s.h || !/^[0-9a-f]{64}$/.test(s.k || '')) return null;
     return s;
   },
   status(s) {
     if (!s) return 'none';
     const now = Date.now();
-    if (now - s.iat > CONFIG.SESSION_MAX_HOURS * 3600e3) return 'expired';
-    if (now - s.last > CONFIG.SESSION_IDLE_MINUTES * 60e3) return 'expired';
+    if (now - s.iat > CONFIG.SESSION_MAX_HOURS * 3600e3 || now - s.last > CONFIG.SESSION_IDLE_MINUTES * 60e3) return 'expired';
     return 'active';
   },
-  start(u) { const t = Date.now(); return ss.set(SS_KEY, JSON.stringify({ u, iat: t, last: t })); },
-  touch() { const s = this.read(); if (s && this.status(s) === 'active') { s.last = Date.now(); ss.set(SS_KEY, JSON.stringify(s)); } },
-  clear() { ss.del(SS_KEY); ss.del(SS_SKIP); }
+  start(u, h, k) { const t = Date.now(); return ss.set(SSO.KEY, JSON.stringify({ v: 1, u, role: ACCOUNTS[u].role, h, k, iat: t, last: t })); },
+  touch() { const s = this.read(); if (s && this.status(s) === 'active') { s.last = Date.now(); ss.set(SSO.KEY, JSON.stringify(s)); } },
+  /* Sign out toàn bộ: xóa phiên SSO và phiên riêng của cả 4 ứng dụng (cùng origin) */
+  clear() { ss.del(SSO.KEY); APP_LOCAL_KEYS.forEach(k => ss.del(k)); }
 };
 
+/* Tham số từ ứng dụng con chuyển về: ?app=<id>&reason=<expired|login|denied>
+   Chỉ dùng để hiển thị thông báo và chọn trang đích sau đăng nhập (đối chiếu danh sách APPS) – không phải bằng chứng xác thực. */
+const params = new URLSearchParams(location.search);
+let pendingApp = appById(params.get('app'));
+const reason = params.get('reason');
+if (location.search) history.replaceState(null, '', location.pathname + location.hash);
+
 /* =====================================================================
-   D. GIAO DIỆN ĐĂNG NHẬP
+   D. ĐĂNG NHẬP
    ===================================================================== */
 let failCount = 0, lockUntil = 0, busy = false;
 const form = $('#loginForm'), uIn = $('#lgUser'), pIn = $('#lgPass'), btn = $('#lgBtn'), eye = $('#lgEye');
@@ -575,11 +542,11 @@ function renderBrand() {
   document.querySelectorAll('[data-brand]').forEach(el => {
     el.innerHTML = mark + `<div class="brand-text"><div class="brand-title">CỔNG ĐIỀU HÀNH NGHIỆP VỤ</div><div class="brand-sub">VNPT HẢI PHÒNG <b>|</b> ONE VNPT</div></div>`;
   });
-  // Nếu logo không tải được thì quay về biểu tượng cổng, không hiển thị ảnh lỗi
   document.querySelectorAll('.brand-mark img').forEach(img => img.addEventListener('error', () => {
     const m = img.parentElement; m.classList.remove('has-logo'); m.innerHTML = ICONS.portal;
   }, { once: true }));
   $('#heroApps').innerHTML = APPS.map(a => `<div class="hero-app"><span>${a.no}</span>${esc(a.name)}</div>`).join('');
+  $('#idleMins').textContent = CONFIG.SESSION_IDLE_MINUTES;
 }
 function setEye(show) {
   pIn.type = show ? 'text' : 'password';
@@ -588,7 +555,6 @@ function setEye(show) {
   eye.setAttribute('aria-label', show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
 }
 eye.addEventListener('click', () => { setEye(pIn.type === 'password'); pIn.focus(); });
-
 function loginMsg(type, msg) { $('#loginAlert').innerHTML = msg ? alertHTML(type, msg) : ''; }
 function setBusy(on) {
   busy = on; btn.disabled = on; btn.setAttribute('aria-busy', String(on));
@@ -597,32 +563,35 @@ function setBusy(on) {
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (busy) return;                       // chống nhấn liên tục
+  if (busy) return;
   const now = Date.now();
   if (now < lockUntil) { loginMsg('warn', `Bạn đã nhập sai nhiều lần. Vui lòng thử lại sau <b>${Math.ceil((lockUntil - now) / 1000)}</b> giây.`); return; }
   const user = normUser(uIn.value), pass = pIn.value;
   uIn.setAttribute('aria-invalid', 'false'); pIn.setAttribute('aria-invalid', 'false');
   if (!user || !pass) {
     loginMsg('err', 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.');
-    (!user ? uIn : pIn).setAttribute('aria-invalid', 'true'); (!user ? uIn : pIn).focus(); return;
+    const f = !user ? uIn : pIn; f.setAttribute('aria-invalid', 'true'); f.focus(); return;
   }
   setBusy(true); loginMsg(null);
+  await new Promise(r => setTimeout(r, 60));  // cho giao diện hiển thị trạng thái "Đang đăng nhập"
   try {
-    const [hash] = await Promise.all([sha256Hex(user + ':' + pass), new Promise(r => setTimeout(r, 650))]);
+    const t0 = Date.now();
+    const hash = toHex(sha256(u8(user + ':' + pass)));
     const acc = ACCOUNTS[user];
-    const expected = acc ? acc.h : '0'.repeat(64);  // vẫn so sánh khi user không tồn tại → thông báo chung
-    if (!acc || !safeEqual(hash, expected)) {
+    if (!acc || !safeEqual(hash, acc.h)) {
+      await new Promise(r => setTimeout(r, 500));
       failCount++; pIn.value = ''; pIn.setAttribute('aria-invalid', 'true');
       if (failCount >= CONFIG.MAX_FAILED_ATTEMPTS) {
         failCount = 0; lockUntil = Date.now() + CONFIG.LOCKOUT_SECONDS * 1000;
         loginMsg('warn', `Sai thông tin ${CONFIG.MAX_FAILED_ATTEMPTS} lần liên tiếp. Tạm khóa đăng nhập ${CONFIG.LOCKOUT_SECONDS} giây.`);
-      } else {
-        loginMsg('err', 'Tên đăng nhập hoặc mật khẩu không đúng.');
-      }
+      } else loginMsg('err', 'Tên đăng nhập hoặc mật khẩu không đúng.');
       pIn.focus(); return;
     }
-    failCount = 0; pIn.value = ''; setEye(false);
-    if (!Session.start(user)) { loginMsg('err', 'Trình duyệt đang chặn lưu phiên (sessionStorage). Hãy tắt chế độ chặn dữ liệu trang hoặc thử trình duyệt khác.'); return; }
+    const k = deriveSsoKey(user, pass);
+    pIn.value = ''; setEye(false); failCount = 0;
+    if (Date.now() - t0 < 400) await new Promise(r => setTimeout(r, 400 - (Date.now() - t0)));
+    if (!Session.start(user, hash, k)) { loginMsg('err', 'Trình duyệt đang chặn lưu phiên (sessionStorage). Hãy tắt chế độ chặn dữ liệu trang hoặc thử trình duyệt khác.'); return; }
+    if (pendingApp) { const a = pendingApp; pendingApp = null; goApp(a); return; }   // quay lại ứng dụng đã yêu cầu
     showDashboard();
   } catch (err) {
     loginMsg('err', 'Không thể xử lý đăng nhập lúc này. Vui lòng tải lại trang và thử lại.');
@@ -636,15 +605,13 @@ let sessionTimer = null, activityBound = false;
 
 function showLogin(msgType, msg) {
   clearInterval(sessionTimer);
-  $('#appGrid').innerHTML = '';             // gỡ liên kết khi chưa đăng nhập
-  $('#integrationPanel').hidden = true;
+  $('#appGrid').innerHTML = '';
   closeModal(true);
   $('#dashView').hidden = true; $('#loginView').hidden = false;
   loginMsg(msgType, msg);
   document.title = 'Đăng nhập – Cổng Điều Hành Nghiệp Vụ';
   setTimeout(() => uIn.focus(), 60);
 }
-
 function showDashboard() {
   const s = Session.read(); if (!s) return showLogin();
   const acc = ACCOUNTS[s.u];
@@ -652,269 +619,133 @@ function showDashboard() {
   $('#userName').textContent = s.u; $('#helloName').textContent = s.u;
   $('#userRole').textContent = acc.label; $('#avatar').textContent = s.u.charAt(0);
   document.title = 'Cổng Điều Hành Nghiệp Vụ – VNPT Hải Phòng';
-  renderApps(s.u);
-  renderConfigWarnings(acc);
-  $('#integrationPanel').hidden = acc.role !== 'admin';
-  if (acc.role === 'admin') renderIntegration(0);
+  renderApps();
   updateSessionChip();
   clearInterval(sessionTimer); sessionTimer = setInterval(checkSession, 20000);
   if (!activityBound) {
     activityBound = true;
     let t = 0; const onAct = () => { const n = Date.now(); if (n - t > 15000) { t = n; Session.touch(); updateSessionChip(); } };
     ['pointerdown', 'keydown', 'scroll'].forEach(ev => addEventListener(ev, onAct, { passive: true }));
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) checkSession(); });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('#dashView').hidden) checkSession(); });
   }
 }
-
-function renderConfigWarnings(acc) {
-  const box = $('#dashAlert'); const msgs = [];
-  if (!CONFIG.DASHBOARD_URL && acc.role === 'admin')
-    msgs.push(alertHTML('warn', '<b>Chưa cấu hình URL dashboard chính</b> (<code>CONFIG.DASHBOARD_URL</code>). Các ứng dụng con chưa thể được cấu hình để quay về Cổng sau khi Sign out.'));
-  if (location.protocol === 'file:' && acc.role === 'admin')
-    msgs.push(alertHTML('info', 'Cổng đang chạy từ file trên máy (file://). Để ứng dụng con quay về được, hãy triển khai Cổng lên một địa chỉ https.'));
-  box.innerHTML = msgs.join('');
-}
-
 function updateSessionChip() {
   const s = Session.read(); if (!s) return;
-  const idleLeft = CONFIG.SESSION_IDLE_MINUTES * 60e3 - (Date.now() - s.last);
-  const maxLeft = CONFIG.SESSION_MAX_HOURS * 3600e3 - (Date.now() - s.iat);
-  const left = Math.max(0, Math.min(idleLeft, maxLeft)), mins = Math.ceil(left / 60e3);
-  const chip = $('#sessionChip');
-  chip.classList.toggle('warn', mins <= 5);
-  $('#sessionText').textContent = `Phiên hoạt động · còn ${mins} phút`;
-  chip.title = `Phiên tại Cổng tự kết thúc sau ${CONFIG.SESSION_IDLE_MINUTES} phút không thao tác hoặc tối đa ${CONFIG.SESSION_MAX_HOURS} giờ.`;
+  const left = Math.max(0, Math.min(CONFIG.SESSION_IDLE_MINUTES * 60e3 - (Date.now() - s.last), CONFIG.SESSION_MAX_HOURS * 3600e3 - (Date.now() - s.iat)));
+  const mins = Math.ceil(left / 60e3);
+  $('#sessionChip').classList.toggle('warn', mins <= 5);
+  $('#sessionText').textContent = `Phiên SSO hoạt động · còn ${mins} phút`;
+  $('#sessionChip').title = `Phiên dùng chung cho Cổng và 4 ứng dụng; tự kết thúc sau ${CONFIG.SESSION_IDLE_MINUTES} phút không thao tác hoặc tối đa ${CONFIG.SESSION_MAX_HOURS} giờ.`;
 }
 function checkSession() {
   const s = Session.read(), st = Session.status(s);
   if (st === 'active') { updateSessionChip(); return true; }
   Session.clear();
-  if (!$('#dashView').hidden || st === 'expired') showLogin('warn', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+  showLogin('warn', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
   return false;
 }
-
-function renderApps(user) {
-  $('#appGrid').innerHTML = APPS.map((a, i) => {
-    const u = validUrl(a.url);
-    const restricted = a.targetAccounts && !a.targetAccounts.includes(user);
-    return `<a class="card c${a.no}" href="${u ? esc(u.href) : '#'}" data-i="${i}" ${CONFIG.OPEN_IN_NEW_TAB ? 'target="_blank" rel="noopener noreferrer"' : ''}
-               style="animation-delay:${i * 70}ms" aria-label="${esc(a.no + '. ' + a.name)} – Truy cập">
+function renderApps() {
+  $('#appGrid').innerHTML = APPS.map((a, i) => `
+    <a class="card c${a.no}" href="${esc(a.url)}" data-i="${i}" style="animation-delay:${i * 70}ms" aria-label="${esc(a.no + '. ' + a.name)} – Truy cập">
       <div class="card-head"><div class="card-icon" aria-hidden="true">${ICONS[a.icon]}</div><div class="card-no" aria-hidden="true">${String(a.no).padStart(2, '0')}</div></div>
       <h3>${esc(a.name)}</h3>
       <p class="desc">${esc(a.desc)}</p>
-      <div class="card-tags">
-        <span class="tag tag-info"><i></i>Chuyển hướng</span>
-        <span class="tag tag-warn"><i></i>SSO chưa hỗ trợ</span>
-        ${restricted ? '<span class="tag tag-warn" style="background:#FEECEB;color:#B42318"><i></i>Tài khoản chưa được trang đích cấp</span>' : ''}
-      </div>
+      <div class="card-tags"><span class="tag tag-ok"><i></i>SSO – không cần đăng nhập lại</span></div>
       <div class="card-foot">
-        <span class="card-url">${esc(u ? u.host + u.pathname : a.url)}</span>
+        <span class="card-url">${esc(a.url.replace(/\/index\.html$/, '/'))}</span>
         <span class="go" data-go>Truy cập ${ICONS.arrow}</span>
       </div>
-    </a>`;
-  }).join('');
+    </a>`).join('');
 }
-
-/* Toàn bộ thẻ có thể nhấp. Ctrl/⌘/chuột giữa → để trình duyệt mở tab mới như liên kết thường. */
+/* Toàn bộ thẻ có thể nhấp; mở trong CÙNG tab để ứng dụng dùng chung phiên SSO (sessionStorage gắn với tab) */
 $('#appGrid').addEventListener('click', (e) => {
   const card = e.target.closest('.card'); if (!card) return;
-  if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) { if (!checkSession()) e.preventDefault(); return; }
   e.preventDefault();
   if (!checkSession()) return;
-  openApp(APPS[+card.dataset.i], card);
+  if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1)
+    toast('Ứng dụng được mở trong tab hiện tại vì phiên đăng nhập một lần chỉ có hiệu lực trong tab này.', 'info', 3000);
+  goApp(APPS[+card.dataset.i], card);
 });
 
-/* ---------- Mở ứng dụng ---------- */
-function openApp(app, card) {
-  const url = validUrl(app.url);
-  if (!url) { toast('Không mở được: địa chỉ ứng dụng không hợp lệ. Vui lòng liên hệ quản trị.', 'err'); return; }
-  const user = Session.read().u;
-  const restricted = app.targetAccounts && !app.targetAccounts.includes(user);
-  // Luôn hỏi khi tài khoản không có quyền ở trang đích; còn lại hỏi một lần mỗi phiên
-  if (!restricted && ss.get(SS_SKIP) === '1') { checkAndGo(app, url, card); return; }
-  confirmModal(app, url, restricted, card);
-}
-
-/* Kiểm tra kết nối tới trang đích (fetch no-cors chỉ xác định có kết nối được hay không; không gửi thông tin đăng nhập). */
-async function reachable(url) {
-  if (navigator.onLine === false) return false;
-  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), CONFIG.REACHABILITY_TIMEOUT_MS);
-  try { await fetch(url.href, { mode: 'no-cors', cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer', signal: ctl.signal }); return true; }
-  catch (e) { return false; } finally { clearTimeout(t); }
-}
-async function checkAndGo(app, url, card, force = false) {
-  if (!force) {
+/* Mở ứng dụng: trên http(s) kiểm tra trước file đích tồn tại (cùng origin, không gửi thông tin đăng nhập) */
+async function goApp(app, card) {
+  let url; try { url = new URL(app.url, location.href); } catch (e) { url = null; }
+  if (!url || url.origin !== location.origin) { showError(app, 'Địa chỉ ứng dụng không hợp lệ hoặc khác nguồn với Cổng (SSO yêu cầu cùng tên miền). Vui lòng liên hệ quản trị.'); return; }
+  if (/^https?:$/.test(location.protocol)) {
     setCardBusy(card, true);
-    const ok = await reachable(url);
+    const st = await probe(url);
     setCardBusy(card, false);
-    if (!ok) { unreachableModal(app, url, card); return; }
+    if (st !== 'ok') {
+      showError(app, st === 'offline' ? 'Thiết bị đang <b>mất kết nối mạng</b>. Vui lòng kiểm tra và thử lại.'
+        : st === 'missing' ? `Không tìm thấy ứng dụng tại <code>${esc(app.url)}</code>. Kiểm tra đã tải đủ thư mục ứng dụng lên máy chủ.`
+        : `Không kết nối được tới “${esc(app.name)}”. Vui lòng thử lại sau.`, true);
+      return;
+    }
   }
-  navigate(url);
-}
-function navigate(url) {
   Session.touch();
-  if (CONFIG.OPEN_IN_NEW_TAB) {
-    // Với 'noopener', window.open luôn trả về null nên không dùng giá trị trả về để báo lỗi chặn popup.
-    window.open(url.href, '_blank', 'noopener,noreferrer');
-  } else {
-    location.assign(url.href);
-  }
+  location.assign(url.href);
+}
+async function probe(url) {
+  if (navigator.onLine === false) return 'offline';
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), CONFIG.CHECK_TIMEOUT_MS);
+  try { const r = await fetch(url.href, { method: 'HEAD', cache: 'no-store', signal: ctl.signal }); return r.ok ? 'ok' : (r.status === 404 ? 'missing' : 'error'); }
+  catch (e) { return 'error'; } finally { clearTimeout(t); }
 }
 function setCardBusy(card, on) {
   if (!card) return; card.classList.toggle('busy', on);
-  const go = card.querySelector('[data-go]');
-  go.innerHTML = on ? '<span class="spinner" aria-hidden="true"></span> Đang kiểm tra…' : 'Truy cập ' + ICONS.arrow;
+  card.querySelector('[data-go]').innerHTML = on ? '<span class="spinner" aria-hidden="true"></span> Đang mở…' : 'Truy cập ' + ICONS.arrow;
 }
 
-/* ---------- Hộp thoại ---------- */
-let lastFocus = null, modalOnClose = null;
-function openModal(html, onClose) {
-  lastFocus = document.activeElement; modalOnClose = onClose || null;
-  $('#modalRoot').innerHTML = `<div class="modal-backdrop" data-close><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">${html}</div></div>`;
-  const first = $('#modalRoot [data-primary]') || $('#modalRoot button'); if (first) first.focus();
+/* ---------- Hộp thoại lỗi ---------- */
+let lastFocus = null;
+function showError(app, msg, canRetry) {
+  lastFocus = document.activeElement;
+  $('#modalRoot').innerHTML = `<div class="modal-backdrop" data-close><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <h3 id="mTitle">Không mở được “${esc(app.name)}”</h3>
+    <p class="sub">${esc(app.url)}</p>
+    ${alertHTML('err', msg)}
+    <div class="modal-actions">
+      <button class="btn btn-ghost" type="button" id="mCancel">Đóng</button>
+      ${canRetry ? '<button class="btn btn-primary" type="button" id="mRetry">Thử lại</button>' : ''}
+    </div></div></div>`;
+  $('#mCancel').onclick = () => { closeModal(); toast('Đã hủy thao tác. Bạn vẫn ở Cổng điều hành.', 'info', 2600); };
+  if (canRetry) $('#mRetry').onclick = () => { closeModal(); goApp(app); };
+  ($('#mRetry') || $('#mCancel')).focus();
 }
-function closeModal(silent) {
+function closeModal() {
   if (!$('#modalRoot').innerHTML) return;
   $('#modalRoot').innerHTML = '';
-  const cb = modalOnClose; modalOnClose = null;
-  if (!silent && cb) cb();
   if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus();
 }
 $('#modalRoot').addEventListener('click', (e) => { if (e.target.matches('[data-close]')) closeModal(); });
-document.addEventListener('keydown', (e) => {
-  if (!$('#modalRoot').innerHTML) return;
-  if (e.key === 'Escape') { e.preventDefault(); closeModal(); }
-  if (e.key === 'Tab') { // giữ focus trong hộp thoại
-    const f = [...$('#modalRoot').querySelectorAll('button,input,a[href]')]; if (!f.length) return;
-    const i = f.indexOf(document.activeElement);
-    if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
-    else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
-  }
-});
-const onCancel = () => toast('Đã hủy thao tác. Bạn vẫn ở Cổng điều hành.', 'info', 2600);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('#modalRoot').innerHTML) closeModal(); });
 
-function confirmModal(app, url, restricted, card) {
-  const user = Session.read().u;
-  openModal(`
-    <h3 id="mTitle">Mở “${esc(app.name)}”</h3>
-    <p class="sub">${esc(url.href)}</p>
-    <div class="tags"><span class="tag tag-info"><i></i>Chuyển hướng thông thường</span><span class="tag tag-warn"><i></i>SSO chưa hỗ trợ</span></div>
-    ${restricted ? alertHTML('err', `<b>Không có quyền truy cập:</b> trang đích hiện chỉ chấp nhận tài khoản <b>${esc(app.targetAccounts.join(', '))}</b>. Tài khoản <b>${esc(user)}</b> sẽ không đăng nhập được tại đó. Vui lòng liên hệ quản trị để được cấp quyền.`) : ''}
-    <p>Ứng dụng này có <b>màn hình đăng nhập riêng</b>. Sau khi chuyển trang, bạn cần đăng nhập lại bằng tài khoản được cấp.</p>
-    <p>Cổng <b>không</b> gửi mật khẩu của bạn sang trang đích.</p>
-    ${CONFIG.OPEN_IN_NEW_TAB ? '' : '<p style="font-size:13px;color:var(--ink-3)">Trang sẽ mở trong tab hiện tại. Dùng nút Quay lại của trình duyệt để về Cổng (phiên Cổng vẫn giữ trong tab này).</p>'}
-    ${restricted ? '' : '<label class="check"><input type="checkbox" id="mSkip"> Không hỏi lại trong phiên này</label>'}
-    <div class="modal-actions">
-      <button class="btn btn-ghost" type="button" id="mCancel">Hủy</button>
-      <button class="btn btn-primary" type="button" id="mGo" data-primary>${restricted ? 'Vẫn mở trang' : 'Mở trang'}</button>
-    </div>`, onCancel);
-  $('#mCancel').onclick = () => closeModal();
-  $('#mGo').onclick = async () => {
-    const skip = $('#mSkip'); if (skip && skip.checked) ss.set(SS_SKIP, '1');
-    const b = $('#mGo'); b.disabled = true; $('#mCancel').disabled = true;
-    b.innerHTML = '<span class="spinner" aria-hidden="true"></span> Đang kiểm tra kết nối…';
-    const ok = await reachable(url);
-    if (!$('#modalRoot').innerHTML) return;   // người dùng đã đóng hộp thoại
-    closeModal(true);
-    if (ok) navigate(url); else unreachableModal(app, url, card);
-  };
-}
-function unreachableModal(app, url, card) {
-  openModal(`
-    <h3 id="mTitle">Không mở được trang đích</h3>
-    <p class="sub">${esc(url.href)}</p>
-    ${alertHTML('err', navigator.onLine === false
-      ? 'Thiết bị đang <b>mất kết nối mạng</b>. Vui lòng kiểm tra kết nối và thử lại.'
-      : `Không kết nối được tới “${esc(app.name)}” trong ${CONFIG.REACHABILITY_TIMEOUT_MS / 1000} giây. Trang có thể đang bảo trì, mạng nội bộ chặn địa chỉ này, hoặc kết nối chậm.`)}
-    <div class="modal-actions">
-      <button class="btn btn-ghost" type="button" id="mCancel">Hủy</button>
-      <button class="btn btn-ghost" type="button" id="mForce">Vẫn mở</button>
-      <button class="btn btn-primary" type="button" id="mRetry" data-primary>Thử lại</button>
-    </div>`, onCancel);
-  $('#mCancel').onclick = () => closeModal();
-  $('#mForce').onclick = () => { closeModal(true); navigate(url); };
-  $('#mRetry').onclick = () => { closeModal(true); checkAndGo(app, url, card); };
-}
-
-/* ---------- Sign out tại Cổng ---------- */
+/* ---------- Sign out tại Cổng: kết thúc SSO cho cả 4 ứng dụng ---------- */
 $('#btnSignout').addEventListener('click', () => {
   Session.clear();
-  showLogin('ok', 'Đã đăng xuất khỏi Cổng. Lưu ý: phiên tại các ứng dụng con (nếu đang mở ở tab khác) được quản lý riêng và cần đăng xuất tại ứng dụng đó.');
   uIn.value = '';
+  showLogin('ok', 'Đã đăng xuất khỏi Cổng và cả 4 ứng dụng.');
 });
 
 /* =====================================================================
-   F. QUẢN TRỊ: sinh đoạn mã "Sign out → về Dashboard" cho ứng dụng con
-   (Trường hợp A/B: chỉ hoạt động sau khi thêm vào mã nguồn ứng dụng con)
+   F. KHỞI ĐỘNG
    ===================================================================== */
-let snipIndex = 0;
-function buildSnippet(app, dash) {
-  const it = app.integration, keys = JSON.stringify(it.keys), D = JSON.stringify(dash);
-  if (it.mode === 'replace') return (
-`// [Cổng VNPT HPG] Sign out: xóa phiên của ứng dụng này rồi quay về Dashboard
-var DASHBOARD_URL = ${D};
-window.vnptLogout = function(){
-  ss.set(null);                                   // xóa phiên '${it.keys[0]}'
-  if (DASHBOARD_URL) location.replace(DASHBOARD_URL);
-  else location.reload();                         // chưa cấu hình → giữ hành vi cũ
-};`);
-  if (it.mode === 'hook') return (
-`// [Cổng VNPT HPG] Thêm 2 dòng dưới vào CUỐI thân hàm ${it.fn}() hiện có.
-// Hàm này đã xóa phiên ${keys}; chỉ bổ sung bước quay về Dashboard.
-var DASHBOARD_URL = ${D};
-if (DASHBOARD_URL) location.replace(DASHBOARD_URL);`);
-  return ( // inject: thêm nút nổi cho ứng dụng chưa có nút đăng xuất
-`<!-- [Cổng VNPT HPG] Nút Sign out → xóa phiên ứng dụng và quay về Dashboard -->
-<button id="vnptPortalSignout" type="button" title="Đăng xuất và về Cổng"
-  style="position:fixed;right:16px;bottom:16px;z-index:2147483000;display:flex;align-items:center;gap:6px;
-         padding:10px 14px;border:0;border-radius:12px;background:#0066B3;color:#fff;font:600 14px/1 system-ui,sans-serif;
-         box-shadow:0 8px 22px rgba(0,102,179,.35);cursor:pointer">⎋ Sign out</button>
-<script>
-(function(){
-  var DASHBOARD_URL = ${D};
-  var KEYS = ${keys};
-  document.getElementById('vnptPortalSignout').addEventListener('click', function(){
-    try { KEYS.forEach(function(k){ sessionStorage.removeItem(k); }); } catch(e){}
-    if (DASHBOARD_URL) location.replace(DASHBOARD_URL);
-    else location.reload();
-  });
-})();
-<\/script>`);
-}
-function renderIntegration(i) {
-  snipIndex = i;
-  const dash = CONFIG.DASHBOARD_URL && validUrl(CONFIG.DASHBOARD_URL) ? CONFIG.DASHBOARD_URL : '';
-  $('#integrationAlert').innerHTML = dash ? '' :
-    alertHTML('warn', CONFIG.DASHBOARD_URL ? '<b>URL dashboard chính không hợp lệ</b> (cần bắt đầu bằng https://). Sửa <code>CONFIG.DASHBOARD_URL</code>.'
-      : '<b>Chưa cấu hình URL dashboard chính.</b> Đặt <code>CONFIG.DASHBOARD_URL</code> trong file Cổng rồi tải lại để mã sinh ra có địa chỉ quay về. Khi để trống, nút Sign out ở ứng dụng con chỉ xóa phiên và tải lại trang.');
-  $('#snipTabs').innerHTML = APPS.map((a, j) => `<button class="snip-tab" role="tab" type="button" data-j="${j}" aria-selected="${j === i}">${a.no}. ${esc(a.name)}</button>`).join('');
-  const app = APPS[i];
-  $('#snipWhere').innerHTML = '<b>Vị trí thêm:</b> ' + esc(app.integration.where);
-  $('#snipCode').textContent = buildSnippet(app, dash);
-}
-$('#snipTabs').addEventListener('click', e => { const b = e.target.closest('[data-j]'); if (b) renderIntegration(+b.dataset.j); });
-$('#btnCopy').addEventListener('click', async () => {
-  const text = $('#snipCode').textContent;
-  try { await navigator.clipboard.writeText(text); toast('Đã sao chép đoạn mã.', 'ok', 2200); }
-  catch (e) { // dự phòng khi trình duyệt chặn clipboard
-    const r = document.createRange(); r.selectNodeContents($('#snipCode'));
-    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
-    toast('Trình duyệt chặn sao chép tự động. Đoạn mã đã được bôi đen – nhấn Ctrl+C để sao chép.', 'warn');
-  }
-});
-
-/* =====================================================================
-   G. KHỞI ĐỘNG
-   ===================================================================== */
-(function init() {
-  renderBrand(); setEye(false);
+function boot() {
   const s = Session.read(), st = Session.status(s);
-  if (st === 'active') showDashboard();
-  else if (st === 'expired') { Session.clear(); showLogin('warn', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'); }
+  if (st === 'active') {
+    if (reason === 'denied' && pendingApp) toast(`Tài khoản <b>${esc(s.u)}</b> chưa được cấp quyền truy cập “${esc(pendingApp.name)}”.`, 'err', 6000);
+    else if (reason === 'logout' && pendingApp) toast(`Đã đăng xuất khỏi “${esc(pendingApp.name)}”. Bạn vẫn đăng nhập tại Cổng.`, 'ok', 3500);
+    pendingApp = null;
+    showDashboard(); return;
+  }
+  if (st === 'expired') { Session.clear(); showLogin('warn', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'); return; }
+  if (reason === 'expired') showLogin('warn', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+  else if (pendingApp) showLogin('info', `Vui lòng đăng nhập để vào <b>${esc(pendingApp.name)}</b>.`);
   else showLogin();
-  // Khi quay lại bằng nút Back (bfcache), kiểm tra lại phiên
-  addEventListener('pageshow', (e) => { if (e.persisted) { const x = Session.read(); if (Session.status(x) === 'active') showDashboard(); else showLogin(Session.status(x) === 'expired' ? 'warn' : null, Session.status(x) === 'expired' ? 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' : null); } });
-})();
+}
+renderBrand(); setEye(false); boot();
+/* Quay lại bằng nút Back (bfcache): đánh giá lại phiên */
+addEventListener('pageshow', (e) => { if (e.persisted) { closeModal(); document.querySelectorAll('.card.busy').forEach(c => setCardBusy(c, false)); boot(); } });
 </script>
 </body>
 </html>

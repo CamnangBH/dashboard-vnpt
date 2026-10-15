@@ -1,0 +1,28 @@
+CỔNG ĐIỀU HÀNH NGHIỆP VỤ – VNPT HẢI PHÒNG | ĐĂNG NHẬP MỘT LẦN (SSO)
+
+CẤU TRÚC (giữ nguyên khi triển khai):
+  index.html                    <- Trang chính (Cổng)
+  Coche-Tinhluong/index.html    <- 1. Cơ chế - Chính sách
+  90Ngaydem/index.html          <- 2. 90 Ngày đêm
+  Banhangtongluc/index.html     <- 3. Bán hàng tổng lực
+  Diemtintuan/index.html        <- 4. Điểm tin tuần
+
+CHẠY THỬ: giải nén, mở index.html bằng Chrome/Edge.
+TRIỂN KHAI: tải nguyên thư mục lên MỘT trang web (vd. một repo GitHub Pages).
+  Cổng và 4 ứng dụng BẮT BUỘC cùng tên miền thì mới dùng chung được phiên.
+  Nếu đặt Cổng ở chỗ khác: sửa APPS[].url trong index.html và PORTAL_URL
+  (khối "VNPT HPG – SSO dùng chung") trong từng ứng dụng.
+
+TÀI KHOẢN:
+  - vnpt.hpg (SSO): đăng nhập tại Cổng -> vào 4 ứng dụng không cần nhập lại (quyền xem).
+      "Đăng xuất" trong ứng dụng -> về Cổng, vẫn đăng nhập (thấy ngay 4 mục).
+      "Sign out" tại Cổng -> kết thúc phiên cho cả Cổng và 4 ứng dụng.
+      Không đăng nhập ở form riêng của ứng dụng (báo "đăng nhập qua Cổng điều hành").
+  - nstg.hpg, admin: KHÔNG đăng nhập Cổng; đăng nhập trực tiếp tại từng ứng dụng như cũ,
+      "Đăng xuất" -> về màn hình đăng nhập của chính ứng dụng đó. Không có SSO.
+      (Cơ chế - Chính sách vẫn chỉ nhận nstg.hpg như bản gốc.)
+  - Phiên chỉ trong tab hiện tại; hết hạn sau 30 phút không thao tác hoặc 8 giờ.
+
+LƯU Ý BẢO MẬT: đây là SSO chạy trong trình duyệt, không có máy chủ xác thực.
+  Phiên không chứa mật khẩu. Đổi mật khẩu vnpt.hpg thì phải tạo lại khóa bọc SSO trong
+  Bán hàng tổng lực và 90 Ngày đêm (liên hệ người phát triển).
