@@ -221,6 +221,9 @@ main.wrap{max-width:1160px;margin:0 auto;padding:30px clamp(16px,4vw,40px) 48px}
 .card-no{font-size:40px;font-weight:800;line-height:1;color:rgba(0,102,179,.12);letter-spacing:-.02em}
 .card h3{margin:0;font-size:20px;font-weight:800;position:relative;z-index:1}
 .card .desc{margin:0;color:var(--ink-2);font-size:14px;position:relative;z-index:1;flex:1}
+.asof{position:relative;z-index:1;align-self:flex-start;display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:9px;background:#FFF4DE;color:#8A5300;border:1px solid #F6DFAE;font-size:13px;font-weight:500}
+.asof svg{width:15px;height:15px;flex:none}
+.asof b{font-weight:700}
 .card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;position:relative;z-index:1}
 .card-url{font-size:12px;color:var(--ink-3);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .card-tags{display:flex;gap:6px;flex-wrap:wrap}
@@ -420,12 +423,13 @@ const ACCOUNTS = Object.freeze({
 
 /* Nguồn dữ liệu DUY NHẤT cho 04 mục (tên theo Dashboard.xlsx).
    url: đường dẫn TƯƠNG ĐỐI tới ứng dụng nằm cùng thư mục triển khai với trang chính (bắt buộc cùng origin để SSO hoạt động).
+   asOf: ngày chốt số liệu hiển thị trên thẻ ("Số liệu tính đến ngày …"); bỏ trống nếu không cần.
    Bản công khai gốc: https://camnangbh.github.io/<thư mục>/ */
 const APPS = Object.freeze([
   { id: 'coche', no: 1, name: 'Cơ chế - Chính sách', url: 'Coche-Tinhluong/index.html', desc: 'Tra cứu nội dung cơ chế, chính sách.', icon: 'doc' },
-  { id: '90nd',  no: 2, name: '90 Ngày đêm',         url: '90Ngaydem/index.html',       desc: 'Theo dõi chương trình 90 Ngày đêm.', icon: 'target' },
-  { id: 'bhtl',  no: 3, name: 'Bán hàng tổng lực',   url: 'Banhangtongluc/index.html',  desc: 'Theo dõi chương trình Bán hàng tổng lực.', icon: 'growth' },
-  { id: 'dtt',   no: 4, name: 'Điểm tin tuần',       url: 'Diemtintuan/index.html',     desc: 'Xem điểm tin tổng hợp hằng tuần.', icon: 'news' }
+  { id: '90nd',  no: 2, name: '90 Ngày đêm',         url: '90Ngaydem/index.html',       desc: 'Theo dõi chương trình 90 Ngày đêm.', icon: 'target', asOf: '18/10/2026' },
+  { id: 'bhtl',  no: 3, name: 'Bán hàng tổng lực',   url: 'Banhangtongluc/index.html',  desc: 'Theo dõi chương trình Bán hàng tổng lực.', icon: 'growth', asOf: '19/10/2026' },
+  { id: 'dtt',   no: 4, name: 'Điểm tin tuần',       url: 'Diemtintuan/index.html',     desc: 'Xem điểm tin tổng hợp hằng tuần.', icon: 'news', asOf: '18/10/2026' }
 ]);
 
 /* ---- Hợp đồng SSO dùng chung với 4 ứng dụng con (KHÔNG đổi một phía) ----
@@ -650,6 +654,7 @@ function renderApps() {
       <div class="card-head"><div class="card-icon" aria-hidden="true">${ICONS[a.icon]}</div><div class="card-no" aria-hidden="true">${String(a.no).padStart(2, '0')}</div></div>
       <h3>${esc(a.name)}</h3>
       <p class="desc">${esc(a.desc)}</p>
+      ${a.asOf ? `<div class="asof"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Số liệu tính đến ngày <b>${esc(a.asOf)}</b></div>` : ''}
       <div class="card-tags"><span class="tag tag-ok"><i></i>SSO – không cần đăng nhập lại</span></div>
       <div class="card-foot">
         <span class="card-url">${esc(a.url.replace(/\/index\.html$/, '/'))}</span>
