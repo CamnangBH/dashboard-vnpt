@@ -114,6 +114,7 @@ a{color:var(--vnpt)}
 .hero-copy h1{font-size:clamp(30px,3.6vw,46px);line-height:1.12;margin:14px 0 14px;font-weight:800;letter-spacing:.01em}
 .hero-copy p{color:#D6ECFA;margin:0;font-size:15.5px;max-width:440px}
 .hero-apps{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:460px}
+.hero-app:last-child:nth-child(odd){grid-column:1/-1}
 .hero-app{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);font-size:13px;font-weight:600;backdrop-filter:blur(6px)}
 .hero-app span{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:rgba(255,255,255,.18);font-size:11px;font-weight:800;flex:none}
 .login-side{display:flex;align-items:center;justify-content:center;padding:40px 20px}
@@ -234,6 +235,9 @@ main.wrap{max-width:1160px;margin:0 auto;padding:30px clamp(16px,4vw,40px) 48px}
 .c2 .card-icon{background:linear-gradient(135deg,#F7941D,#FDB913)}
 .c3 .card-icon{background:linear-gradient(135deg,#00AEEF,#33C6F4)}
 .c4 .card-icon{background:linear-gradient(135deg,#004A87,#00AEEF)}
+.c5 .card-icon{background:linear-gradient(135deg,#F7941D,#0066B3)}
+.c5::before{background:linear-gradient(90deg,var(--orange),var(--vnpt))}
+.grid > .card:last-child:nth-child(odd){grid-column:1/-1}   /* mục lẻ cuối cùng trải hết hàng */
 .c2::before{background:linear-gradient(90deg,var(--orange),var(--amber))}
 
 .panel{margin-top:26px;padding:20px 22px;border-radius:var(--radius);background:var(--glass);border:1px solid rgba(255,255,255,.95);box-shadow:var(--shadow-1)}
@@ -373,7 +377,7 @@ footer.foot{text-align:center;font-size:12px;color:var(--ink-3);padding:0 16px 2
         <p>Truy cập nhanh các ứng dụng điều hành nghiệp vụ</p>
       </div>
       <div class="legend">
-        <span class="tag tag-ok"><i></i>Đăng nhập một lần (SSO) cho 4 ứng dụng</span>
+        <span class="tag tag-ok"><i></i>Đăng nhập một lần (SSO) cho 5 ứng dụng</span>
       </div>
     </div>
 
@@ -387,9 +391,9 @@ footer.foot{text-align:center;font-size:12px;color:var(--ink-3);padding:0 16px 2
         Đăng nhập một lần
       </h2>
       <ul>
-        <li>Đã đăng nhập tại Cổng thì mở cả 4 ứng dụng <b>không cần nhập lại</b> tài khoản.</li>
+        <li>Đã đăng nhập tại Cổng thì mở cả 5 ứng dụng <b>không cần nhập lại</b> tài khoản.</li>
         <li><b>Đăng xuất trong ứng dụng con</b>: rời ứng dụng đó và quay về Cổng, vẫn giữ đăng nhập.</li>
-        <li><b>Sign out tại Cổng</b>: kết thúc phiên ở Cổng và cả 4 ứng dụng.</li>
+        <li><b>Sign out tại Cổng</b>: kết thúc phiên ở Cổng và cả 5 ứng dụng.</li>
         <li>Cổng dành cho tài khoản đăng nhập một lần. Các tài khoản khác đăng nhập trực tiếp tại từng ứng dụng.</li>
         <li>Phiên chỉ tồn tại trong tab này; đóng tab/trình duyệt, hoặc <span id="idleMins">30</span> phút không thao tác, phải đăng nhập lại.</li>
       </ul>
@@ -408,8 +412,8 @@ footer.foot{text-align:center;font-size:12px;color:var(--ink-3);padding:0 16px 2
    ===================================================================== */
 const CONFIG = Object.freeze({
   LOGO_URL: '',                 // logo VNPT chính thức (nếu có). Để trống = biểu tượng cổng trung tính
-  SESSION_IDLE_MINUTES: 30,     // PHẢI giống SSO_IDLE_MIN trong 4 ứng dụng con
-  SESSION_MAX_HOURS: 8,         // PHẢI giống SSO_MAX_HOURS trong 4 ứng dụng con
+  SESSION_IDLE_MINUTES: 30,     // PHẢI giống IDLE_MIN trong khối SSO của 5 ứng dụng con
+  SESSION_MAX_HOURS: 8,         // PHẢI giống MAX_HOURS trong khối SSO của 5 ứng dụng con
   MAX_FAILED_ATTEMPTS: 5,
   LOCKOUT_SECONDS: 30,
   CHECK_TIMEOUT_MS: 5000
@@ -423,13 +427,15 @@ const ACCOUNTS = Object.freeze({
 
 /* Nguồn dữ liệu DUY NHẤT cho 04 mục (tên theo Dashboard.xlsx).
    url: đường dẫn TƯƠNG ĐỐI tới ứng dụng nằm cùng thư mục triển khai với trang chính (bắt buộc cùng origin để SSO hoạt động).
-   asOf: ngày chốt số liệu hiển thị trên thẻ ("Số liệu tính đến ngày …"); bỏ trống nếu không cần.
+   asOf: kỳ chốt số liệu hiển thị trên thẻ ("Số liệu tính đến <asOf>", vd 'ngày 21/10/2026', 'tháng 09/2026'); bỏ trống nếu không cần.
+   noSso: trang không có đăng nhập riêng (không hiện nhãn SSO).
    Bản công khai gốc: https://camnangbh.github.io/<thư mục>/ */
 const APPS = Object.freeze([
   { id: 'coche', no: 1, name: 'Cơ chế - Chính sách', url: 'Coche-Tinhluong/index.html', desc: 'Tra cứu nội dung cơ chế, chính sách.', icon: 'doc' },
-  { id: '90nd',  no: 2, name: '90 Ngày đêm',         url: '90Ngaydem/index.html',       desc: 'Theo dõi chương trình 90 Ngày đêm.', icon: 'target', asOf: '18/10/2026' },
-  { id: 'bhtl',  no: 3, name: 'Bán hàng tổng lực',   url: 'Banhangtongluc/index.html',  desc: 'Theo dõi chương trình Bán hàng tổng lực.', icon: 'growth', asOf: '21/10/2026' },
-  { id: 'dtt',   no: 4, name: 'Điểm tin tuần',       url: 'Diemtintuan/index.html',     desc: 'Xem điểm tin tổng hợp hằng tuần.', icon: 'news', asOf: '18/10/2026' }
+  { id: '90nd',  no: 2, name: '90 Ngày đêm',         url: '90Ngaydem/index.html',       desc: 'Theo dõi chương trình 90 Ngày đêm.', icon: 'target', asOf: 'ngày 18/10/2026' },
+  { id: 'bhtl',  no: 3, name: 'Bán hàng tổng lực',   url: 'Banhangtongluc/index.html',  desc: 'Theo dõi chương trình Bán hàng tổng lực.', icon: 'growth', asOf: 'ngày 21/10/2026' },
+  { id: 'dtt',   no: 4, name: 'Điểm tin tuần',       url: 'Diemtintuan/index.html',     desc: 'Xem điểm tin tổng hợp hằng tuần.', icon: 'news', asOf: 'ngày 18/10/2026' },
+  { id: 'bcs',   no: 5, name: 'Kết quả BCS điều hành', url: 'BCS-Dieuhanh/index.html',   desc: 'Dashboard điều hành sản xuất kinh doanh VNPT Hải Phòng.', icon: 'dash', asOf: 'tháng 09/2026' }
 ]);
 
 /* ---- Hợp đồng SSO dùng chung với 4 ứng dụng con (KHÔNG đổi một phía) ----
@@ -456,6 +462,7 @@ const ICONS = {
   target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><path d="M19 5l-5.5 5.5"/><path d="M19 5v-2M19 5h2"/></svg>',
   growth: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/><line x1="3" y1="21" x2="21" y2="21"/></svg>',
   news: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><rect x="10" y="6" width="6" height="4" rx="1"/><line x1="10" y1="14" x2="16" y2="14"/><line x1="10" y1="18" x2="14" y2="18"/></svg>',
+  dash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/><polyline points="12 17 15 13 18 15"/></svg>',
   portal: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
   arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
   eye: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
@@ -639,7 +646,7 @@ function updateSessionChip() {
   const mins = Math.ceil(left / 60e3);
   $('#sessionChip').classList.toggle('warn', mins <= 5);
   $('#sessionText').textContent = `Phiên SSO hoạt động · còn ${mins} phút`;
-  $('#sessionChip').title = `Phiên dùng chung cho Cổng và 4 ứng dụng; tự kết thúc sau ${CONFIG.SESSION_IDLE_MINUTES} phút không thao tác hoặc tối đa ${CONFIG.SESSION_MAX_HOURS} giờ.`;
+  $('#sessionChip').title = `Phiên dùng chung cho Cổng và 5 ứng dụng; tự kết thúc sau ${CONFIG.SESSION_IDLE_MINUTES} phút không thao tác hoặc tối đa ${CONFIG.SESSION_MAX_HOURS} giờ.`;
 }
 function checkSession() {
   const s = Session.read(), st = Session.status(s);
@@ -654,8 +661,8 @@ function renderApps() {
       <div class="card-head"><div class="card-icon" aria-hidden="true">${ICONS[a.icon]}</div><div class="card-no" aria-hidden="true">${String(a.no).padStart(2, '0')}</div></div>
       <h3>${esc(a.name)}</h3>
       <p class="desc">${esc(a.desc)}</p>
-      ${a.asOf ? `<div class="asof"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Số liệu tính đến ngày <b>${esc(a.asOf)}</b></div>` : ''}
-      <div class="card-tags"><span class="tag tag-ok"><i></i>SSO – không cần đăng nhập lại</span></div>
+      ${a.asOf ? `<div class="asof"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Số liệu tính đến <b>${esc(a.asOf)}</b></div>` : ''}
+      ${a.noSso ? '' : '<div class="card-tags"><span class="tag tag-ok"><i></i>SSO – không cần đăng nhập lại</span></div>'}
       <div class="card-foot">
         <span class="card-url">${esc(a.url.replace(/\/index\.html$/, '/'))}</span>
         <span class="go" data-go>Truy cập ${ICONS.arrow}</span>
@@ -729,7 +736,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('#moda
 $('#btnSignout').addEventListener('click', () => {
   Session.clear();
   uIn.value = '';
-  showLogin('ok', 'Đã đăng xuất khỏi Cổng và cả 4 ứng dụng.');
+  showLogin('ok', 'Đã đăng xuất khỏi Cổng và cả 5 ứng dụng.');
 });
 
 /* =====================================================================
