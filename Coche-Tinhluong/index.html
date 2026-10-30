@@ -1251,12 +1251,12 @@ const TYPE_INFO = {
 const TABS = [
   {id:'home', name:'TRANG CHỦ', icon:'home'},
   {id:'br', name:'BĂNG RỘNG', icon:'wifi', title:'Băng rộng cố định', desc:'',
-   subs:[['tapthe','Thi đua Tập thể - Vượt ngưỡng','users'],['canhan','Thi đua Cá nhân - vượt ngưỡng','user'],['dbthap','Chương trình thị phần thấp','pin'],['ccco','Chương trình CCCO/NOXH','building'],['vtci','Chương trình VTCI','heart'],['camttn','Chương trình Cam TTN','camera'],['trongdiem','Gói cước trọng điểm','medal']]},
+   subs:[['canhan','Thi đua Cá nhân - vượt ngưỡng','user'],['vtci','Chương trình VTCI','heart'],['trongdiem','Gói cước trọng điểm','medal']]},
   {id:'dd', name:'DI ĐỘNG', icon:'phone', title:'Di động', desc:'Bứt phá thuê bao mới · Gói cước mục tiêu · Phân hạng ĐUQ · CTV liên kết PSSL',
    subs:[['ptm','Tăng tốc PTM','zap'],['goi','Gói cước mục tiêu','box'],['duq','Phân hạng ĐUQ','store'],['ctv','CTV liên kết PSSL','users']]},
   {id:'cntt', name:'SỐ DOANH NGHIỆP', icon:'cpu', title:'Số doanh nghiệp', desc:'Dịch vụ số · HKD · eContract · Loa thanh toán · TLS/INTT · Y tế số · Giáo dục số · Dự án',
    subs:[['dvs','17 VNPT KV','trophy'],['ttkd','Dự thầu TTKDGP','briefcase'],['hkd','HKD · eContract · Loa','file'],['tls','TLS / INTT','globe'],['ytegd','Y tế số · Giáo dục số','heart']]},
-  {id:'km', name:'KHUYẾN MẠI T10', icon:'gift'},
+  {id:'km', name:'KHUYẾN MẠI T11', icon:'gift'},
   {id:'calc', name:'THỬ TÍNH', icon:'calc'}
 ];
 
@@ -1279,14 +1279,14 @@ function flowCollective(base, extraLabel){
 }
 function recordChecklist(svc){
   return '<ul class="check">'+
-    CK('Thuê bao '+svc+' phát triển mới được <b>lập hợp đồng trong thời gian diễn ra chương trình</b> (01/10/2026 – 31/10/2026).')+
-    CK('<b>Hoàn công trước 23h59 ngày 02/11/2026.</b>')+
-    CK('Thuê bao có ngày lập hợp đồng và dùng thử trong tháng 9, sau đó <b>chuyển dùng thật trong tháng 10 được tính</b>.')+
+    CK('Thuê bao '+svc+' phát triển mới được <b>lập hợp đồng trong thời gian diễn ra chương trình</b> (01/11/2026 – 30/11/2026).')+
+    CK('<b>Hoàn công trước 23h59 ngày 02/12/2026.</b>')+
+    CK('Thuê bao có ngày lập hợp đồng và dùng thử trong tháng 10, sau đó <b>chuyển dùng thật trong tháng 11 được tính</b>.')+
     CK('Không tính các thuê bao <b>dùng thử, trải nghiệm</b>.', true)+
     CK('Thuê bao hoàn công nhưng sau đó <b>tạm dừng/hủy</b> thì không được ghi nhận (ngày hoàn công và ngày tạm dừng/hủy cùng trong một tháng).', true)+
   '</ul>';
 }
-const RECORD_NOTE_BR = svc => '<ul><li>Thuê bao '+svc+' PTM lập hợp đồng trong thời gian chương trình và hoàn công trước <b>23h59 ngày 2/11/2026</b>.</li><li>Không tính thuê bao dùng thử, trải nghiệm. Thuê bao lập HĐ và dùng thử tháng 9, chuyển dùng thật tháng 10 <b>được tính</b>.</li><li>Hoàn công nhưng sau đó tạm dừng/hủy (cùng trong một tháng) → <b>không được ghi nhận</b>.</li><li>Các gói cước '+svc+' PTM theo quy định hiện hành.</li><li>Sản lượng tính theo kênh phát triển của đơn vị, không bao gồm các thuê bao bán chéo ra ngoài địa bàn TP Hải Phòng.</li></ul>';
+const RECORD_NOTE_BR = svc => '<ul><li>Thuê bao '+svc+' PTM lập hợp đồng trong thời gian chương trình và hoàn công trước <b>23h59 ngày 2/12/2026</b>.</li><li>Không tính thuê bao dùng thử, trải nghiệm. Thuê bao lập HĐ và dùng thử tháng 10, chuyển dùng thật tháng 11 <b>được tính</b>.</li><li>Hoàn công nhưng sau đó tạm dừng/hủy (cùng trong một tháng) → <b>không được ghi nhận</b>.</li><li>Các gói cước '+svc+' PTM theo quy định hiện hành.</li><li>Sản lượng tính theo kênh phát triển của đơn vị, không bao gồm các thuê bao bán chéo ra ngoài địa bàn TP Hải Phòng.</li></ul>';
 
 /* =========================================================
    CHƯƠNG TRÌNH (dữ liệu lấy từ 03 tài liệu nguồn)
@@ -1294,86 +1294,11 @@ const RECORD_NOTE_BR = svc => '<ul><li>Thuê bao '+svc+' PTM lập hợp đồng
 const PROGRAMS = [
 /* ======================= BĂNG RỘNG ======================= */
 {
-  id:'br-fiber', tab:'br', sub:'tapthe', icon:'wifi',
-  title:'Thi đua tập thể phát triển mới Fiber',
-  headline:'VƯỢT NGƯỠNG – NHẬN KHUYẾN KHÍCH TỪ THUÊ BAO ĐẦU TIÊN',
-  types:['tapthe','sanluong'], roles:['DONVI'], services:['fiber'],
-  time:'01/10/2026 – 31/10/2026', target:'Mục tiêu Quý 4: 13.116 TB Fiber',
-  who:'Đơn vị trực thuộc VTHP, Kênh bán hàng',
-  visual: function(){ return flowCollective('50.000đ/TB') +
-    '<div class="h-sub">'+ic('check')+'Checklist để được tính</div>'+ recordChecklist('FiberVNN') +
-    '<div class="nhoky"><span class="nk">NHỚ KỸ</span><p>Không chỉ phát triển thuê bao – phải bảo đảm thuê bao đủ điều kiện ghi nhận.</p></div>'; },
-  blocks:{
-    what:'<p>Chương trình <b>điều chỉnh thi đua tập thể phát triển mới Fiber</b> (Chương trình 1) – thuộc chương trình thúc đẩy PTM dịch vụ BRCĐ tháng 10/2026.</p><p>Mục tiêu Quý 4: phát triển mới <b>13.116 thuê bao Fiber</b>.</p>',
-    who:'<ul><li>Các đơn vị trực thuộc VTHP.</li><li>Kênh bán hàng.</li></ul><p class="muted">Nguồn chi: Quỹ khen thưởng của VTHP.</p>',
-    how:'<p>Thuê bao <b>FiberVNN phát triển mới vượt ngưỡng bình quân</b> (theo kênh phát triển).</p>',
-    reach:'<ul><li><b>Vượt ngưỡng bình quân</b> → được xét khuyến khích từ TB đầu tiên.</li><li><b>Đạt trên 120% ngưỡng giao</b> → mức 1,5 lần.</li></ul>',
-    money:'<ul><li>Đơn vị vượt ngưỡng: <b class="money">50.000 VNĐ/thuê bao</b> từ thuê bao đầu tiên.</li><li>Đạt trên 120% ngưỡng giao: <b class="money">1,5 lần mức hiện hành</b> cho toàn bộ thuê bao PTM, tính từ thuê bao đầu tiên.</li></ul>',
-    note: RECORD_NOTE_BR('FiberVNN')
-  },
-  remember:['Vượt ngưỡng bình quân theo kênh phát triển','Lập HĐ trong 01/10 – 31/10/2026, hoàn công trước 23h59 ngày 02/11/2026','Không tính dùng thử; hoàn công rồi tạm dừng/hủy cùng tháng không được ghi nhận'],
-  calc:'c-fiber'
-},
-{
-  id:'br-mytv', tab:'br', sub:'tapthe', icon:'tv',
-  title:'Thi đua khen thưởng đơn vị phát triển vượt định mức MyTV',
-  headline:'VƯỢT NGƯỠNG → TÍNH TỪ TB ĐẦU TIÊN',
-  types:['tapthe','sanluong'], roles:['DONVI'], services:['mytv'],
-  time:'01/10/2026 – 31/10/2026', target:'Mục tiêu Quý 4: 18.111 TB MyTV',
-  who:'Đơn vị trực thuộc VTHP, Kênh bán hàng',
-  visual: function(){ return '<div class="grid2" style="align-items:start">'+
-    '<div><div class="tblwrap"><table class="tbl"><thead><tr><th>Nhóm gói MyTV phát triển mới</th><th class="r">Khuyến khích</th></tr></thead><tbody>'+
-      '<tr><td>MyTVS, MyTVS1, MyTVS2, MyTV B2B</td><td class="r"><b class="money">30.000 VNĐ/TB</b></td></tr>'+
-      '<tr><td>MyTV Flexi1, MyTV Flexi2, MyTV Film, MyTV Film+, MyTV VIP</td><td class="r"><b class="money">50.000 VNĐ/TB</b></td></tr>'+
-      '<tr><td><b>Đạt trên 120% ngưỡng giao</b></td><td class="r"><b class="money">1,5 lần mức hiện hành</b><div class="muted" style="font-size:12px">cho toàn bộ TB PTM, từ TB đầu tiên</div></td></tr>'+
-    '</tbody></table></div>'+
-    '<div style="margin-top:14px"><span class="badge-big">'+ic('zap')+'VƯỢT NGƯỠNG → TÍNH TỪ TB ĐẦU TIÊN</span></div></div>'+
-    '<div><div class="h-sub" style="margin-top:0">'+ic('check')+'Điều kiện ghi nhận thuê bao</div>'+recordChecklist('MyTV')+'</div>'+
-  '</div>'; },
-  blocks:{
-    what:'<p>Chương trình 2: <b>thi đua khen thưởng đơn vị phát triển vượt định mức dịch vụ MyTV</b> – tháng 10/2026.</p><p>Mục tiêu Quý 4: phát triển mới <b>18.111 thuê bao MyTV</b>.</p>',
-    who:'<ul><li>Các đơn vị trực thuộc VTHP.</li><li>Kênh bán hàng.</li></ul><p class="muted">Nguồn chi: Quỹ khen thưởng của VTHP.</p>',
-    how:'<p>Thuê bao <b>MyTV phát triển mới vượt ngưỡng bình quân</b> (theo kênh phát triển).</p>',
-    reach:'<ul><li>Vượt ngưỡng bình quân → giá trị khuyến khích <b>tính từ thuê bao đầu tiên</b>.</li><li>Đạt <b>trên 120% ngưỡng giao</b> → 1,5 lần.</li></ul>',
-    money:'<ul><li>Gói MyTVS, MyTVS1, MyTVS2, MyTV B2B: <b class="money">30.000 VNĐ/TB</b>.</li><li>Gói MyTV Flexi1, Flexi2, Film, Film+, VIP: <b class="money">50.000 VNĐ/TB</b>.</li><li>Trên 120% ngưỡng giao: <b class="money">1,5 lần mức hiện hành</b> cho toàn bộ TB PTM, tính từ TB đầu tiên.</li></ul>',
-    note: RECORD_NOTE_BR('MyTV')
-  },
-  remember:['Vượt ngưỡng bình quân theo kênh phát triển','Đúng nhóm gói: 30.000đ (MyTVS/S1/S2/B2B) hoặc 50.000đ (Flexi1/Flexi2/Film/Film+/VIP)','Hoàn công trước 23h59 ngày 02/11/2026, không tính dùng thử'],
-  calc:'c-mytv'
-},
-{
-  id:'br-meshcam', tab:'br', sub:'tapthe', icon:'router',
-  title:'Thi đua khen thưởng đơn vị phát triển vượt định mức Wifi Mesh, Camera',
-  headline:'VƯỢT NGƯỠNG – 30.000đ/TB TỪ THUÊ BAO ĐẦU TIÊN',
-  types:['tapthe','sanluong'], roles:['DONVI'], services:['mesh','camera'],
-  time:'01/10/2026 – 31/10/2026', target:'Mục tiêu Quý 4: Mesh 20.712 TB · Camera 19.245 TB',
-  who:'Đơn vị trực thuộc VTHP, Kênh bán hàng',
-  visual: function(){ return '<div class="merge">'+
-      '<div class="srcs"><div class="src"><span class="ic">'+ic('router')+'</span><div>MESH<small>Mục tiêu Quý 4: 20.712 TB</small></div></div>'+
-      '<div class="src"><span class="ic">'+ic('camera')+'</span><div>CAMERA<small>Mục tiêu Quý 4: 19.245 TB</small></div></div></div>'+
-      '<svg class="bracket" viewBox="0 0 60 110"><path d="M2 28 H24 V82 H2"/><path d="M24 55 H56"/><path d="M48 48 L56 55 L48 62"/></svg>'+
-      '<div class="vflow"><div class="vnode n1"><div class="vl">Vượt ngưỡng bình quân</div><div class="vv">30.000đ/TB</div><div class="vd">tính từ thuê bao đầu tiên</div></div>'+
-      '<div class="varrow">'+ic('arrow')+'</div>'+
-      '<div class="vnode n2"><div class="vl">&gt; 120% ngưỡng giao</div><div class="vv">× 1,5 lần</div><div class="vd">mức hiện hành cho toàn bộ TB PTM, từ TB đầu tiên</div></div></div>'+
-    '</div>'+
-    '<div class="h-sub">'+ic('check')+'Nguyên tắc ghi nhận sản lượng</div>'+recordChecklist('Mesh, Camera'); },
-  blocks:{
-    what:'<p>Chương trình 3: <b>thi đua khen thưởng đơn vị phát triển vượt định mức dịch vụ Wifi Mesh, Camera</b> – tháng 10/2026.</p><p>Mục tiêu Quý 4: <b>20.712 TB Mesh</b> và <b>19.245 TB Camera</b>.</p>',
-    who:'<ul><li>Các đơn vị trực thuộc VTHP.</li><li>Kênh bán hàng.</li></ul><p class="muted">Nguồn chi: Quỹ khen thưởng của VTHP.</p>',
-    how:'<p>Thuê bao <b>Mesh, Camera phát triển mới vượt ngưỡng bình quân</b> (theo kênh phát triển).</p>',
-    reach:'<ul><li>Vượt ngưỡng → tính <b>từ thuê bao đầu tiên</b>.</li><li>Đạt <b>trên 120% ngưỡng giao</b> → 1,5 lần.</li></ul>',
-    money:'<ul><li>Đơn vị vượt ngưỡng: <b class="money">30.000 VNĐ/TB</b> tính từ thuê bao đầu tiên.</li><li>Đạt trên 120% ngưỡng giao: <b class="money">1,5 lần mức hiện hành</b> cho toàn bộ TB PTM, tính từ TB đầu tiên.</li></ul>',
-    note: RECORD_NOTE_BR('Mesh, Camera')
-  },
-  remember:['Vượt ngưỡng bình quân theo kênh phát triển','Lập HĐ trong tháng 10, hoàn công trước 23h59 ngày 02/11/2026','Không tính dùng thử, trải nghiệm; tạm dừng/hủy cùng tháng không được ghi nhận'],
-  calc:'c-meshcam'
-},
-{
   id:'br-cn-fiber', tab:'br', sub:'canhan', icon:'user',
   title:'Khuyến khích cá nhân phát triển mới dịch vụ Fiber',
   headline:'ĐẠT ĐÚNG NẤC – NHẬN THEO % GÓI CƯỚC THÁNG',
   types:['canhan','sanluong'], roles:['NVKD','NVKT','LDTL','CTV','KHAC'], services:['fiber'],
-  time:'Thuộc chương trình thúc đẩy PTM BRCĐ tháng 10/2026',
+  time:'01/11/2026 – 30/11/2026',
   who:'Toàn bộ nhân viên, CTV, kênh bán trực thuộc VTHP',
   visual: function(){ return '<div class="tblwrap"><table class="tbl"><thead><tr><th>STT</th><th>Đối tượng kênh</th><th>Điều kiện (*)</th><th class="r">Đơn giá khuyến khích</th></tr></thead><tbody>'+
     '<tr><td>1</td><td><b>NVKD địa bàn</b></td><td>Từ 7 TB trở lên</td><td class="r"><b class="money">150% gói cước tháng</b></td></tr>'+
@@ -1405,7 +1330,7 @@ const PROGRAMS = [
   title:'Khuyến khích cá nhân phát triển mới Mesh, Camera',
   headline:'VƯỢT NGƯỠNG – 100.000đ ĐẾN 120.000đ/TB',
   types:['canhan','sanluong'], roles:['NVKD','NVKT','LDTL','CTV','KHAC'], services:['mesh','camera'],
-  time:'Thuộc chương trình thúc đẩy PTM BRCĐ tháng 10/2026',
+  time:'01/11/2026 – 30/11/2026',
   who:'Toàn bộ nhân viên, CTV, kênh bán trực thuộc VTHP',
   visual: function(){ return '<div class="tblwrap"><table class="tbl"><thead><tr><th>STT</th><th>Đối tượng kênh</th><th>Điều kiện (*)</th><th class="r">Tiền lương đơn giá + khuyến khích</th></tr></thead><tbody>'+
     '<tr><td>1</td><td><b>NVKD địa bàn</b></td><td>Từ 5 TB trở lên</td><td class="r"><b class="money">120.000 đồng/TB vượt ngưỡng</b></td></tr>'+
@@ -1432,7 +1357,7 @@ const PROGRAMS = [
   title:'Khuyến khích thi công lắp đặt dịch vụ Mesh, Camera',
   headline:'NVKT LẮP ĐẶT VƯỢT NGƯỠNG – 100.000đ ĐẾN 120.000đ/TB',
   types:['canhan','sanluong'], roles:['NVKT'], services:['mesh','camera'],
-  time:'Thuộc chương trình thúc đẩy PTM BRCĐ tháng 10/2026',
+  time:'01/11/2026 – 30/11/2026',
   who:'NVKT',
   visual: function(){ return '<div class="tblwrap"><table class="tbl"><thead><tr><th>STT</th><th>Đối tượng kênh</th><th>Điều kiện (*)</th><th class="r">Tiền lương đơn giá + khuyến khích lắp đặt</th></tr></thead><tbody>'+
     '<tr><td>1</td><td><b>NVKT</b></td><td>Từ 3 – đến dưới 5 TB</td><td class="r"><b class="money">100.000 đồng/TB vượt ngưỡng</b></td></tr>'+
@@ -1451,57 +1376,11 @@ const PROGRAMS = [
   calc:'c-thicong'
 },
 {
-  id:'br-dbthap', tab:'br', sub:'dbthap', icon:'pin',
-  title:'Thúc đẩy PTM BRCĐ tại các khu vực có dung lượng thị trường thấp',
-  headline:'VƯỢT NGƯỠNG BÌNH QUÂN 3 THÁNG – HƯỞNG TỪ THUÊ BAO ĐẦU TIÊN',
-  types:['tapthe','sanluong'], roles:['DONVI'], services:['fiber'],
-  time:'01/09/2026 – 31/12/2026', target:'Tăng trưởng tối thiểu 320 TB/tháng',
-  who:'Kênh bán tại địa bàn có DLTT thấp',
-  visual: function(){ return '<div class="bignum"><div class="v">200.000<small>đ/thuê bao Fiber VNN</small></div>'+
-      '<div class="d"><b>Địa bàn vượt ngưỡng bình quân 3 tháng</b>→ được hưởng khuyến khích <b style="display:inline;color:#FFD68A">từ thuê bao đầu tiên</b>.<br>Gói cước: PTM các gói cước BRCĐ (gói cước KHCN và KHDN).</div></div>'; },
-  blocks:{
-    what:'<p>Chương trình thúc đẩy PTM dịch vụ BRCĐ tại <b>các khu vực có dung lượng thị trường (DLTT) thấp</b>.</p><p>Mục tiêu: tăng trưởng tối thiểu <b>320 TB/tháng</b> các khu vực có DLTT thấp &lt;=25%.</p>',
-    who:'<p>Áp dụng chính sách khuyến khích đối với <b>kênh bán</b>; xét theo <b>địa bàn</b>.</p><p class="muted">Nguồn chi: Nguồn thi đua khen thưởng của VNPT Hải Phòng năm 2026.</p>',
-    how:'<p>PTM các gói cước BRCĐ (gói cước KHCN và KHDN) tại địa bàn 34 xã/phường có DLTT thấp.</p>',
-    reach:'<p><b>Địa bàn vượt ngưỡng bình quân 3 tháng</b> → hưởng khuyến khích từ thuê bao đầu tiên.</p>',
-    money:'<p><b class="money">200.000 đ/thuê bao Fiber VNN</b>.</p>',
-    note:'<ul><li>Thuê bao FiberVNN PTM được <b>hoàn công trong tháng (thuê bao có PSC)</b>, không tính dùng thử, trải nghiệm.</li><li>Hoàn công nhưng sau đó tạm dừng/hủy (cùng trong một tháng) → không được ghi nhận.</li><li>Thuê bao Fiber PTM thuộc địa bàn <b>34 xã/phường có DLTT thấp (&lt;25%)</b> quy định tại mục 1.</li><li><b>Mỗi thuê bao chỉ được hưởng 01 chương trình khuyến khích có giá trị cao nhất.</b></li></ul>'+SRC
-  },
-  remember:['Thuê bao thuộc địa bàn 34 xã/phường có DLTT thấp','Hoàn công trong tháng (có PSC), không tính dùng thử','Mỗi thuê bao chỉ hưởng 01 chương trình có giá trị cao nhất'],
-  calc:'c-dbthap'
-},
-{
-  id:'br-ccco', tab:'br', sub:'ccco', icon:'building',
-  title:'Chương trình phát triển mới tại CCCO / NOXH',
-  headline:'VƯỢT NGƯỠNG BÌNH QUÂN 3 THÁNG – 200.000đ/TB TỪ TB ĐẦU TIÊN',
-  types:['tapthe','sanluong'], roles:['DONVI'], services:['fiber'],
-  time:'01/09/2026 – 31/12/2026', target:'Tăng trưởng tối thiểu 150 TB/tháng',
-  who:'Địa bàn có khu CCCO, NOXH',
-  visual: function(){ return '<div class="bignum"><div class="v">200.000<small>VNĐ/TB</small></div>'+
-      '<div class="d"><b>Địa bàn vượt ngưỡng bình quân 3 tháng</b>→ được hưởng khuyến khích <b style="display:inline;color:#FFD68A">từ thuê bao đầu tiên</b>.</div></div>'+
-    '<div class="grid3" style="margin-top:14px">'+
-      '<div class="mcard"><div class="mt"><span class="ic">'+ic('target')+'</span>Mục tiêu</div><div class="md">Tăng trưởng tối thiểu <b>150 TB/tháng</b> tại các khu CCCO, NOXH.</div></div>'+
-      '<div class="mcard"><div class="mt"><span class="ic">'+ic('sparkle')+'</span>Trọng tâm</div><div class="md">Tập trung phát triển các gói cước trọng điểm, gói cước có ARPU cao tại các CCCO, khu NOXH.</div></div>'+
-      '<div class="mcard"><div class="mt"><span class="ic">'+ic('layers')+'</span>Định hướng</div><div class="md">Tăng cường năng lực cạnh tranh về chất lượng dịch vụ, gia tăng thị phần, mở rộng tập khách hàng BRCĐ mới, nâng cao nhận diện thương hiệu VNPT tại khu vực này.</div></div>'+
-    '</div>'; },
-  blocks:{
-    what:'<p>Chương trình <b>phát triển mới thuê bao BRCĐ tại các khu CCCO</b>, NOXH.</p>',
-    who:'<p>Áp dụng chính sách khuyến khích đối với <b>địa bàn</b> phát triển mới thuê bao BRCĐ tại các khu CCCO.</p><p class="muted">Nguồn chi: Nguồn thi đua khen thưởng của VNPT Hải Phòng năm 2026.</p>',
-    how:'<p>Phát triển mới thuê bao BRCĐ tại các khu CCCO, NOXH.</p>',
-    reach:'<ul><li>Mục tiêu tối thiểu <b>150 TB/tháng</b>.</li><li><b>Địa bàn vượt ngưỡng bình quân 3 tháng</b> → hưởng từ TB đầu tiên.</li></ul>',
-    money:'<p><b class="money">200.000 VNĐ/TB</b>.</p>',
-    note:'<ul><li>Thuê bao FiberVNN PTM được <b>hoàn công trong tháng (thuê bao có PSC)</b>, không tính dùng thử, trải nghiệm.</li><li>Hoàn công nhưng sau đó tạm dừng/hủy (cùng trong một tháng) → không được ghi nhận.</li><li>Thuê bao PTM được <b>ghi nhận phát triển trong khu CCCO</b>.</li></ul>'+SRC
-  },
-  remember:['Thuê bao được ghi nhận phát triển trong khu CCCO','Hoàn công trong tháng (có PSC), không tính dùng thử','Địa bàn vượt ngưỡng bình quân 3 tháng'],
-  calc:'c-ccco'
-},
-
-{
   id:'br-vtci', tab:'br', sub:'vtci', icon:'heart',
   title:'Chương trình PTM thuê bao Fiber Viễn thông công ích VTCI',
   headline:'GÓI VTCI2 CHO HỘ NGHÈO / HỘ CẬN NGHÈO – 130.000đ/TB',
   types:['canhan','sanluong'], roles:['NVKD','NVKT','KHAC'], services:['fiber'],
-  time:'01/10/2026 – 31/12/2026', target:'6.086 KH PTM/chuyển đổi + 1.241 KH từ Di động VTCI',
+  time:'01/11/2026 – 31/12/2026', target:'6.086 KH PTM/chuyển đổi + 1.241 KH từ Di động VTCI',
   who:'Thuê bao Fiber VTCI (gói VTCI2) thuộc danh sách hộ nghèo/hộ cận nghèo được phê duyệt',
   visual: function(){ return '<div class="grid2">'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('file')+'</span>Đơn giá tiền lương PTTB BRCĐ VTCI</div><div class="mv">100%<small>doanh thu gói cước tháng (chưa VAT)</small></div><div class="md">Áp dụng theo cơ chế hiện hành.</div></div>'+
@@ -1523,35 +1402,11 @@ const PROGRAMS = [
   remember:['Gói VTCI2 – hộ nghèo/hộ cận nghèo được cơ quan QLNN phê duyệt','130.000đ/TB PTM đủ điều kiện (cơ chế TCT)','Không hưởng thêm chính sách khuyến khích khác']
 },
 {
-  id:'br-camttn', tab:'br', sub:'camttn', icon:'camera',
-  title:'Chương trình PTM thuê bao Camera thanh toán ngay (Cam TTN)',
-  headline:'ĐƠN VỊ VƯỢT NGƯỠNG GIAO – 70.000đ/TB TỪ TB ĐẦU TIÊN',
-  types:['tapthe','sanluong'], roles:['DONVI'], services:['camera'],
-  time:'01/10/2026 – 31/10/2026', target:'Tăng tối thiểu 30% sản lượng Camera so với T9 (≈ 400 TB)',
-  who:'Đơn vị – số lượng TB PTM tính trên các kênh của đơn vị phát triển',
-  visual: function(){ return '<div class="bignum"><div class="v">70.000<small>đ/TB</small></div>'+
-      '<div class="d"><b>Mức khuyến khích ngưỡng mục tiêu</b>tính <b style="display:inline;color:#FFD68A">từ thuê bao đầu tiên</b> nếu đơn vị PTM gói cước Cam TTN vượt ngưỡng giao.</div></div>'+
-    '<div class="grid2" style="margin-top:14px">'+
-      '<div class="mcard"><div class="mt"><span class="ic">'+ic('target')+'</span>Mục tiêu</div><div class="md">Tăng tối thiểu <b>30% sản lượng Camera</b> so với kết quả thực hiện tháng 9 (tương đương khoảng <b>400 thuê bao</b>).</div></div>'+
-      '<div class="mcard"><div class="mt"><span class="ic">'+ic('camera')+'</span>Trọng tâm</div><div class="md">Tăng sản lượng phát triển mới thuê bao Camera <b>gói cước Camera TTN</b>.</div></div>'+
-    '</div>'; },
-  blocks:{
-    what:'<p>Chương trình <b>PTM thuê bao Camera thanh toán ngay (Cam TTN)</b>.</p>',
-    who:'<p><b>Đơn vị</b>; số lượng thuê bao PTM được tính trên các kênh của đơn vị phát triển.</p>',
-    how:'<p>Phát triển mới thuê bao Camera <b>gói cước Cam TTN</b>.</p>',
-    reach:'<p>Đơn vị PTM gói cước Cam TTN <b>vượt ngưỡng giao</b> → hưởng từ thuê bao đầu tiên.</p>',
-    money:'<p>Mức khuyến khích ngưỡng mục tiêu: <b class="money">70.000 đ/TB</b> tính từ thuê bao đầu tiên.</p>',
-    note:'<ul><li>Kết quả hợp lệ: thuê bao Camera PTM <b>đã hoàn công, PSC</b> trong thời gian diễn ra chương trình.</li><li>Không được tính: thuê bao PTM sau đó tạm dừng/hủy dịch vụ (PTM và tạm dừng/hủy trong cùng tháng); kết quả ghi nhận không đúng, cập nhật sai thực tế hoặc có dấu hiệu gian lận bị loại sau hậu kiểm.</li></ul>'+SRC
-  },
-  remember:['Gói cước Camera TTN','Đơn vị vượt ngưỡng giao → 70.000đ/TB từ TB đầu tiên','Hoàn công, PSC trong 01/10 – 31/10/2026']
-},
-
-{
   id:'br-trongdiem', tab:'br', sub:'trongdiem', icon:'medal',
   title:'Chương trình thúc đẩy phát triển mới gói cước trọng điểm Quý IV/2026',
   headline:'GÓI TỪ 230.000đ/THÁNG + ĐÓNG TRƯỚC CƯỚC TỪ 6 THÁNG – 100.000đ ĐẾN 200.000đ/TB',
   types:['canhan','doanhthu'], roles:['NVKD','NVKT','CTV','KHAC'], services:['fiber'],
-  time:'01/10/2026 – 31/12/2026',
+  time:'01/11/2026 – 31/12/2026',
   who:'CBCNV, CTV của Viễn thông Hải Phòng',
   visual: function(){ return '<div class="grid2">'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('calendar')+'</span>ĐTC 6 tháng</div><div class="mv">100.000<small>đồng/TB</small></div><div class="md">Đóng trước cước <b>từ 06 tháng đến dưới 12 tháng</b>.</div></div>'+
@@ -1560,12 +1415,12 @@ const PROGRAMS = [
     '<div class="vflow" style="margin-top:14px">'+
       '<div class="vnode n0"><div class="vl">① Gói cước FiberVNN</div><div class="vv" style="font-size:17px">≥ 230.000đ/tháng</div><div class="vd">đơn lẻ hoặc tích hợp, giá đã gồm VAT</div></div><div class="varrow">'+ic('arrow')+'</div>'+
       '<div class="vnode n0"><div class="vl">② Đóng trước cước</div><div class="vv" style="font-size:17px">Từ 6 tháng</div><div class="vd">ghi nhận ĐTC cùng tháng hoàn công</div></div><div class="varrow">'+ic('arrow')+'</div>'+
-      '<div class="vnode n1"><div class="vl">③ Hoàn công, PSC</div><div class="vv" style="font-size:17px">01/10 – 31/12/2026</div></div>'+
+      '<div class="vnode n1"><div class="vl">③ Hoàn công, PSC</div><div class="vv" style="font-size:17px">01/11 – 31/12/2026</div></div>'+
     '</div>'; },
   blocks:{
     what:'<p>Chương trình <b>thúc đẩy phát triển mới gói cước trọng điểm Quý IV/2026</b> dịch vụ FiberVNN.</p>',
     who:'<p><b>CBCNV, CTV của Viễn thông Hải Phòng</b> tư vấn phát triển mới thuê bao FiberVNN.</p>',
-    how:'<ul><li>Thuê bao Internet <b>đơn lẻ hoặc tích hợp</b> phát triển mới, sử dụng gói cước có giá <b>từ 230.000 đồng/tháng trở lên</b> (giá đã gồm VAT).</li><li>Đóng trước cước (ĐTC) <b>từ 6 tháng trở lên</b>, <u>thời gian ghi nhận ĐTC cùng tháng với tháng hoàn công</u>; số tiền ĐTC bắt đầu trừ vào tháng T hoặc T+1 (T là tháng hoàn công).</li><li>Đã hoàn công, bàn giao dịch vụ cho khách hàng sử dụng và phát sinh cước từ <b>01/10/2026 đến 31/12/2026</b>.</li></ul>',
+    how:'<ul><li>Thuê bao Internet <b>đơn lẻ hoặc tích hợp</b> phát triển mới, sử dụng gói cước có giá <b>từ 230.000 đồng/tháng trở lên</b> (giá đã gồm VAT).</li><li>Đóng trước cước (ĐTC) <b>từ 6 tháng trở lên</b>, <u>thời gian ghi nhận ĐTC cùng tháng với tháng hoàn công</u>; số tiền ĐTC bắt đầu trừ vào tháng T hoặc T+1 (T là tháng hoàn công).</li><li>Đã hoàn công, bàn giao dịch vụ cho khách hàng sử dụng và phát sinh cước từ <b>01/11/2026 đến 31/12/2026</b>.</li></ul>',
     reach:'<ul><li>ĐTC 6 tháng: <b>từ 06 tháng đến dưới 12 tháng</b>.</li><li>ĐTC 12 tháng: <b>từ 12 tháng trở lên</b>.</li></ul>',
     money:'<ul><li>ĐTC 6 tháng: <b class="money">100.000 đồng/TB</b></li><li>ĐTC 12 tháng: <b class="money">200.000 đồng/TB</b></li></ul>',
     note:'<p>Không tính:</p><ul><li>Thuê bao tạm dừng/hủy trong thời gian diễn ra chương trình.</li><li>Thuê bao dùng thử.</li><li>Thuê bao hủy cũ lắp mới trong vòng 30 ngày kể từ ngày hoàn công (cùng địa chỉ lắp đặt hoặc cùng CCCD với thuê bao BRCĐ đã thanh hủy).</li><li>Thuê bao bị loại sau hậu kiểm của VTHP.</li></ul>'+SRC
@@ -1579,7 +1434,7 @@ const PROGRAMS = [
   title:'Tăng tốc phát triển – Bứt phá thuê bao mới',
   headline:'CÀNG NHIỀU THUÊ BAO ĐỦ ĐIỀU KIỆN – ĐƠN GIÁ CÀNG CAO',
   types:['canhan','sanluong'], roles:['NVKD','LDTL','CTV','DUQ','VNPOST'], services:['didong'],
-  time:'01/09/2026 – 31/12/2026',
+  time:'01/11/2026 – 31/12/2026',
   who:'NVKD, LĐTL, CTV, ĐUQ/VNPost',
   visual: function(){ return '<div class="h-sub" style="margin-top:0">'+ic('zap')+'3 nấc tăng tốc</div>'+
     '<div class="stairs">'+
@@ -1601,7 +1456,7 @@ const PROGRAMS = [
     how:'<p>Phát triển TB mới <b>không mua gói trong tháng</b> nhưng có phát sinh tiêu dùng <b>TKC &gt;= 10.000 đồng</b> hoặc <b>nạp thẻ tối thiểu 50.000 đồng theo 5917</b> trên địa bàn Hải Phòng.</p>',
     reach:'<ul><li>Dưới 10 TB</li><li>Từ 10 đến dưới 20 TB</li><li>Từ 20 TB trở lên</li></ul>',
     money:'<ul><li>Dưới 10 TB: <b class="money">10.000 đ/TB</b></li><li>10 – dưới 20 TB: <b class="money">12.000 đ/TB</b></li><li>Từ 20 TB: <b class="money">15.000 đ/TB</b></li></ul>',
-    note:'<ul><li>Chỉ áp dụng cho TB PTM <b>không mua gói</b> trong tháng.</li><li>Người hưởng phải có <b>đầy đủ thông tin trên hệ thống</b>.</li><li>Thời gian áp dụng: <b>từ 01/09/2026 đến hết 31/12/2026</b>.</li></ul>'+SRC
+    note:'<ul><li>Chỉ áp dụng cho TB PTM <b>không mua gói</b> trong tháng.</li><li>Người hưởng phải có <b>đầy đủ thông tin trên hệ thống</b>.</li><li>Thời gian áp dụng: <b>từ 01/11/2026 đến hết 31/12/2026</b>.</li></ul>'+SRC
   },
   remember:['TB PTM không mua gói nhưng TKC >= 10.000đ hoặc nạp thẻ >= 50.000đ theo 5917','Phát sinh trên địa bàn Hải Phòng','Người bán có đầy đủ thông tin trên hệ thống'],
   tier:function(role,n){ if(n>=20) return {ok:1,t:'Từ 20 TB trở lên → 15.000 đồng/TB'}; if(n>=10) return {ok:1,t:'Từ 10 đến dưới 20 TB → 12.000 đồng/TB'}; if(n>=1) return {ok:1,t:'Dưới 10 TB → 10.000 đồng/TB'}; return {ok:0,t:'Nhập số TB PTM đủ điều kiện'}; },
@@ -1612,7 +1467,7 @@ const PROGRAMS = [
   title:'Bán gói cước mục tiêu',
   headline:'BÁN GÓI MỤC TIÊU – BỔ SUNG 5% DOANH THU BÁN GÓI TRỌNG ĐIỂM',
   types:['canhan','doanhthu'], roles:['NVKD','LDTL','CTV','DUQ','VNPOST'], services:['goicuoc','didong'],
-  time:'Đến hết 31/12/2026',
+  time:'01/11/2026 – 31/12/2026',
   who:'NVKD, LĐTL, CTV, ĐUQ/VNPost',
   visual: function(){
     const P = [
@@ -1700,7 +1555,7 @@ const PROGRAMS = [
   title:'Thi đua hoàn thành chỉ tiêu CTV liên kết PSSL',
   headline:'2 TIÊU CHÍ – 100 ĐIỂM – KHUYẾN KHÍCH THEO THÁNG',
   types:['tapthe','xephang'], roles:['DONVI'], services:['ctv'],
-  time:'Đến hết 31/12/2026 (xét theo từng tháng)',
+  time:'01/11/2026 – 31/12/2026 (xét theo từng tháng)',
   who:'17 VNPT khu vực',
   visual: function(){ return '<div class="grid2">'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('users')+'</span>TC1 · Số lượng CTV LK PSSL</div><div class="mv">50<small> điểm tối đa</small></div><div class="md">Cách tính: 50 điểm × Tỷ lệ HTKH</div></div>'+
@@ -1731,7 +1586,7 @@ const PROGRAMS = [
   title:'Thúc đẩy doanh thu bán hàng theo tháng đối với 17 VNPT KV',
   headline:'TOP 3 VNPT KV MỖI THÁNG – TỶ LỆ HOÀN THÀNH KẾ HOẠCH DỊCH VỤ SỐ CAO NHẤT',
   types:['tapthe','xephang'], roles:['DONVI'], services:['dvs'],
-  time:'01/10/2026 – 31/12/2026',
+  time:'01/11/2026 – 31/12/2026',
   who:'17 VNPT KV',
   visual: function(){ return '<div class="grid2" style="align-items:center">'+
       '<div class="podium">'+
@@ -1749,7 +1604,7 @@ const PROGRAMS = [
     money:'<ul><li>Giải Nhất: <b class="money">4.000.000đ</b></li><li>Giải Nhì: <b class="money">3.000.000đ</b></li><li>Giải Ba: <b class="money">2.000.000đ</b></li></ul>',
     note:'<p>Cơ cấu giải thưởng <b>hàng tháng</b>, xét theo xếp hạng.</p>'+SRC
   },
-  remember:['Top 3 tỷ lệ hoàn thành kế hoạch dịch vụ số','Đạt tối thiểu trên 80% kế hoạch DT bán hàng (không phân bổ) tháng DVS','Xét mỗi tháng từ 01/10 đến 31/12/2026'],
+  remember:['Top 3 tỷ lệ hoàn thành kế hoạch dịch vụ số','Đạt tối thiểu trên 80% kế hoạch DT bán hàng (không phân bổ) tháng DVS','Xét mỗi tháng từ 01/11 đến 31/12/2026'],
   calc:'c-17kv'
 },
 {
@@ -1757,7 +1612,7 @@ const PROGRAMS = [
   title:'Chương trình thúc đẩy bán hàng trọng điểm dịch vụ HKD, eContract, Loa thanh toán',
   headline:'PHÁT TRIỂN MỚI – NHẬN KHEN THƯỞNG THEO TỪNG THUÊ BAO',
   types:['canhan','sanluong','doanhthu'], roles:['AM','NVKD'], services:['hkd','econtract','loa'],
-  time:'01/10/2026 – 31/12/2026',
+  time:'01/11/2026 – 31/12/2026',
   who:'Nhân viên kinh doanh AM',
   visual: function(){ return '<div class="grid3">'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('store')+'</span>HKD</div><div class="mv">100.000<small>đ/thuê bao</small></div><div class="md">Thuê bao HKD <b>(gói combo), SBH</b> phát triển mới.</div></div>'+
@@ -1780,7 +1635,7 @@ const PROGRAMS = [
   title:'Chương trình khuyến khích bán hàng dịch vụ TLS/INTT',
   headline:'TOP 3 THUÊ BAO MỖI THÁNG – 3.000.000đ/THUÊ BAO',
   types:['canhan','doanhthu','xephang'], roles:['AM','NVKD'], services:['tls'],
-  time:'01/10/2026 – 31/12/2026',
+  time:'01/11/2026 – 31/12/2026',
   who:'Nhân viên kinh doanh AM',
   visual: function(){ return '<div class="bignum"><div class="v">3.000.000<small>đ/thuê bao</small></div><div class="d"><b>Mỗi tháng chọn 03 thuê bao TLS/INTT phát triển mới</b>có doanh thu phân bổ tháng cao nhất và tối thiểu đạt ngưỡng doanh thu <b style="display:inline;color:#FFD68A">10.000.000 VNĐ/tháng</b>.</div></div>'+
     '<div class="vflow" style="margin-top:14px">'+
@@ -1804,7 +1659,7 @@ const PROGRAMS = [
   title:'Chương trình TĐBH lĩnh vực Y tế số, Giáo dục số – Dịch vụ Y tế số',
   headline:'NGHIỆM THU ĐƯA VÀO SỬ DỤNG – NHẬN KHEN THƯỞNG',
   types:['duan','doanhthu'], roles:['AM','NHOM'], services:['yte'],
-  time:'01/10/2026 – 31/12/2026',
+  time:'01/11/2026 – 31/12/2026',
   who:'AM, Nhóm triển khai',
   visual: function(){ return '<div class="grid2">'+
       '<div class="mcard hl"><div class="mt"><span class="ic">'+ic('user')+'</span>AM</div><div class="mv">2.000.000<small>đ/AM</small></div></div>'+
@@ -1831,7 +1686,7 @@ const PROGRAMS = [
   title:'Chương trình TĐBH lĩnh vực Y tế số, Giáo dục số – Dịch vụ Giáo dục số',
   headline:'NGHIỆM THU ĐƯA VÀO SỬ DỤNG – NHẬN KHEN THƯỞNG',
   types:['duan'], roles:['AM','NHOM'], services:['gd'],
-  time:'01/10/2026 – 31/12/2026',
+  time:'01/11/2026 – 31/12/2026',
   who:'AM, Nhóm triển khai',
   visual: function(){ return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Dịch vụ Giáo dục số</th><th class="r">AM</th><th class="r">Nhóm triển khai</th></tr></thead><tbody>'+
       '<tr><td><b>Điểm danh thông minh</b><div class="muted" style="font-size:12.5px">các trường học sử dụng dịch vụ</div></td><td class="r"><b class="money">2.000.000đ/AM</b></td><td class="r"><b class="money">2.000.000đ/nhóm</b></td></tr>'+
@@ -1853,7 +1708,7 @@ const PROGRAMS = [
   title:'Chương trình khen thưởng nâng cao tỷ lệ dự thầu thành công đối với TTKDGP',
   headline:'ĐẤU THẦU THÀNH CÔNG – HỢP ĐỒNG TỪ 1 TỶ ĐỒNG',
   types:['tapthe','duan'], roles:['DONVI'], services:['duan'],
-  time:'01/10/2026 – 31/12/2026',
+  time:'01/11/2026 – 31/12/2026',
   who:'TTKDGP',
   visual: function(){ return '<div class="bignum"><div class="v">2.000.000<small>đ/dự án</small></div><div class="d"><b>Dự án tham gia đấu thầu thành công</b>và có giá trị hợp đồng tối thiểu <b style="display:inline;color:#FFD68A">từ 1 tỷ trở lên</b>.</div></div>'; },
   blocks:{
@@ -1862,13 +1717,13 @@ const PROGRAMS = [
     how:'<p>Dự án tham gia <b>đấu thầu thành công</b>.</p>',
     reach:'<p>Giá trị hợp đồng tối thiểu <b>từ 1 tỷ trở lên</b>.</p>',
     money:'<p><b class="money">2.000.000đ/dự án</b>.</p>',
-    note:'<p>Thời gian xét khen thưởng: <b>từ 1/10/2026 – 31/12/2026</b>.</p>'+SRC
+    note:'<p>Thời gian xét khen thưởng: <b>từ 1/11/2026 – 31/12/2026</b>.</p>'+SRC
   },
-  remember:['Tham gia đấu thầu thành công','Giá trị hợp đồng tối thiểu từ 1 tỷ đồng','Thời gian xét 01/10 – 31/12/2026'],
+  remember:['Tham gia đấu thầu thành công','Giá trị hợp đồng tối thiểu từ 1 tỷ đồng','Thời gian xét 01/11 – 31/12/2026'],
   calc:'c-ttkd'
 }
 ];
-const MT_OK=['c-fiber','c-mytv','c-meshcam','c-cn-fiber','c-cn-meshcam','c-thicong','c-dbthap','c-ccco'];
+const MT_OK=['c-cn-fiber','c-cn-meshcam','c-thicong'];
 PROGRAMS.forEach(p=>{ if(p.calc && MT_OK.indexOf(p.calc)<0) delete p.calc; });
 const PMAP = Object.fromEntries(PROGRAMS.map(p=>[p.id,p]));
 
@@ -1891,7 +1746,7 @@ function parseNum(v, kind){
   const n=Number(s); return isFinite(n)?n:NaN;
 }
 
-const state = { tab:'home', sub:{br:'tapthe',dd:'ptm',cntt:'dvs',km:'tq'}, role:'', svc:'', n:'' , calc:'c-fiber' };
+const state = { tab:'home', sub:{br:'canhan',dd:'ptm',cntt:'dvs',km:'tq'}, role:'', svc:'', n:'' , calc:'c-cn-fiber' };
 
 /* =========================================================
    KHỞI TẠO NAV + FILTER
@@ -1998,7 +1853,6 @@ function renderService(tab){
   t.subs.forEach(s=>{
     h+='<div class="subpanel" data-sub="'+s[0]+'">';
     const JUMPS={
-      'br-tapthe':[['br-fiber','wifi','Fiber','13.116 TB Quý 4'],['br-mytv','tv','MyTV','18.111 TB Quý 4'],['br-meshcam','router','Mesh / Camera','20.712 · 19.245 TB Quý 4']],
       'br-canhan':[['br-cn-fiber','wifi','Fiber','100% – 150% gói cước'],['br-cn-meshcam','router','Bán hàng Mesh/Cam','100.000 – 120.000đ/TB'],['br-cn-thicong','users','Thi công Mesh/Cam','NVKT']]
     };
     const J=JUMPS[tab+'-'+s[0]];
@@ -2025,37 +1879,36 @@ const QUICK = [
   {t:'Tôi triển khai Giáo dục số', role:'', svc:'gd', icon:'school'}
 ];
 const TIMELINE = [
-  ['Fiber · MyTV · Mesh · Camera (tập thể & cá nhân)', 10,10,''],
-  ['Chương trình thị phần thấp', 9,12,''],
-  ['Chương trình CCCO/NOXH', 9,12,''],
-  ['Di động – Tăng tốc PTM', 9,12,''],
-  ['Di động – Bán gói cước mục tiêu', 10,12,'q'],
+  ['Băng rộng – Thi đua cá nhân (Fiber · Mesh/Camera · Thi công)', 11,11,''],
+  ['Băng rộng – VTCI · Gói cước trọng điểm', 11,12,''],
+  ['Di động – Tăng tốc PTM', 11,12,''],
+  ['Di động – Bán gói cước mục tiêu', 11,12,'q'],
   ['ĐUQ – Thăng/giữ hạng (kỳ Quý II, III, IV)', 9,12,'o'],
   ['ĐUQ – Thi đua độ phủ (kỳ Quý III, IV)', 9,12,'o'],
-  ['CTV liên kết PSSL', 10,12,'q'],
-  ['Số doanh nghiệp – 17 KV, HKD/eContract/Loa, TLS/INTT, Y tế số, Giáo dục số, TTKDGP', 10,12,'']
+  ['CTV liên kết PSSL', 11,12,'q'],
+  ['Số doanh nghiệp – 17 KV, HKD/eContract/Loa, TLS/INTT, Y tế số, Giáo dục số, TTKDGP', 11,12,'']
 ];
 function renderHome(){
   const kpi=(k,ic_,v,unit,d,go)=>'<div class="kpi" '+(go.indexOf('p:')===0?'data-goto-p="'+go.slice(2)+'"':'data-goto="'+go+'"')+'><div class="kl"><span class="ic">'+ic(ic_)+'</span>'+k+'</div>'+(unit!==null?'<div class="kv">'+v+'<small>'+unit+'</small></div>':'<div class="kv txt">'+v+'</div>')+'<div class="kd">'+d+'</div></div>';
   const grp=(id,icn,name,chips,desc)=>'<div class="group" data-goto="'+id+'"><span class="go">'+ic('arrow')+'</span><div class="gic">'+ic(icn)+'</div><h3>'+name+'</h3><div class="muted" style="font-size:13.5px">'+desc+'</div><div class="chips">'+chips.map(c=>'<span class="chip" data-goto="'+id+':'+c[1]+'" role="button" tabindex="0">'+c[0]+'</span>').join('')+'</div></div>';
   let h='';
-  h+='<div class="hero"><h1>CẨM NANG CƠ CHẾ THÚC ĐẨY QUÝ IV/2026</h1></div>';
+  h+='<div class="hero"><h1>CẨM NANG CƠ CHẾ THÚC ĐẨY QUÝ IV/2026</h1><div style="margin-top:6px;font-weight:700;color:#FFD166">Áp dụng trong Tháng 11/2026</div></div>';
   h+='<div class="kpis">'+
-     kpi('FIBER','wifi','13.116',' TB','Mục tiêu PTM Quý 4/2026','p:br-fiber')+
-     kpi('MYTV','tv','18.111',' TB','Mục tiêu PTM Quý 4/2026','p:br-mytv')+
-     kpi('MESH','router','20.712',' TB','Mục tiêu PTM Quý 4/2026','p:br-meshcam')+
-     kpi('CAMERA','camera','19.245',' TB','Mục tiêu PTM Quý 4/2026','p:br-meshcam')+
+     kpi('FIBER','wifi','13.116',' TB','Mục tiêu PTM Quý 4/2026','br:canhan')+
+     kpi('MYTV','tv','18.111',' TB','Mục tiêu PTM Quý 4/2026','br:canhan')+
+     kpi('MESH','router','20.712',' TB','Mục tiêu PTM Quý 4/2026','br:canhan')+
+     kpi('CAMERA','camera','19.245',' TB','Mục tiêu PTM Quý 4/2026','br:canhan')+
      kpi('DI ĐỘNG','phone','25.3',' tỷ DT','47.888 thuê bao','dd:ptm')+
      kpi('SỐ DOANH NGHIỆP','cpu','59,585',' tỷ DT','6 chương trình','cntt:dvs')+
      '</div>';
 
   h+='<div class="sec-title">'+ic('layers')+'Chọn mảng dịch vụ</div><div class="groups">'+
-     grp('br','wifi','BĂNG RỘNG',[['Fiber','tapthe'],['MyTV','tapthe'],['Mesh','tapthe'],['Camera','tapthe'],['Cá nhân','canhan'],['Thị phần thấp','dbthap'],['CCCO/NOXH','ccco'],['VTCI','vtci'],['Cam TTN','camttn'],['Gói trọng điểm','trongdiem']],'Thi đua tập thể · Cá nhân · Thị phần thấp · CCCO/NOXH · VTCI · Cam TTN · Gói trọng điểm')+
+     grp('br','wifi','BĂNG RỘNG',[['Cá nhân','canhan'],['VTCI','vtci'],['Gói trọng điểm','trongdiem']],'Thi đua cá nhân · VTCI · Gói trọng điểm')+
      grp('dd','phone','DI ĐỘNG',[['PTM','ptm'],['Gói cước mục tiêu','goi'],['ĐUQ','duq'],['CTV','ctv']],'Bứt phá thuê bao mới · Bán gói · Phân hạng kênh')+
      grp('cntt','cpu','SỐ DOANH NGHIỆP',[['17 VNPT KV','dvs'],['Dự thầu TTKDGP','ttkd'],['HKD','hkd'],['eContract','hkd'],['Loa thanh toán','hkd'],['TLS/INTT','tls'],['Y tế số','ytegd'],['Giáo dục số','ytegd']],'Dịch vụ số · Y tế số · Giáo dục số · Dự án')+
      '</div>'+
-     '<div class="km-banner" data-goto="km:tq"><div class="bi">'+ic('gift')+'</div><div><h4>KHUYẾN MẠI BR-CĐ THÁNG 10/2026 – HOÀN TIỀN CHO KHÁCH HÀNG</h4><p>5 nhóm chính sách · Lập HĐ 01/10 – 31/10/2026 · Nghiệm thu trên ĐHSXKD trước 31/10/2026 · Quà tặng: Tiền mặt</p></div><div class="bv">700.000 VNĐ<small>mức cao nhất / TB PTM</small></div></div>'+
-     '<div class="km-banner" data-goto="km:dd-tq"><div class="bi">'+ic('phone')+'</div><div><h4>KHUYẾN MẠI DI ĐỘNG THÁNG 10/2026 – QUÀ TẶNG TIỀN MẶT CHO KHÁCH HÀNG</h4><p>2 chương trình · Hòa mạng mới 01/10 – 31/10/2026 · Gói từ 100.000đ hoặc DN từ 50 TB · Nhận tiền 12/11 – 30/11/2026</p></div><div class="bv">600.000đ<small>mức cao nhất (VIP499 · Gói 12T)</small></div></div>';
+     '<div class="km-banner" data-goto="km:tq"><div class="bi">'+ic('gift')+'</div><div><h4>KHUYẾN MẠI BR-CĐ THÁNG 11/2026 – HOÀN TIỀN CHO KHÁCH HÀNG</h4><p>5 nhóm chính sách · Lập HĐ 01/11 – 30/11/2026 · Nghiệm thu trên ĐHSXKD trước 30/11/2026 · Quà tặng: Tiền mặt</p></div><div class="bv">700.000 VNĐ<small>mức cao nhất / TB PTM</small></div></div>'+
+     '<div class="km-banner" data-goto="km:dd-tq"><div class="bi">'+ic('phone')+'</div><div><h4>KHUYẾN MẠI DI ĐỘNG THÁNG 11/2026 – QUÀ TẶNG TIỀN MẶT CHO KHÁCH HÀNG</h4><p>2 chương trình · Hòa mạng mới 01/11 – 30/11/2026 · Gói từ 100.000đ hoặc DN từ 50 TB · Nhận tiền 12/12 – 31/12/2026</p></div><div class="bv">600.000đ<small>mức cao nhất (VIP499 · Gói 12T)</small></div></div>';
 
   h+='<div class="sec-title">'+ic('book')+'Quy tắc đọc nhanh</div><div class="flow">'+
      [['Bạn thuộc đối tượng nào?'],['Bạn đang làm dịch vụ nào?'],['Điều kiện cần đạt?'],['Mức khuyến khích?'],['Thuê bao/dự án có được ghi nhận?'],['Làm đúng – hoàn công/nghiệm thu – nhận khuyến khích']].map((s,i)=>'<div class="st"><div class="n">'+'①②③④⑤⑥'[i]+'</div><b>'+s[0]+'</b></div>').join('')+'</div>';
@@ -2180,7 +2033,7 @@ function doSearch(){
     const i=x.n.indexOf(t0); const s=Math.max(0,i-50); const e=Math.min(x.raw.length,i+t0.length+80);
     const snip=(s>0?'…':'')+x.raw.slice(s,e)+(e<x.raw.length?'…':'');
     const qq=x.raw.slice(i,i+t0.length);
-    if(x.km) return '<button class="sr-item" data-goto="km:'+x.km.sub+'"'+(x.km.faq!==null?' data-faq="'+x.km.faq+'"':'')+(x.km.ddq?' data-ddq="'+x.km.ddq+'"':'')+'><div class="st">'+hl(x.km.title,q)+'</div><div class="sp">KHUYẾN MẠI T10 › '+x.km.subName+' · Khách hàng</div><div class="sn">'+hl(snip,qq)+'</div></button>';
+    if(x.km) return '<button class="sr-item" data-goto="km:'+x.km.sub+'"'+(x.km.faq!==null?' data-faq="'+x.km.faq+'"':'')+(x.km.ddq?' data-ddq="'+x.km.ddq+'"':'')+'><div class="st">'+hl(x.km.title,q)+'</div><div class="sp">KHUYẾN MẠI T11 › '+x.km.subName+' · Khách hàng</div><div class="sn">'+hl(snip,qq)+'</div></button>';
     const tab=TABS.find(t=>t.id===x.p.tab); const sub=tab.subs.find(s=>s[0]===x.p.sub);
     return '<button class="sr-item" data-goto-p="'+x.p.id+'"><div class="st">'+hl(x.p.title,q)+'</div><div class="sp">'+tab.name+' › '+sub[1]+' · '+x.p.time+'</div><div class="sn">'+hl(snip,qq)+'</div></button>';
   }).join('');
@@ -2217,37 +2070,6 @@ function collective(v, lines, rateText){
 const COLL_FIELDS=[F('bq','Ngưỡng bình quân của đơn vị (theo kênh phát triển)','int','Điều kiện: thuê bao PTM vượt ngưỡng bình quân'),F('giao','Ngưỡng giao (để xét mức trên 120%)','int','Không bắt buộc – dùng để xét mức 1,5 lần')];
 
 const CALCS = {
-  'c-fiber':{g:'Băng rộng – Tập thể', l:'Fiber – thi đua tập thể', prog:'br-fiber',
-    fields:[F('n','Số TB FiberVNN PTM đủ điều kiện ghi nhận')].concat(COLL_FIELDS),
-    run:v=>collective(v,[{n:v.n,rate:50000,name:'Fiber'}])},
-  'c-mytv':{g:'Băng rộng – Tập thể', l:'MyTV – thi đua tập thể', prog:'br-mytv',
-    fields:[F('n1','Số TB gói MyTVS, MyTVS1, MyTVS2, MyTV B2B','int','30.000 VNĐ/TB'),F('n2','Số TB gói MyTV Flexi1, Flexi2, Film, Film+, VIP','int','50.000 VNĐ/TB')].concat(COLL_FIELDS),
-    run:v=>collective(v,[{n:v.n1,rate:30000,name:'Nhóm 30.000đ'},{n:v.n2,rate:50000,name:'Nhóm 50.000đ'}])},
-  'c-meshcam':{g:'Băng rộng – Tập thể', l:'Mesh / Camera – thi đua tập thể', prog:'br-meshcam',
-    fields:[F('n','Số TB Mesh (hoặc Camera) PTM đủ điều kiện')].concat(COLL_FIELDS),
-    run:v=>collective(v,[{n:v.n,rate:30000,name:''}])},
-  'c-dbthap':{g:'Băng rộng – Tập thể', l:'Địa bàn DLTT thấp', prog:'br-dbthap',
-    fields:[F('n','Số TB FiberVNN PTM của địa bàn (hoàn công trong tháng, có PSC)'),F('bq','Ngưỡng bình quân 3 tháng của địa bàn')],
-    run:v=>{
-      if(isNaN(v.n)||!v.n) return res(null,'Nhập số thuê bao PTM',[],'');
-      if(isNaN(v.bq)) return res(null,'Nhập ngưỡng bình quân 3 tháng',[],'');
-      const s=[stepLi(null,'TB PTM: <b>'+fmtN(v.n)+'</b>')];
-      if(!(v.n>v.bq)){ s.push(stepLi(false,'Chưa vượt ngưỡng bình quân 3 tháng ('+fmtN(v.bq)+')')); return res(0,'Chưa vượt ngưỡng bình quân 3 tháng',s,'',false); }
-      s.push(stepLi(true,'Vượt ngưỡng bình quân 3 tháng → hưởng từ TB đầu tiên'));
-      s.push(stepLi(null,fmtN(v.n)+' TB × 200.000đ = <b>'+fmt(v.n*200000)+'</b>'));
-      return res(v.n*200000,'200.000 đ/thuê bao Fiber VNN',s,'<b>Mỗi thuê bao chỉ được hưởng 01 chương trình khuyến khích có giá trị cao nhất.</b> Chỉ tính TB thuộc 34 xã/phường có DLTT thấp.',true);
-    }},
-  'c-ccco':{g:'Băng rộng – Tập thể', l:'CCCO / NOXH', prog:'br-ccco',
-    fields:[F('n','Số TB PTM ghi nhận trong khu CCCO (hoàn công trong tháng, có PSC)'),F('bq','Ngưỡng bình quân 3 tháng của địa bàn')],
-    run:v=>{
-      if(isNaN(v.n)||!v.n) return res(null,'Nhập số thuê bao PTM',[],'');
-      if(isNaN(v.bq)) return res(null,'Nhập ngưỡng bình quân 3 tháng',[],'');
-      const s=[stepLi(null,'TB PTM tại CCCO: <b>'+fmtN(v.n)+'</b>')];
-      if(!(v.n>v.bq)){ s.push(stepLi(false,'Chưa vượt ngưỡng bình quân 3 tháng ('+fmtN(v.bq)+')')); return res(0,'Chưa vượt ngưỡng bình quân 3 tháng',s,'',false); }
-      s.push(stepLi(true,'Vượt ngưỡng bình quân 3 tháng → hưởng từ TB đầu tiên'));
-      s.push(stepLi(null,fmtN(v.n)+' TB × 200.000đ = <b>'+fmt(v.n*200000)+'</b>'));
-      return res(v.n*200000,'200.000 VNĐ/TB',s,'Chỉ tính thuê bao được ghi nhận phát triển trong khu CCCO.',true);
-    }},
   'c-cn-fiber':{g:'Băng rộng – Cá nhân', l:'Fiber – cá nhân', prog:'br-cn-fiber',
     fields:[F('role','Đối tượng kênh','select','',{options:[['NVKD','NVKD địa bàn'],['NVKT','NVKT địa bàn'],['KHAC','Các chức danh còn lại']]}),
       F('n','Tổng số TB Fiber PTM (để xác định nấc điều kiện)'),
@@ -2337,11 +2159,11 @@ const CALCS = {
       const L=[['a','HKD',100000],['b','eContract',200000],['c','Loa thanh toán',50000]];
       let t=0; const s=[]; L.forEach(x=>{ const q=v[x[0]]; if(q>0){ t+=q*x[2]; s.push(stepLi(null,x[1]+': '+fmtN(q)+' × '+fmt(x[2])+' = <b>'+fmt(q*x[2])+'</b>')); } });
       if(!s.length) return res(null,'Nhập số thuê bao phát triển mới',[],'');
-      return res(t,'Tổng khen thưởng',s,'eContract chỉ tính TB có DT từ 350.000đ trở lên. Thời gian: 01/10/2026 – 31/12/2026.',true);
+      return res(t,'Tổng khen thưởng',s,'eContract chỉ tính TB có DT từ 350.000đ trở lên. Thời gian: 01/11/2026 – 31/12/2026.',true);
     }},
   'c-ttkd':{g:'Số doanh nghiệp', l:'TTKDGP – dự án đấu thầu', prog:'it-ttkdgp',
     fields:[F('n','Số dự án đấu thầu thành công, giá trị HĐ từ 1 tỷ trở lên')],
-    run:v=>{ if(isNaN(v.n)||v.n<=0) return res(null,'Nhập số dự án đạt điều kiện',[],''); return res(v.n*2000000,'2.000.000đ/dự án',[stepLi(null,fmtN(v.n)+' dự án × 2.000.000đ = <b>'+fmt(v.n*2000000)+'</b>')],'Thời gian xét: 01/10/2026 – 31/12/2026.',true); }},
+    run:v=>{ if(isNaN(v.n)||v.n<=0) return res(null,'Nhập số dự án đạt điều kiện',[],''); return res(v.n*2000000,'2.000.000đ/dự án',[stepLi(null,fmtN(v.n)+' dự án × 2.000.000đ = <b>'+fmt(v.n*2000000)+'</b>')],'Thời gian xét: 01/11/2026 – 31/12/2026.',true); }},
   'c-17kv':{g:'Số doanh nghiệp – Chỉ tra mức (không tính tự động)', l:'17 VNPT KV – Dịch vụ số (xếp hạng)', prog:'it-17kv', info:'Xét <b>03 VNPT KV</b> mỗi tháng có tỷ lệ hoàn thành kế hoạch DVS cao nhất, đạt tối thiểu trên 80% kế hoạch Doanh thu bán hàng (doanh thu không phân bổ) tháng DVS. Giải Nhất <b class="money">4.000.000đ</b> · Nhì <b class="money">3.000.000đ</b> · Ba <b class="money">2.000.000đ</b>.', fields:[]},
   'c-tls':{g:'Số doanh nghiệp – Chỉ tra mức (không tính tự động)', l:'TLS/INTT (xếp hạng top 3/tháng)', prog:'it-tls', info:'Mỗi tháng chọn <b>03 TB TLS/INTT PTM</b> có doanh thu phân bổ tháng cao nhất, tối thiểu 10.000.000 VNĐ/tháng. Mức: <b class="money">3.000.000đ/thuê bao</b>.', fields:[]},
   'c-yte':{g:'Số doanh nghiệp – Chỉ tra mức (không tính tự động)', l:'Y tế số', prog:'it-yte', info:'<b class="money">2.000.000đ/AM</b> và <b class="money">2.000.000đ/nhóm triển khai</b> với các phòng khám có doanh thu tối thiểu (HIS/LIS/PACS/EMR) 3 triệu đồng/tháng được nghiệm thu.', fields:[]},
@@ -2446,7 +2268,7 @@ function bind(){
 
 
 /* =========================================================
-   TAB KHUYẾN MẠI BR-CĐ THÁNG 10/2026 (dành cho KHÁCH HÀNG)
+   TAB KHUYẾN MẠI BR-CĐ THÁNG 11/2026 (dành cho KHÁCH HÀNG)
    Nguồn: file “Đào tạo BR-CĐ 29.09.2026” – dữ liệu nguyên văn
    ========================================================= */
 ICONS.gift='<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/>';
@@ -2468,7 +2290,7 @@ const KM_P=[
   cond:"Gói cước Mesh TTN, Cam TTN; không áp dụng với thiết bị TSD",svc:"Mesh TTN / Cam TTN",pre:"Không quy định trong văn bản",amt:"300.000",unit:"VNĐ/thiết bị",note:"Không áp dụng với thiết bị TSD",issue:2}
 ];
 const KM_ISSUES=[
- {h:"Mốc “31/11/2026” không tồn tại",p:"Văn bản ghi thời gian khách hàng nhận KM bằng tiền mặt “Từ 01/11/2026 - 31/11/2026”. Tháng 11 chỉ có 30 ngày. CẦN XÁC NHẬN LẠI MỐC THỜI GIAN NHẬN KHUYẾN MẠI TRONG VĂN BẢN GỐC – tài liệu không tự sửa."},
+ {hide:1,h:"Mốc “31/12/2026” không tồn tại",p:"Văn bản ghi thời gian khách hàng nhận KM bằng tiền mặt “Từ 01/12/2026 - 31/12/2026”. Tháng 11 chỉ có 30 ngày. CẦN XÁC NHẬN LẠI MỐC THỜI GIAN NHẬN KHUYẾN MẠI TRONG VĂN BẢN GỐC – tài liệu không tự sửa."},
  {h:"Nhóm 4 – “lắp mới từ 12 tháng trở lên”",p:"Văn bản không nêu rõ 12 tháng là chu kỳ trả trước cước hay thời gian cam kết sử dụng."},
  {h:"Nhóm 5 – thời hạn trả trước",p:"Văn bản không quy định chu kỳ trả trước cho Mesh TTN, Cam TTN. Thuật ngữ “TTN”, “TSD” giữ nguyên theo văn bản gốc."},
  {h:"Cộng dồn nhiều nhóm",p:"Văn bản không nêu một thuê bao có được hưởng đồng thời nhiều nhóm (VD: Fiber tích hợp Mesh – Nhóm 2/3 – và Pack Mesh – Nhóm 4) hay không."},
@@ -2488,10 +2310,10 @@ const KM_FAQ=[
  ['Mesh TTN được bao nhiêu?','<b>300.000 VNĐ/thiết bị</b> (Nhóm 5), không áp dụng với thiết bị TSD.'],
  ['Cam TTN được bao nhiêu?','<b>300.000 VNĐ/thiết bị</b> (Nhóm 5), không áp dụng với thiết bị TSD.'],
  ['Thiết bị TSD có được hưởng KM không?','Với Nhóm 5 (Mesh TTN, Cam TTN): <b>không áp dụng</b> với thiết bị TSD. Các nhóm khác văn bản không đề cập TSD.'],
- ['Hợp đồng lập ngày 31/10 có được tính không?','Có – 31/10/2026 nằm trong thời gian khuyến mại 01/10/2026 – 31/10/2026 (vẫn phải nghiệm thu trên ĐHSXKD trước ngày 31/10/2026).'],
- ['Nghiệm thu ngày 01/11 có được không?','Không – điều kiện là nghiệm thu <b>trước</b> ngày 31/10/2026.'],
- ['Nghiệm thu ngày 02/11 có được không?','Không – điều kiện là nghiệm thu <b>trước</b> ngày 31/10/2026.'],
- ['Khách hàng nhận tiền khi nào?','Từ 01/11/2026.'],
+ ['Hợp đồng lập ngày 30/11 có được tính không?','Có – 30/11/2026 nằm trong thời gian khuyến mại 01/11/2026 – 30/11/2026 (vẫn phải nghiệm thu trên ĐHSXKD trước ngày 30/11/2026).'],
+ ['Nghiệm thu ngày 01/12 có được không?','Không – điều kiện là nghiệm thu <b>trước</b> ngày 30/11/2026.'],
+ ['Nghiệm thu ngày 02/12 có được không?','Không – điều kiện là nghiệm thu <b>trước</b> ngày 30/11/2026.'],
+ ['Khách hàng nhận tiền khi nào?','Từ 01/12/2026.'],
  ['Nếu dữ liệu hệ thống sai thì đơn vị phải xử lý thế nào?',KM_TH],
  ['Quà tặng là gì?','Cả 5 nhóm: <b>Tiền mặt</b>.'],
  ['Fiber tích hợp trả trước dưới 6 tháng có được KM không?','Không – Nhóm 2 yêu cầu từ 6 tháng đến dưới 12 tháng, Nhóm 3 từ 12 tháng trở lên.'],
@@ -2502,11 +2324,11 @@ const KM_FAQ=[
 const KM_SUBS=[['tq','Tổng quan','home'],['cs','Chính sách 5 nhóm','gift'],['faq','Hỏi đáp','help']];
 let kmGroup=0;
 
-function kmIssuesHtml(hi){ return KM_ISSUES.map((x,i)=>'<div class="km-issue'+(i===hi?' hi':'')+'" id="kmi-'+i+'">'+ic('alert')+'<div><b>CẦN XÁC NHẬN · '+x.h+'</b><p>'+x.p+'</p></div></div>').join(''); }
+function kmIssuesHtml(hi){ return KM_ISSUES.map((x,i)=>x.hide?'':'<div class="km-issue'+(i===hi?' hi':'')+'" id="kmi-'+i+'">'+ic('alert')+'<div><b>CẦN XÁC NHẬN · '+x.h+'</b><p>'+x.p+'</p></div></div>').join(''); }
 
 function renderKM(){
   const v=$('#view-km');
-  let h='<div class="page-head"><div class="pic">'+ic('gift')+'</div><div><h2>KHUYẾN MẠI THÁNG 10/2026</h2></div></div>';
+  let h='<div class="page-head"><div class="pic">'+ic('gift')+'</div><div><h2>KHUYẾN MẠI THÁNG 11/2026</h2></div></div>';
   h+='<div class="kmpin"><button class="kmg br" data-kmg="br">'+ic('wifi')+'<span><span class="kmw">Khuyến mại </span>Băng rộng</span> <small>BR-CĐ · 5 nhóm</small></button><button class="kmg dd" data-kmg="dd">'+ic('phone')+'<span><span class="kmw">Khuyến mại </span>Di động</span> <small>2 chương trình</small></button></div>';
   h+='<div class="kmgrp" data-g="br">';
   h+='<div class="subtabs" role="tablist">'+KM_SUBS.map(s=>'<button class="subtab" data-sub="'+s[0]+'">'+ic(s[2])+s[1]+''+'</button>').join('')+'</div>';
@@ -2515,20 +2337,20 @@ function renderKM(){
   h+='<div class="subpanel" data-sub="tq">'+
     '<div class="h-sub">'+ic('calendar')+'Timeline chương trình</div>'+
     '<div class="vflow">'+
-      '<div class="vnode n0"><div class="vl">01/10/2026</div><div class="vv" style="font-size:17px">Triển khai chương trình</div></div><div class="varrow">'+ic('arrow')+'</div>'+
-      '<div class="vnode n0"><div class="vl">31/10/2026</div><div class="vv" style="font-size:17px">Kết thúc thời gian KM</div></div><div class="varrow">'+ic('arrow')+'</div>'+
-      '<div class="vnode n2"><div class="vl">Trước 31/10/2026</div><div class="vv" style="font-size:17px">Mốc nghiệm thu trên ĐHSXKD phải đáp ứng</div></div><div class="varrow">'+ic('arrow')+'</div>'+
-      '<div class="vnode n1"><div class="vl">Từ 01/11/2026</div><div class="vv" style="font-size:17px">Khách hàng nhận tiền KM</div></div>'+
+      '<div class="vnode n0"><div class="vl">01/11/2026</div><div class="vv" style="font-size:17px">Triển khai chương trình</div></div><div class="varrow">'+ic('arrow')+'</div>'+
+      '<div class="vnode n0"><div class="vl">30/11/2026</div><div class="vv" style="font-size:17px">Kết thúc thời gian KM</div></div><div class="varrow">'+ic('arrow')+'</div>'+
+      '<div class="vnode n2"><div class="vl">Trước 30/11/2026</div><div class="vv" style="font-size:17px">Mốc nghiệm thu trên ĐHSXKD phải đáp ứng</div></div><div class="varrow">'+ic('arrow')+'</div>'+
+      '<div class="vnode n1"><div class="vl">Từ 01/12/2026</div><div class="vv" style="font-size:17px">Khách hàng nhận tiền KM</div></div>'+
     '</div>'+
     '<div class="h-sub">'+ic('zap')+'Trả lời nhanh</div>'+
     '<div class="grid4">'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('users')+'</span>AI ĐƯỢC HƯỞNG?</div><div class="md">Thuê bao <abbr data-tip="Phát triển mới" tabindex="0">PTM</abbr> FiberVNN đơn lẻ DT &gt;190.000 VNĐ/tháng; FiberVNN tích hợp MyTV/Wifi Mesh/Camera; <abbr data-tip="Gói bổ sung trên thuê bao FiberVNN" tabindex="0">Add on</abbr>/Pack Mesh, Pack Cam; Mesh TTN, Cam TTN.</div></div>'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('cash')+'</span>ĐƯỢC BAO NHIÊU?</div><div class="md km-moneys"><b class="money">300.000 VNĐ</b><b class="money">500.000 VNĐ</b><b class="money">700.000 VNĐ</b><b class="money">100.000 VNĐ/thiết bị</b><b class="money">300.000 VNĐ/thiết bị</b></div></div>'+
-      '<div class="mcard"><div class="mt"><span class="ic">'+ic('check')+'</span>ĐIỀU KIỆN GÌ?</div><div class="md">Ngày lập hợp đồng trên hệ thống trong 01/10–31/10/2026 <b>VÀ</b> thời gian <abbr data-tip="Hoàn tất lắp đặt, ghi nhận trên hệ thống" tabindex="0">nghiệm thu</abbr> trên <abbr data-tip="Hệ thống Điều hành sản xuất kinh doanh" tabindex="0">ĐHSXKD</abbr> trước 31/10/2026.</div></div>'+
-      '<div class="mcard"><div class="mt"><span class="ic">'+ic('calendar')+'</span>KHI NÀO NHẬN TIỀN?</div><div class="md">Từ 01/11/2026.</div></div>'+
+      '<div class="mcard"><div class="mt"><span class="ic">'+ic('check')+'</span>ĐIỀU KIỆN GÌ?</div><div class="md">Ngày lập hợp đồng trên hệ thống trong 01/11–30/11/2026 <b>VÀ</b> thời gian <abbr data-tip="Hoàn tất lắp đặt, ghi nhận trên hệ thống" tabindex="0">nghiệm thu</abbr> trên <abbr data-tip="Hệ thống Điều hành sản xuất kinh doanh" tabindex="0">ĐHSXKD</abbr> trước 30/11/2026.</div></div>'+
+      '<div class="mcard"><div class="mt"><span class="ic">'+ic('calendar')+'</span>KHI NÀO NHẬN TIỀN?</div><div class="md">Từ 01/12/2026.</div></div>'+
     '</div>'+
     '<div class="remember" style="border:1px solid var(--line-2);border-radius:16px;background:#fff;margin-top:16px"><div class="rt">'+ic('sparkle')+'NHỚ 3 ĐIỀU</div>'+
-      ['Ngày lập hợp đồng trên hệ thống trong 01/10/2026 – 31/10/2026','Nghiệm thu trên hệ thống ĐHSXKD trước ngày 31/10/2026','Đúng đối tượng, đúng chu kỳ trả trước của từng nhóm'].map((r,i)=>'<div class="ri"><span class="n">'+'①②③'[i]+'</span><span>'+r+'</span></div>').join('')+'</div>'+
+      ['Ngày lập hợp đồng trên hệ thống trong 01/11/2026 – 30/11/2026','Nghiệm thu trên hệ thống ĐHSXKD trước ngày 30/11/2026','Đúng đối tượng, đúng chu kỳ trả trước của từng nhóm'].map((r,i)=>'<div class="ri"><span class="n">'+'①②③'[i]+'</span><span>'+r+'</span></div>').join('')+'</div>'+
   '</div>';
 
   /* ---- Chính sách ---- */
@@ -2539,7 +2361,7 @@ function renderKM(){
     '<div class="h-sub">'+ic('list')+'Bảng tra cứu</div><div class="tblwrap"><table class="tbl" id="kmtab"></table></div>'+
     '<div class="grid2" style="margin-top:16px">'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('users')+'</span>Đối tượng khuyến mại</div><div class="md"><ul style="margin:6px 0 0;padding-left:18px"><li>Gói Internet đơn lẻ: Các gói cước có mức doanh thu &gt;190.000 đ/tháng (có VAT).</li><li>Gói Internet tích hợp: Các gói cước FiberVNN phát triển mới tích hợp dịch vụ MyTV/Mesh/Camera.</li><li>Các gói cước add on Mesh, camera, Mesh TTN và Camera TTN.</li></ul></div></div>'+
-      '<div class="mcard"><div class="mt"><span class="ic">'+ic('check')+'</span>Điều kiện</div><div class="md">Thuê bao được hưởng khuyến mại có <b>ngày lập hợp đồng trên hệ thống trong thời gian diễn ra chương trình khuyến mại</b> và đồng thời có <b>thời gian nghiệm thu trên hệ thống ĐHSXKD trước ngày 31/10/2026</b>.</div></div>'+
+      '<div class="mcard"><div class="mt"><span class="ic">'+ic('check')+'</span>Điều kiện</div><div class="md">Thuê bao được hưởng khuyến mại có <b>ngày lập hợp đồng trên hệ thống trong thời gian diễn ra chương trình khuyến mại</b> và đồng thời có <b>thời gian nghiệm thu trên hệ thống ĐHSXKD trước ngày 30/11/2026</b>.</div></div>'+
     '</div>'+
   '</div>';
 
@@ -2580,12 +2402,12 @@ function kmCheck(){
   const hd=$('#kmHd').value, nt=$('#kmNt').value;
   const S=[]; let ok=true, pending=false, grp=null, warn=[];
   // Điều kiện chung
-  if(!hd){ pending=true; S.push([null,'Chưa nhập ngày lập hợp đồng (phải trong 01/10/2026 – 31/10/2026)']); }
-  else if(hd>='2026-10-01'&&hd<='2026-10-31') S.push([true,'Ngày lập HĐ '+hd.split('-').reverse().join('/')+' nằm trong thời gian KM']);
-  else { ok=false; S.push([false,'Ngày lập HĐ '+hd.split('-').reverse().join('/')+' không nằm trong 01/10/2026 – 31/10/2026']); }
-  if(!nt){ pending=true; S.push([null,'Chưa nhập ngày nghiệm thu (phải trước ngày 31/10/2026)']); }
-  else if(nt<'2026-10-31') S.push([true,'Nghiệm thu '+nt.split('-').reverse().join('/')+' – trước ngày 31/10/2026']);
-  else { ok=false; S.push([false,'Nghiệm thu '+nt.split('-').reverse().join('/')+' – không trước ngày 31/10/2026']); }
+  if(!hd){ pending=true; S.push([null,'Chưa nhập ngày lập hợp đồng (phải trong 01/11/2026 – 30/11/2026)']); }
+  else if(hd>='2026-11-01'&&hd<='2026-11-30') S.push([true,'Ngày lập HĐ '+hd.split('-').reverse().join('/')+' nằm trong thời gian KM']);
+  else { ok=false; S.push([false,'Ngày lập HĐ '+hd.split('-').reverse().join('/')+' không nằm trong 01/11/2026 – 30/11/2026']); }
+  if(!nt){ pending=true; S.push([null,'Chưa nhập ngày nghiệm thu (phải trước ngày 30/11/2026)']); }
+  else if(nt<'2026-11-30') S.push([true,'Nghiệm thu '+nt.split('-').reverse().join('/')+' – trước ngày 30/11/2026']);
+  else { ok=false; S.push([false,'Nghiệm thu '+nt.split('-').reverse().join('/')+' – không trước ngày 30/11/2026']); }
   // Theo nhóm
   if(svc==='don'){
     if(isNaN(dt)){ pending=true; S.push([null,'Nhập doanh thu gói (yêu cầu >190.000 đ/tháng, có VAT)']); }
@@ -2619,14 +2441,14 @@ function kmCheck(){
   }
   $('#kmOut').innerHTML='<div class="cres">'+head+'<div class="cb"><ul class="steps">'+S.map((s,i)=>'<li class="'+(s[0]===true?'ok':s[0]===false?'no':'')+'"><span class="k">'+(i+1)+'</span><span>'+s[1]+'</span></li>').join('')+'</ul>'+
     warn.map(i=>'<div class="km-issue" style="margin-top:10px">'+ic('alert')+'<div><b>CẦN XÁC NHẬN · '+KM_ISSUES[i].h+'</b><p>'+KM_ISSUES[i].p+'</p></div></div>').join('')+
-    '<div class="tier info" style="margin:12px 0 0;align-items:flex-start">'+ic('info')+'<span>Thời gian khách hàng nhận KM bằng tiền mặt: văn bản ghi “Từ 01/11/2026 - 31/11/2026” – cần xác nhận lại mốc trong văn bản gốc. Đối soát, chi tiền: '+KM_TH+'</span></div></div></div>';
+    '<div class="tier info" style="margin:12px 0 0;align-items:flex-start">'+ic('info')+'<span>Thời gian khách hàng nhận KM bằng tiền mặt: từ 01/12/2026 đến 31/12/2026. Đối soát, chi tiền: '+KM_TH+'</span></div></div></div>';
 }
 
 /* chỉ mục tìm kiếm cho tab Khuyến mại */
 function kmIndex(){
   const out=[];
-  KM_P.forEach(p=>{ const raw=['Khuyến mại T10 – Nhóm '+p.id+': '+p.short,p.obj,p.cond,p.svc,'Trả trước: '+p.pre,p.amt+' '+p.unit,'Tiền mặt'].join(' · ');
-    out.push({km:{title:'KM khách hàng T10 – Nhóm '+p.id+': '+p.short,sub:'cs',subName:'Chính sách 5 nhóm',faq:null},raw,n:norm(raw),nt:norm('Nhóm '+p.id+' '+p.short+' khuyến mại')}); });
+  KM_P.forEach(p=>{ const raw=['Khuyến mại T11 – Nhóm '+p.id+': '+p.short,p.obj,p.cond,p.svc,'Trả trước: '+p.pre,p.amt+' '+p.unit,'Tiền mặt'].join(' · ');
+    out.push({km:{title:'KM khách hàng T11 – Nhóm '+p.id+': '+p.short,sub:'cs',subName:'Chính sách 5 nhóm',faq:null},raw,n:norm(raw),nt:norm('Nhóm '+p.id+' '+p.short+' khuyến mại')}); });
   KM_FAQ.forEach((f,i)=>{ const raw=f[0]+' · '+stripHtml(f[1]);
     out.push({km:{title:f[0],sub:'faq',subName:'Hỏi đáp',faq:i},raw,n:norm(raw),nt:norm(f[0])}); });
   return out;
@@ -2634,7 +2456,7 @@ function kmIndex(){
 
 
 /* =========================================================
-   KHUYẾN MẠI DI ĐỘNG THÁNG 10/2026 (dành cho KHÁCH HÀNG)
+   KHUYẾN MẠI DI ĐỘNG THÁNG 11/2026 (dành cho KHÁCH HÀNG)
    Nguồn: file “VNPT_KM_DI_DONG_THANG_10_2026” – dữ liệu nguyên văn
    ========================================================= */
 const DD_DATA=[
@@ -2689,8 +2511,8 @@ function ddHtml(){
     '<div class="dd-k5">'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('users')+'</span>Đối tượng</div><div class="md dd-kv">Khách hàng cá nhân &amp; doanh nghiệp</div></div>'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('gift')+'</span>Chương trình</div><div class="md dd-kv">02 nhóm khuyến mại</div></div>'+
-      '<div class="mcard"><div class="mt"><span class="ic">'+ic('calendar')+'</span>Thời gian khuyến mại</div><div class="md dd-kv">01/10/2026 – 31/10/2026</div></div>'+
-      '<div class="mcard hl"><div class="mt"><span class="ic">'+ic('cash')+'</span>Thời gian nhận tiền</div><div class="md dd-kv" style="color:var(--yellow)">12/11/2026 – 30/11/2026</div></div>'+
+      '<div class="mcard"><div class="mt"><span class="ic">'+ic('calendar')+'</span>Thời gian khuyến mại</div><div class="md dd-kv">01/11/2026 – 30/11/2026</div></div>'+
+      '<div class="mcard hl"><div class="mt"><span class="ic">'+ic('cash')+'</span>Thời gian nhận tiền</div><div class="md dd-kv" style="color:var(--yellow)">12/12/2026 – 31/12/2026</div></div>'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('cash')+'</span>Hình thức nhận</div><div class="md" style="font-size:14px;font-weight:600">CT1: quà tặng bằng <b>tiền mặt</b><br>CT2: <b>tiền mặt/chuyển khoản</b></div></div>'+
     '</div>'+
     '<div class="h-sub">'+ic('layers')+'Phân biệt 02 chương trình</div>'+
@@ -2725,7 +2547,7 @@ function ddHtml(){
           '<div class="dd-box bad"><h5>Không bao gồm</h5><ul class="dd-l x">'+DD_EXCL+'</ul></div></div></div></div>'+
         '<div class="dd-step"><div class="dn"><small>BƯỚC</small><span>2</span></div><div class="db"><h4>Mua gói cước từ 100.000đ/tháng</h4><p style="margin:0">Giá trị gói tháng từ <b class="money" style="font-size:19px">100.000 đồng trở lên</b></p><p style="margin:8px 0 0"><span class="chip">Đã bao gồm VAT</span> <span class="chip">và chiết khấu giảm giá nếu có</span></p></div></div>'+
         '<div class="dd-step"><div class="dn"><small>BƯỚC</small><span>3</span></div><div class="db"><h4>Kiểm tra điều kiện hưởng khuyến mại</h4><ul class="dd-l">'+DD_COND+'</ul></div></div>'+
-        '<div class="dd-step fin"><div class="dn"><small>BƯỚC</small><span>4</span></div><div class="db"><h4>Nhận tiền khuyến mại</h4><p style="margin:0 0 10px">Quà tặng bằng tiền mặt, mức tiền theo gói &amp; chu kỳ gói.</p><span class="dd-date">'+ic('calendar')+'12/11/2026 – 30/11/2026</span><div style="margin-top:12px"><button class="btn btn-primary" data-goto="km:dd-tc">'+ic('search')+'TRA CỨU MỨC KHUYẾN MẠI</button></div></div></div>'+
+        '<div class="dd-step fin"><div class="dn"><small>BƯỚC</small><span>4</span></div><div class="db"><h4>Nhận tiền khuyến mại</h4><p style="margin:0 0 10px">Quà tặng bằng tiền mặt, mức tiền theo gói &amp; chu kỳ gói.</p><span class="dd-date">'+ic('calendar')+'12/12/2026 – 31/12/2026</span><div style="margin-top:12px"><button class="btn btn-primary" data-goto="km:dd-tc">'+ic('search')+'TRA CỨU MỨC KHUYẾN MẠI</button></div></div></div>'+
       '</div>'+
       '<details class="dd-acc"><summary>'+ic('file')+'Xem đầy đủ quy định Chương trình 1</summary><div class="ab">'+
         '<p><b>- Đối tượng áp dụng:</b> Thỏa mãn đồng thời 2 điều kiện sau</p>'+
@@ -2735,13 +2557,13 @@ function ddHtml(){
         '<p><b>- Giá trị khuyến mại:</b> Khách hàng hòa mạng mới dịch vụ và mua các gói cước trong tháng sẽ được nhận quà tặng bằng tiền mặt (theo bảng mức khuyến mại).</p>'+
         '<p><b>- Điều kiện thuê bao được hưởng khuyến mại:</b><br>+ Thuê bao có đầy đủ thông tin trên hệ thống và thanh toán hết cước phát sinh theo quy định.<br>+ Thông tin thuê bao trên hệ thống và biên bản quà tặng phải trùng khớp.</p>'+
         '<p><b>- Lưu ý:</b><br>+ Mỗi thuê bao chỉ được nhận khuyến mại bằng tiền mặt 1 lần trong thời gian diễn ra chương trình. Mỗi khách hàng có thể nhận được nhiều khuyến mại tương ứng với số lượng thuê bao đăng ký đủ điều kiện của chương trình.<br>+ Thuê bao không được nhận quà theo các chương trình khác cùng thời điểm.</p>'+
-        '<p><b>- Quy định khác:</b><br>+ Thời gian khách hàng nhận khuyến mại bằng tiền mặt: Từ ngày 12/11/2026 đến 30/11/2026.<br>+ Đối tượng: khách hàng cá nhân và khách hàng doanh nghiệp.</p>'+
+        '<p><b>- Quy định khác:</b><br>+ Thời gian khách hàng nhận khuyến mại bằng tiền mặt: Từ ngày 12/12/2026 đến 31/12/2026.<br>+ Đối tượng: khách hàng cá nhân và khách hàng doanh nghiệp.</p>'+
       '</div></details>'+
     '</div>'+
     '<div id="p-dd-ct2" class="dd-anchor dd-ct2">'+
       '<h2 class="dd-h2">CHƯƠNG TRÌNH 2 — KHÁCH HÀNG DOANH NGHIỆP TỪ 50 THUÊ BAO</h2>'+
       '<p class="dd-lead">Chỉ áp dụng cho khách hàng doanh nghiệp.</p>'+
-      '<div class="bignum"><div class="v">50.000đ<small> / 01 thuê bao</small></div><div class="d"><b>Hình thức: Tiền mặt / chuyển khoản</b>Thời gian nhận: <b style="display:inline;color:#FFD68A">12/11/2026 – 30/11/2026</b></div></div>'+
+      '<div class="bignum"><div class="v">50.000đ<small> / 01 thuê bao</small></div><div class="d"><b>Hình thức: Tiền mặt / chuyển khoản</b>Thời gian nhận: <b style="display:inline;color:#FFD68A">12/12/2026 – 31/12/2026</b></div></div>'+
       '<div class="grid2" style="margin-top:16px">'+
         '<div class="mcard"><div class="mt"><span class="ic">'+ic('users')+'</span>Đối tượng</div><div class="md"><p style="margin:0 0 10px">Khách hàng VinaPhone <b>hòa mạng mới</b> từ <b class="money" style="font-size:17px">50 thuê bao trở lên</b> tại các Điểm giao dịch hoặc các điểm bán hàng lưu động do VNPT thiết lập.</p><div class="dd-box bad"><h5>Không bao gồm</h5><ul class="dd-l x">'+DD_EXCL+'</ul></div></div></div>'+
         '<div class="mcard"><div class="mt"><span class="ic">'+ic('check')+'</span>Điều kiện</div><div class="md"><ul class="dd-l">'+DD_COND+'</ul><div class="tier info" style="margin:12px 0 0;align-items:flex-start">'+ic('info')+'<span>Mỗi thuê bao chỉ nhận KM bằng tiền mặt <b>01 lần</b>; thuê bao không được nhận quà theo các chương trình khác cùng thời điểm.</span></div></div></div>'+
@@ -2757,7 +2579,7 @@ function ddHtml(){
         '<p><b>- Giá trị khuyến mại:</b> khách hàng hòa mạng mới thuê bao và thanh toán hết cước phát sinh sẽ được nhận quà tặng trị giá 50.000 đồng/01 thuê bao bằng tiền mặt/chuyển khoản.</p>'+
         '<p><b>- Điều kiện thuê bao được hưởng khuyến mại:</b><br>+ Thuê bao có đầy đủ thông tin trên hệ thống và thanh toán hết cước phát sinh theo quy định.<br>+ Thông tin thuê bao trên hệ thống và biên bản quà tặng phải trùng khớp.</p>'+
         '<p><b>- Lưu ý:</b><br>+ Mỗi thuê bao chỉ được nhận khuyến mại bằng tiền mặt 1 lần trong thời gian diễn ra chương trình. Mỗi khách hàng có thể nhận được nhiều khuyến mại tương ứng với số lượng thuê bao đăng ký đủ điều kiện của chương trình.<br>+ Thuê bao không được nhận quà theo các chương trình khác cùng thời điểm.</p>'+
-        '<p><b>- Quy định khác:</b><br>+ Thời gian khách hàng nhận khuyến mại bằng tiền mặt: Từ ngày 12/11/2026 đến 30/11/2026.<br>+ Thuê bao chỉ áp dụng cho các khách hàng doanh nghiệp.</p>'+
+        '<p><b>- Quy định khác:</b><br>+ Thời gian khách hàng nhận khuyến mại bằng tiền mặt: Từ ngày 12/12/2026 đến 31/12/2026.<br>+ Thuê bao chỉ áp dụng cho các khách hàng doanh nghiệp.</p>'+
       '</div></details>'+
     '</div>'+
   '</div>';
@@ -2786,7 +2608,7 @@ function ddHtml(){
       '<div class="dd-wc g"><div class="wh"><span class="wi">'+ic('check')+'</span><h3>ĐỦ ĐIỀU KIỆN KHI</h3></div><ul class="dd-l"><li>Có đầy đủ thông tin trên hệ thống</li><li>Thanh toán hết cước phát sinh theo quy định</li><li>Thông tin thuê bao trên hệ thống và biên bản quà tặng phải trùng khớp</li></ul></div>'+
       '<div class="dd-wc o"><div class="wh"><span class="wi" style="font-weight:900">1×</span><h3>CHỈ NHẬN 1 LẦN / THUÊ BAO</h3></div><p style="margin:0 0 8px">Mỗi thuê bao chỉ được nhận khuyến mại bằng tiền mặt <b>01 lần trong thời gian diễn ra chương trình</b>.</p><p style="margin:0">Mỗi khách hàng có thể nhận nhiều khuyến mại tương ứng với <b>số lượng thuê bao đăng ký đủ điều kiện</b>.</p></div>'+
       '<div class="dd-wc r"><div class="wh"><span class="wi">'+ic('x')+'</span><h3>KHÔNG CỘNG DỒN</h3></div><p style="margin:0;font-size:16px;font-weight:600">Thuê bao <b class="dd-red">không được nhận quà</b> theo các chương trình khác cùng thời điểm.</p></div>'+
-      '<div class="dd-wc b"><div class="wh"><span class="wi">'+ic('calendar')+'</span><h3>THỜI GIAN NHẬN KHUYẾN MẠI BẰNG TIỀN MẶT</h3></div><div class="dd-cal"><div class="cp"><div class="m">THÁNG 11/2026</div><div class="d">12</div></div><span class="money" style="font-size:24px">→</span><div class="cp"><div class="m">THÁNG 11/2026</div><div class="d">30</div></div></div><p style="margin:12px 0 0;font-weight:700">Từ ngày 12/11/2026 đến 30/11/2026</p></div>'+
+      '<div class="dd-wc b"><div class="wh"><span class="wi">'+ic('calendar')+'</span><h3>THỜI GIAN NHẬN KHUYẾN MẠI BẰNG TIỀN MẶT</h3></div><div class="dd-cal"><div class="cp"><div class="m">THÁNG 12/2026</div><div class="d">12</div></div><span class="money" style="font-size:24px">→</span><div class="cp"><div class="m">THÁNG 12/2026</div><div class="d">30</div></div></div><p style="margin:12px 0 0;font-weight:700">Từ ngày 12/12/2026 đến 31/12/2026</p></div>'+
     '</div>'+
     '<div class="mcard" style="margin-top:16px"><div class="mt"><span class="ic" style="background:var(--red-l);color:var(--red)">'+ic('x')+'</span>Không thuộc đối tượng (cả 2 chương trình)</div>'+
       '<div class="grid3" style="margin-top:12px"><div class="dd-box bad"><b>Trả trước chuyển trả sau</b></div><div class="dd-box bad"><b>Thuê bao kích hoạt sẵn</b></div><div class="dd-box bad"><b>SIM bán qua ĐUQ / VnPost / Chuỗi TGDD</b></div></div></div>'+
@@ -2826,7 +2648,7 @@ function ddModal(name){
   m.innerHTML='<div class="dd-modal" role="dialog" aria-modal="true"><div class="mh"><small>CHƯƠNG TRÌNH 1 · Hòa mạng mới + mua gói từ 100.000đ</small><h3>'+esc(title)+'</h3><button class="dd-x" aria-label="Đóng">×</button></div><div class="mb">'+
     '<div class="dd-mg">'+['t1','t3','t6','t12'].map(k=>{ const v=r[k]; return '<div class="mc'+(v==null?' na':'')+(k===ddS.cyc&&v!=null?' sel':'')+'"><div class="p">'+DD_CYC[k]+'</div><div class="v">'+(v==null?'—':ddf(v)+'đ')+'</div></div>'; }).join('')+'</div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><span class="chip">Tỷ lệ KM 1T/3T: '+(r.r13||'—')+'</span><span class="chip">Tỷ lệ KM 6T/12T: '+(r.r612||'—')+'</span></div>'+
-    '<div class="mf">Nhận quà tặng bằng tiền mặt từ <b>12/11/2026 – 30/11/2026</b> khi thuê bao đủ điều kiện: đầy đủ thông tin, thanh toán hết cước phát sinh, thông tin trùng khớp biên bản quà tặng. Mỗi thuê bao nhận 01 lần.</div></div></div>';
+    '<div class="mf">Nhận quà tặng bằng tiền mặt từ <b>12/12/2026 – 31/12/2026</b> khi thuê bao đủ điều kiện: đầy đủ thông tin, thanh toán hết cước phát sinh, thông tin trùng khớp biên bản quà tặng. Mỗi thuê bao nhận 01 lần.</div></div></div>';
   m.classList.add('open'); const x=$('.dd-x',m); if(x) x.focus();
 }
 function ddCalc(){ const n=parseInt($('#dnN').value,10), out=$('#dnRes'); if(!n||n<1){ out.textContent=''; return; }
@@ -2848,9 +2670,9 @@ function ddBind(){
 }
 function ddIndex(){
   const out=[];
-  DD_DATA.forEach(r=>{ const raw='KM Di động T10 – gói '+r.name+' · '+['t1','t3','t6','t12'].filter(k=>r[k]!=null).map(k=>DD_CYC[k]+': '+ddf(r[k])+' đồng').join(' · ');
-    out.push({km:{title:'KM Di động T10 – gói '+r.name,sub:'dd-tc',subName:'Di động › Tra cứu KM',faq:null,ddq:r.name},raw,n:norm(raw),nt:norm(r.name+' khuyến mại di động')}); });
-  [['dd-ct','Di động – Chương trình 1: hòa mạng mới, mua gói cước từ 100.000đ','Thuê bao VinaPhone hòa mạng mới mua gói có giá trị gói tháng từ 100.000đ · 10.000đ – 600.000đ · quà tặng tiền mặt · nhận 12/11/2026 – 30/11/2026'],
+  DD_DATA.forEach(r=>{ const raw='KM Di động T11 – gói '+r.name+' · '+['t1','t3','t6','t12'].filter(k=>r[k]!=null).map(k=>DD_CYC[k]+': '+ddf(r[k])+' đồng').join(' · ');
+    out.push({km:{title:'KM Di động T11 – gói '+r.name,sub:'dd-tc',subName:'Di động › Tra cứu KM',faq:null,ddq:r.name},raw,n:norm(raw),nt:norm(r.name+' khuyến mại di động')}); });
+  [['dd-ct','Di động – Chương trình 1: hòa mạng mới, mua gói cước từ 100.000đ','Thuê bao VinaPhone hòa mạng mới mua gói có giá trị gói tháng từ 100.000đ · 10.000đ – 600.000đ · quà tặng tiền mặt · nhận 12/12/2026 – 31/12/2026'],
    ['dd-ct','Di động – Chương trình 2: khách hàng doanh nghiệp từ 50 thuê bao','Khách hàng VinaPhone hòa mạng mới từ 50 thuê bao · 50.000 đồng/01 thuê bao · tiền mặt/chuyển khoản · doanh nghiệp'],
    ['dd-ly','Di động – Điều kiện & lưu ý','Không cộng dồn · chỉ nhận 1 lần/thuê bao · không áp dụng trả trước chuyển trả sau, thuê bao kích hoạt sẵn, SIM bán qua ĐUQ/VnPost/Chuỗi TGDD']]
     .forEach(x=>out.push({km:{title:x[1],sub:x[0],subName:'Di động',faq:null},raw:x[1]+' · '+x[2],n:norm(x[1]+' · '+x[2]),nt:norm(x[1])}));
@@ -3027,8 +2849,6 @@ const salaryRules = [
   { row: 20, stt: '3.2', kind: 'kk', svcs: ['FIBER'], svcText: 'Fiber', roles: ALL, name: 'Lương khuyến khích sử dụng công nghệ XGSPON – Phát triển mới gói cước <=200K/tháng dùng XGSPON', amount: '100.000đ/TB', plain: 'Phát triển mới Fiber công nghệ XGSPON giá ≤ 200.000đ/tháng: thưởng 100.000đ/TB.' },
   { row: 21, stt: '3.2', kind: 'kk', svcs: ['FIBER'], svcText: 'Fiber', roles: ALL, name: 'Lương khuyến khích sử dụng công nghệ XGSPON – Phát triển mới gói cước >200K/tháng dùng XGSPON', amount: '200.000đ/TB', plain: 'Phát triển mới Fiber công nghệ XGSPON giá > 200.000đ/tháng: thưởng 200.000đ/TB.' },
   { row: 22, stt: '3.2 (*)', kind: 'k120', svcs: ['FIBER', 'XGSPON', 'MYTV', 'MESH', 'CAMERA'], svcText: 'Fiber/MyTV/Mesh/Cam', roles: ALL, name: 'Cơ chế khuyến khích thúc đẩy phát triển thuê bao 4 tháng cuối năm 2026', amount: '120% × lương khuyến khích', plain: 'Tháng 9–12/2026: mọi khoản thưởng (khuyến khích) được nhân 120%. Lương đơn giá không nhân.' },
-  { row: 23, stt: '3.4', kind: 'kk', svcs: ['FIBER', 'XGSPON'], svcText: 'Fiber', roles: ALL, name: 'Phát triển khu vực thị phần thấp', amount: '200.000đ/TB', plain: 'Bán Fiber ở khu vực thị phần thấp: thưởng 200.000đ/TB.' },
-  { row: 24, stt: '3.5', kind: 'kk', svcs: ['FIBER', 'XGSPON'], svcText: 'Fiber', roles: ALL, name: 'Phát triển CCCO/NOXH', amount: '200.000đ/TB', plain: 'Bán Fiber tại chung cư cao ốc / nhà ở xã hội: thưởng 200.000đ/TB.' },
   { row: 26, stt: '3.6', kind: 'kk', svcs: ['FIBER', 'XGSPON'], svcText: 'Fiber', roles: ALL, name: 'Tuần lễ tăng tốc – PTM gói đơn lẻ từ 6 tháng trở lên', amount: '300.000đ/TB', plain: 'Trong tuần lễ tăng tốc, bán gói đơn lẻ đóng trước từ 6 tháng: thưởng 300.000đ/TB.' },
   { row: 27, stt: '3.6', kind: 'kk', svcs: ['FIBER', 'XGSPON'], svcText: 'Fiber', roles: ALL, name: 'Tuần lễ tăng tốc – PTM gói tích hợp từ 6 tháng trở lên', amount: '500.000đ/TB', plain: 'Trong tuần lễ tăng tốc, bán gói tích hợp đóng trước từ 6 tháng: thưởng 500.000đ/TB.' },
   { row: 28, stt: '3.6', kind: 'kk', svcs: ['CAMERA'], svcText: 'Cam', roles: ALL, name: 'Camera PTM (gói Cam add on và các gói pack Cam) trả trước từ 6 tháng trở lên hoặc Cam thanh toán ngay (TTN)', amount: '200.000đ/thiết bị', plain: 'Bán Camera add-on/Pack Cam đóng trước từ 6 tháng, hoặc Camera mua đứt: thưởng 200.000đ mỗi camera.' },
@@ -3042,7 +2862,6 @@ const salaryRules = [
   { row: 35, stt: '3.7', kind: 'flat', svcs: ['MESH', 'CAMERA'], svcText: 'Mesh/Cam', roles: ['NVKT', 'KHAC'], name: 'Phát triển từ 3 thiết bị Mesh/Cam đến dưới 5 thiết bị (tính theo số thiết bị trong gói)', amount: '100.000 (đơn giá)', plain: 'Bán 3–4 thuê bao Mesh/Camera: 100.000đ mỗi thiết bị (đã gồm lương đơn giá – cần xác nhận).' },
   { row: 141, stt: '3.7', kind: 'vol0', svcs: ['MESH', 'CAMERA'], svcText: 'Mesh/Cam', roles: ['NVKT', 'KHAC'], name: 'Phát triển dưới 2 thiết bị Mesh/Cam (tính theo số thiết bị trong gói)', amount: '0', plain: 'Bán dưới 2 thuê bao Mesh/Cam trong tháng: không có lương khuyến khích vượt ngưỡng (giữ lương đơn giá thông thường).' },
   { row: 42, stt: '3.8', kind: 'kk', svcs: ['FIBER', 'XGSPON'], svcText: 'Fiber', roles: ALL, name: 'Chương trình Viễn thông công ích VTCI', amount: '100% × Gói cước hàng tháng (chưa VAT)', plain: 'Phát triển Fiber thuộc chương trình Viễn thông công ích (VTCI): lương khuyến khích bằng 100% giá cước tháng (chưa VAT) mỗi TB.' },
-  { row: 43, stt: '3.9', kind: 'kk', svcs: ['CAMERA'], svcText: 'Cam TTN', roles: ALL, name: 'Chương trình thúc đẩy PTM Camera TTN', amount: '70.000đ/thiết bị', plain: 'Phát triển mới Camera thanh toán ngay (TTN): lương khuyến khích 70.000đ mỗi thiết bị.' },
   { row: 44, stt: '3.10', kind: 'kk', svcs: ['FIBER', 'XGSPON'], svcText: 'Fiber', roles: ALL, name: 'Chương trình thúc đẩy PTM gói cước trọng điểm >=230K (đơn lẻ hoặc tích hợp)', amount: 'ĐTC 6–<12 tháng: 100.000đ/TB; ĐTC từ 12 tháng: 200.000đ/TB', plain: 'Gói Fiber từ 230.000đ/tháng (đã gồm VAT), đóng trước cước từ 6 tháng: thưởng 100.000đ/TB (6 đến dưới 12 tháng) hoặc 200.000đ/TB (từ 12 tháng).' },
 ];
 
@@ -3627,15 +3446,12 @@ function renderCycles() {
   if (m > 1) notes.push('Đóng trước: cộng thêm 3% số tiền khách đóng (chưa VAT).');
   $('#cycNote').textContent = notes.join(' ');
 }
-const OPT_KEYS = ['lowShare', 'ccco', 'vtci', 'trongdiem'];
+const OPT_KEYS = ['vtci', 'trongdiem'];   // T11/2026: đã bỏ Thị phần thấp, CCCO/NOXH
 function programDefs() {
   const f = S.svc === 'FIBER' || S.svc === 'XGSPON'; const r = S.role; const out = []; const it0 = getItem(S.itemId);
   if (f && roleHas(r, 20)) out.push(['xgspon', 'Phát triển mới Fiber sử dụng công nghệ XGSPON', 'Lương khuyến khích sử dụng công nghệ XGSPON: gói ≤ 200.000đ/tháng +100.000đ/TB; gói > 200.000đ/tháng +200.000đ/TB', 'chk']);
-  if (f && roleHas(r, 23)) out.push(['lowShare', 'Khu vực thị phần thấp', '+200.000đ/TB', 'opt']);
-  if (f && roleHas(r, 24)) out.push(['ccco', 'Chung cư cao ốc / Nhà ở xã hội (CCCO/NOXH)', '+200.000đ/TB', 'opt']);
   if (f && it0 && it0.vtci && roleHas(r, 42)) out.push(['vtci', 'Chương trình Viễn thông công ích VTCI', 'Lương khuyến khích 100% × giá cước tháng (chưa VAT)/TB', 'opt']);
   if (f && it0 && !it0.vtci && it0.prices['1'] >= RULE.tdMinPrice && roleHas(r, 44)) out.push(['trongdiem', 'Chương trình thúc đẩy PTM gói cước trọng điểm ≥ 230.000đ', 'Đóng trước cước 6 – dưới 12 tháng: +100.000đ/TB; từ 12 tháng: +200.000đ/TB', 'opt']);
-  if (S.svc === 'CAMERA' && it0 && it0.kind === 'ttn' && roleHas(r, 43)) out.push(['camTTN', 'Chương trình thúc đẩy PTM Camera TTN', 'Lương khuyến khích 70.000đ/thiết bị', 'chk']);
   out.push(['apply120', 'Đợt tháng 9 – 12/2026 (thưởng × 120%)', 'Cộng thêm 20% tổng tiền thưởng; lương đơn giá không nhân', 'chk']);
   return out;
 }
@@ -3792,7 +3608,7 @@ const mtInit = () => {
   renderCalc(); renderCart(); setMode('sale');
 };
 mtInit();
-const PRESET = { 'c-fiber':{svc:'FIBER'}, 'c-mytv':{svc:'MYTV'}, 'c-meshcam':{svc:'MESH'}, 'c-cn-fiber':{svc:'FIBER'}, 'c-cn-meshcam':{svc:'MESH'}, 'c-thicong':{inst:true, role:'NVKT'}, 'c-dbthap':{svc:'FIBER', lowShare:true}, 'c-ccco':{svc:'FIBER', ccco:true} };
+const PRESET = { 'c-cn-fiber':{svc:'FIBER'}, 'c-cn-meshcam':{svc:'MESH'}, 'c-thicong':{inst:true, role:'NVKT'} };
 window.MTC = {
   has: id => !!PRESET[id],
   onShow() { if (!store.get('vnpt_role', null)) $('#welcome').classList.add('open'); },
