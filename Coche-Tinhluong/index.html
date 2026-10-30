@@ -584,7 +584,7 @@ abbr[data-tip]{text-decoration:underline dotted var(--blue);text-underline-offse
 .dd-modal .mh h3{margin:4px 0 0;font-size:19px;line-height:1.35;padding-right:34px}
 .dd-x{position:absolute;right:14px;top:14px;background:rgba(255,255,255,.18);border:0;color:#fff;width:34px;height:34px;border-radius:50%;font-size:20px;cursor:pointer}
 .dd-modal .mb{padding:18px 22px}
-.dd-mg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dd-mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
 .dd-mg .mc{border:2px solid var(--line);border-radius:14px;padding:12px;text-align:center}
 .dd-mg .p{font-size:12.5px;color:var(--muted);font-weight:800}
 .dd-mg .v{font-size:22px;font-weight:900;color:var(--orange-d)}
@@ -1908,7 +1908,7 @@ function renderHome(){
      grp('cntt','cpu','SỐ DOANH NGHIỆP',[['17 VNPT KV','dvs'],['Dự thầu TTKDGP','ttkd'],['HKD','hkd'],['eContract','hkd'],['Loa thanh toán','hkd'],['TLS/INTT','tls'],['Y tế số','ytegd'],['Giáo dục số','ytegd']],'Dịch vụ số · Y tế số · Giáo dục số · Dự án')+
      '</div>'+
      '<div class="km-banner" data-goto="km:tq"><div class="bi">'+ic('gift')+'</div><div><h4>KHUYẾN MẠI BR-CĐ THÁNG 11/2026 – HOÀN TIỀN CHO KHÁCH HÀNG</h4><p>5 nhóm chính sách · Lập HĐ 01/11 – 30/11/2026 · Nghiệm thu trên ĐHSXKD trước 30/11/2026 · Quà tặng: Tiền mặt</p></div><div class="bv">700.000 VNĐ<small>mức cao nhất / TB PTM</small></div></div>'+
-     '<div class="km-banner" data-goto="km:dd-tq"><div class="bi">'+ic('phone')+'</div><div><h4>KHUYẾN MẠI DI ĐỘNG THÁNG 11/2026 – QUÀ TẶNG TIỀN MẶT CHO KHÁCH HÀNG</h4><p>2 chương trình · Hòa mạng mới 01/11 – 30/11/2026 · Gói từ 100.000đ hoặc DN từ 50 TB · Nhận tiền 12/12 – 31/12/2026</p></div><div class="bv">600.000đ<small>mức cao nhất (VIP499 · Gói 12T)</small></div></div>';
+     '<div class="km-banner" data-goto="km:dd-tq"><div class="bi">'+ic('phone')+'</div><div><h4>KHUYẾN MẠI DI ĐỘNG THÁNG 11/2026 – QUÀ TẶNG TIỀN MẶT CHO KHÁCH HÀNG</h4><p>2 chương trình · Hòa mạng mới 01/11 – 30/11/2026 · Gói từ 100.000đ hoặc DN từ 50 TB · Nhận tiền 01/12 – 31/12/2026</p></div><div class="bv">900.000đ<small>mức cao nhất (VIP499 · Gói 12T)</small></div></div>';
 
   h+='<div class="sec-title">'+ic('book')+'Quy tắc đọc nhanh</div><div class="flow">'+
      [['Bạn thuộc đối tượng nào?'],['Bạn đang làm dịch vụ nào?'],['Điều kiện cần đạt?'],['Mức khuyến khích?'],['Thuê bao/dự án có được ghi nhận?'],['Làm đúng – hoàn công/nghiệm thu – nhận khuyến khích']].map((s,i)=>'<div class="st"><div class="n">'+'①②③④⑤⑥'[i]+'</div><b>'+s[0]+'</b></div>').join('')+'</div>';
@@ -2457,33 +2457,34 @@ function kmIndex(){
 
 /* =========================================================
    KHUYẾN MẠI DI ĐỘNG THÁNG 11/2026 (dành cho KHÁCH HÀNG)
-   Nguồn: file “VNPT_KM_DI_DONG_THANG_10_2026” – dữ liệu nguyên văn
+   Nguồn: file “CTKM_T11.docx” – dữ liệu nguyên văn
    ========================================================= */
-const DD_DATA=[
-  {name:"YOLO100",   t1:10000, t3:30000,  t6:55000,  t12:110000, r13:"10%", r612:"9%"},
-  {name:"YOLO100M",  t1:10000, t3:30000,  t6:55000,  t12:110000, r13:"10%", r612:"9%"},
-  {name:"YOLO100SC", t1:10000, t3:30000,  t6:55000,  t12:110000, r13:"10%", r612:"9%"},
-  {name:"U900",      t1:null,  t3:null,   t6:80000,  t12:null,   r13:null,  r612:"9%"},
-  {name:"U1500",     t1:null,  t3:null,   t6:null,   t12:130000, r13:null,  r612:null},
-  {name:"YOLO125",   t1:15000, t3:45000,  t6:70000,  t12:130000, r13:"12%", r612:"9%"},
-  {name:"YOLO125G",  t1:15000, t3:45000,  t6:70000,  t12:130000, r13:"12%", r612:"9%"},
-  {name:"YOLO125V",  t1:15000, t3:45000,  t6:70000,  t12:130000, r13:"12%", r612:"9%"},
-  {name:"YOLO125Z",  t1:15000, t3:45000,  t6:70000,  t12:130000, r13:"12%", r612:"9%"},
-  {name:"SDE125",    t1:15000, t3:45000,  t6:70000,  t12:130000, r13:"12%", r612:"9%"},
-  {name:"SODA125",   t1:15000, t3:45000,  t6:70000,  t12:130000, r13:"12%", r612:"9%"},
-  {name:"VD130",     t1:15000, t3:45000,  t6:70000,  t12:135000, r13:"12%", r612:"9%"},
-  {name:"VD150",     t1:20000, t3:60000,  t6:90000,  t12:180000, r13:"13%", r612:"10%"},
-  {name:"U150",      t1:20000, t3:60000,  t6:90000,  t12:180000, r13:"13%", r612:"10%"},
-  {name:"G150",      t1:20000, t3:60000,  t6:90000,  t12:180000, r13:"13%", r612:"10%"},
-  {name:"SODA155",   t1:20000, t3:60000,  t6:90000,  t12:180000, r13:"13%", r612:"10%"},
-  {name:"D159V",     t1:20000, t3:60000,  t6:100000, t12:190000, r13:"13%", r612:"10%"},
-  {name:"D199G",     t1:25000, t3:75000,  t6:100000, t12:200000, r13:"13%", r612:"10%"},
-  {name:"VIP199",    t1:25000, t3:80000,  t6:120000, t12:250000, r13:"13%", r612:"10%"},
-  {name:"VIP249",    t1:30000, t3:100000, t6:150000, t12:300000, r13:"13%", r612:"10%"},
-  {name:"VIP349",    t1:45000, t3:140000, t6:200000, t12:400000, r13:"13%", r612:"10%"},
-  {name:"VIP499",    t1:65000, t3:200000, t6:300000, t12:600000, r13:"13%", r612:"10%"}
+const DD_DATA=[  /* Nguồn: CTKM_T11.docx – Chương trình 1 (giá trị KM theo chu kỳ, tỷ lệ KM theo từng chu kỳ) */
+  {name:"YOLO100", t1:10000, t3:30000, t6:60000, t12:145000, t18:null, t24:null, t36:null, r1:"10%", r3:"10%", r6:"10%", r12:"12%", r18:null, r24:null, r36:null},
+  {name:"YOLO100M", t1:10000, t3:30000, t6:60000, t12:145000, t18:null, t24:null, t36:null, r1:"10%", r3:"10%", r6:"10%", r12:"12%", r18:null, r24:null, r36:null},
+  {name:"YOLO100SC", t1:10000, t3:30000, t6:60000, t12:145000, t18:null, t24:null, t36:null, r1:"10%", r3:"10%", r6:"10%", r12:"12%", r18:null, r24:null, r36:null},
+  {name:"U900", t1:null, t3:null, t6:90000, t12:null, t18:null, t24:null, t36:null, r1:null, r3:null, r6:"10%", r12:null, r18:null, r24:null, r36:null},
+  {name:"U1500", t1:null, t3:null, t6:null, t12:195000, t18:292500, t24:420000, t36:675000, r1:null, r3:null, r6:null, r12:"13%", r18:"13%", r24:"14%", r36:"15%"},
+  {name:"YOLO125", t1:15000, t3:45000, t6:90000, t12:195000, t18:null, t24:null, t36:null, r1:"12%", r3:"12%", r6:"12%", r12:"13%", r18:null, r24:null, r36:null},
+  {name:"YOLO125G", t1:15000, t3:45000, t6:90000, t12:195000, t18:null, t24:null, t36:null, r1:"12%", r3:"12%", r6:"12%", r12:"13%", r18:null, r24:null, r36:null},
+  {name:"YOLO125V", t1:15000, t3:45000, t6:90000, t12:195000, t18:null, t24:null, t36:null, r1:"12%", r3:"12%", r6:"12%", r12:"13%", r18:null, r24:null, r36:null},
+  {name:"YOLO125Z", t1:15000, t3:45000, t6:90000, t12:195000, t18:null, t24:null, t36:null, r1:"12%", r3:"12%", r6:"12%", r12:"13%", r18:null, r24:null, r36:null},
+  {name:"SDE125", t1:15000, t3:45000, t6:90000, t12:195000, t18:null, t24:null, t36:null, r1:"12%", r3:"12%", r6:"12%", r12:"13%", r18:null, r24:null, r36:null},
+  {name:"SODA125", t1:15000, t3:45000, t6:90000, t12:195000, t18:null, t24:null, t36:null, r1:"12%", r3:"12%", r6:"12%", r12:"13%", r18:null, r24:null, r36:null},
+  {name:"VD130/130M", t1:15000, t3:45000, t6:95000, t12:200000, t18:null, t24:null, t36:null, r1:"12%", r3:"12%", r6:"12%", r12:"13%", r18:null, r24:null, r36:null},
+  {name:"VD150", t1:20000, t3:60000, t6:115000, t12:270000, t18:null, t24:null, t36:null, r1:"13%", r3:"13%", r6:"13%", r12:"15%", r18:null, r24:null, r36:null},
+  {name:"U150", t1:20000, t3:null, t6:null, t12:null, t18:null, t24:null, t36:null, r1:"13%", r3:null, r6:null, r12:null, r18:null, r24:null, r36:null},
+  {name:"5G150", t1:20000, t3:60000, t6:120000, t12:270000, t18:null, t24:null, t36:null, r1:"13%", r3:"13%", r6:"13%", r12:"15%", r18:null, r24:null, r36:null},
+  {name:"SODA155", t1:20000, t3:60000, t6:120000, t12:270000, t18:null, t24:null, t36:null, r1:"13%", r3:"13%", r6:"13%", r12:"15%", r18:null, r24:null, r36:null},
+  {name:"D159V", t1:20000, t3:60000, t6:120000, t12:280000, t18:null, t24:null, t36:null, r1:"13%", r3:"13%", r6:"13%", r12:"15%", r18:null, r24:null, r36:null},
+  {name:"D199G", t1:25000, t3:75000, t6:130000, t12:300000, t18:null, t24:null, t36:null, r1:"13%", r3:"13%", r6:"13%", r12:"15%", r18:null, r24:null, r36:null},
+  {name:"VIP199", t1:25000, t3:80000, t6:150000, t12:350000, t18:null, t24:null, t36:null, r1:"13%", r3:"13%", r6:"13%", r12:"15%", r18:null, r24:null, r36:null},
+  {name:"VIP249", t1:30000, t3:100000, t6:190000, t12:450000, t18:null, t24:null, t36:null, r1:"12%", r3:"13%", r6:"13%", r12:"15%", r18:null, r24:null, r36:null},
+  {name:"VIP349", t1:45000, t3:140000, t6:270000, t12:620000, t18:null, t24:null, t36:null, r1:"13%", r3:"13%", r6:"13%", r12:"15%", r18:null, r24:null, r36:null},
+  {name:"VIP499", t1:65000, t3:200000, t6:400000, t12:900000, t18:null, t24:null, t36:null, r1:"13%", r3:"13%", r6:"13%", r12:"15%", r18:null, r24:null, r36:null}
 ];
-const DD_CYC={t1:"Gói 1T",t3:"Gói 3T",t6:"Gói 6T",t12:"Gói 12T"};
+const DD_K=['t1','t3','t6','t12','t18','t24','t36'], DD_R={t1:'r1',t3:'r3',t6:'r6',t12:'r12',t18:'r18',t24:'r24',t36:'r36'};
+const DD_CYC={t1:"Gói 1T",t3:"Gói 3T",t6:"Gói 6T",t12:"Gói 12T",t18:"Gói 18T",t24:"Gói 24T",t36:"Gói 36T"};
 const DD_SUBS=[['dd-tq','Tổng quan','home'],['dd-ct','Chương trình khuyến mại','gift'],['dd-tc','Tra cứu KM','search'],['dd-ly','Lưu ý','alert'],['dd-th','Tình huống','help']];
 const ddS={q:'',cyc:'t12',range:'all',sortK:null,sortDir:1};
 const ddf=n=>n==null?'':String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
@@ -2512,7 +2513,7 @@ function ddHtml(){
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('users')+'</span>Đối tượng</div><div class="md dd-kv">Khách hàng cá nhân &amp; doanh nghiệp</div></div>'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('gift')+'</span>Chương trình</div><div class="md dd-kv">02 nhóm khuyến mại</div></div>'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('calendar')+'</span>Thời gian khuyến mại</div><div class="md dd-kv">01/11/2026 – 30/11/2026</div></div>'+
-      '<div class="mcard hl"><div class="mt"><span class="ic">'+ic('cash')+'</span>Thời gian nhận tiền</div><div class="md dd-kv" style="color:var(--yellow)">12/12/2026 – 31/12/2026</div></div>'+
+      '<div class="mcard hl"><div class="mt"><span class="ic">'+ic('cash')+'</span>Thời gian nhận tiền</div><div class="md dd-kv" style="color:var(--yellow)">01/12/2026 – 31/12/2026</div></div>'+
       '<div class="mcard"><div class="mt"><span class="ic">'+ic('cash')+'</span>Hình thức nhận</div><div class="md" style="font-size:14px;font-weight:600">CT1: quà tặng bằng <b>tiền mặt</b><br>CT2: <b>tiền mặt/chuyển khoản</b></div></div>'+
     '</div>'+
     '<div class="h-sub">'+ic('layers')+'Phân biệt 02 chương trình</div>'+
@@ -2520,7 +2521,7 @@ function ddHtml(){
       '<div class="dd-prog"><div class="dd-ph"><span class="pic">'+ic('gift')+'</span><div><span class="chip">CHƯƠNG TRÌNH 1</span><h3>Thuê bao mua gói cước cao</h3></div></div>'+
         '<dl class="dd-kvl"><dt>Ai?</dt><dd>TB VinaPhone <b>hòa mạng mới</b> · KH cá nhân &amp; doanh nghiệp</dd>'+
         '<dt>Điều kiện?</dt><dd>Mua gói có giá trị gói tháng <b class="money">từ 100.000đ</b> trở lên (đã gồm VAT và chiết khấu giảm giá nếu có)</dd>'+
-        '<dt>Được bao nhiêu?</dt><dd><span class="dd-big">10.000đ – 600.000đ</span><br><small class="muted">tùy gói &amp; chu kỳ (xem bảng tra cứu)</small></dd>'+
+        '<dt>Được bao nhiêu?</dt><dd><span class="dd-big">10.000đ – 900.000đ</span><br><small class="muted">tùy gói &amp; chu kỳ (xem bảng tra cứu)</small></dd>'+
         '<dt>Nhận bằng?</dt><dd>Quà tặng bằng tiền mặt</dd></dl>'+
         '<button class="btn btn-primary" data-goto="km:dd-tc">'+ic('search')+'Tra cứu mức KM</button></div>'+
       '<div class="dd-prog o"><div class="dd-ph"><span class="pic">'+ic('building')+'</span><div><span class="chip o">CHƯƠNG TRÌNH 2</span><h3>Khách hàng doanh nghiệp</h3></div></div>'+
@@ -2536,7 +2537,7 @@ function ddHtml(){
   /* ---- Chương trình khuyến mại (CT1 + CT2) ---- */
   h+='<div class="subpanel" data-sub="dd-ct">'+
     '<div class="jumpbar km-jump" data-ids="dd-ct1,dd-ct2"><span class="jl">Đi nhanh tới:</span>'+
-      '<button class="jbtn" data-jump="dd-ct1">'+ic('gift')+'CT1 · Gói cước cao <small>10.000đ – 600.000đ</small></button>'+
+      '<button class="jbtn" data-jump="dd-ct1">'+ic('gift')+'CT1 · Gói cước cao <small>10.000đ – 900.000đ</small></button>'+
       '<button class="jbtn" data-jump="dd-ct2">'+ic('building')+'CT2 · Doanh nghiệp từ 50 TB <small>50.000đ/TB</small></button></div>'+
     '<div id="p-dd-ct1" class="dd-anchor">'+
       '<h2 class="dd-h2">CHƯƠNG TRÌNH 1 — HÒA MẠNG MỚI, MUA GÓI CƯỚC TỪ 100.000Đ</h2>'+
@@ -2547,7 +2548,7 @@ function ddHtml(){
           '<div class="dd-box bad"><h5>Không bao gồm</h5><ul class="dd-l x">'+DD_EXCL+'</ul></div></div></div></div>'+
         '<div class="dd-step"><div class="dn"><small>BƯỚC</small><span>2</span></div><div class="db"><h4>Mua gói cước từ 100.000đ/tháng</h4><p style="margin:0">Giá trị gói tháng từ <b class="money" style="font-size:19px">100.000 đồng trở lên</b></p><p style="margin:8px 0 0"><span class="chip">Đã bao gồm VAT</span> <span class="chip">và chiết khấu giảm giá nếu có</span></p></div></div>'+
         '<div class="dd-step"><div class="dn"><small>BƯỚC</small><span>3</span></div><div class="db"><h4>Kiểm tra điều kiện hưởng khuyến mại</h4><ul class="dd-l">'+DD_COND+'</ul></div></div>'+
-        '<div class="dd-step fin"><div class="dn"><small>BƯỚC</small><span>4</span></div><div class="db"><h4>Nhận tiền khuyến mại</h4><p style="margin:0 0 10px">Quà tặng bằng tiền mặt, mức tiền theo gói &amp; chu kỳ gói.</p><span class="dd-date">'+ic('calendar')+'12/12/2026 – 31/12/2026</span><div style="margin-top:12px"><button class="btn btn-primary" data-goto="km:dd-tc">'+ic('search')+'TRA CỨU MỨC KHUYẾN MẠI</button></div></div></div>'+
+        '<div class="dd-step fin"><div class="dn"><small>BƯỚC</small><span>4</span></div><div class="db"><h4>Nhận tiền khuyến mại</h4><p style="margin:0 0 10px">Quà tặng bằng tiền mặt, mức tiền theo gói &amp; chu kỳ gói.</p><span class="dd-date">'+ic('calendar')+'01/12/2026 – 31/12/2026</span><div style="margin-top:12px"><button class="btn btn-primary" data-goto="km:dd-tc">'+ic('search')+'TRA CỨU MỨC KHUYẾN MẠI</button></div></div></div>'+
       '</div>'+
       '<details class="dd-acc"><summary>'+ic('file')+'Xem đầy đủ quy định Chương trình 1</summary><div class="ab">'+
         '<p><b>- Đối tượng áp dụng:</b> Thỏa mãn đồng thời 2 điều kiện sau</p>'+
@@ -2557,13 +2558,13 @@ function ddHtml(){
         '<p><b>- Giá trị khuyến mại:</b> Khách hàng hòa mạng mới dịch vụ và mua các gói cước trong tháng sẽ được nhận quà tặng bằng tiền mặt (theo bảng mức khuyến mại).</p>'+
         '<p><b>- Điều kiện thuê bao được hưởng khuyến mại:</b><br>+ Thuê bao có đầy đủ thông tin trên hệ thống và thanh toán hết cước phát sinh theo quy định.<br>+ Thông tin thuê bao trên hệ thống và biên bản quà tặng phải trùng khớp.</p>'+
         '<p><b>- Lưu ý:</b><br>+ Mỗi thuê bao chỉ được nhận khuyến mại bằng tiền mặt 1 lần trong thời gian diễn ra chương trình. Mỗi khách hàng có thể nhận được nhiều khuyến mại tương ứng với số lượng thuê bao đăng ký đủ điều kiện của chương trình.<br>+ Thuê bao không được nhận quà theo các chương trình khác cùng thời điểm.</p>'+
-        '<p><b>- Quy định khác:</b><br>+ Thời gian khách hàng nhận khuyến mại bằng tiền mặt: Từ ngày 12/12/2026 đến 31/12/2026.<br>+ Đối tượng: khách hàng cá nhân và khách hàng doanh nghiệp.</p>'+
+        '<p><b>- Quy định khác:</b><br>+ Thời gian khách hàng nhận khuyến mại bằng tiền mặt: Từ ngày 01/12/2026 đến 31/12/2026.<br>+ Đối tượng: khách hàng cá nhân và khách hàng doanh nghiệp.</p>'+
       '</div></details>'+
     '</div>'+
     '<div id="p-dd-ct2" class="dd-anchor dd-ct2">'+
       '<h2 class="dd-h2">CHƯƠNG TRÌNH 2 — KHÁCH HÀNG DOANH NGHIỆP TỪ 50 THUÊ BAO</h2>'+
       '<p class="dd-lead">Chỉ áp dụng cho khách hàng doanh nghiệp.</p>'+
-      '<div class="bignum"><div class="v">50.000đ<small> / 01 thuê bao</small></div><div class="d"><b>Hình thức: Tiền mặt / chuyển khoản</b>Thời gian nhận: <b style="display:inline;color:#FFD68A">12/12/2026 – 31/12/2026</b></div></div>'+
+      '<div class="bignum"><div class="v">50.000đ<small> / 01 thuê bao</small></div><div class="d"><b>Hình thức: Tiền mặt / chuyển khoản</b>Thời gian nhận: <b style="display:inline;color:#FFD68A">01/12/2026 – 31/12/2026</b></div></div>'+
       '<div class="grid2" style="margin-top:16px">'+
         '<div class="mcard"><div class="mt"><span class="ic">'+ic('users')+'</span>Đối tượng</div><div class="md"><p style="margin:0 0 10px">Khách hàng VinaPhone <b>hòa mạng mới</b> từ <b class="money" style="font-size:17px">50 thuê bao trở lên</b> tại các Điểm giao dịch hoặc các điểm bán hàng lưu động do VNPT thiết lập.</p><div class="dd-box bad"><h5>Không bao gồm</h5><ul class="dd-l x">'+DD_EXCL+'</ul></div></div></div>'+
         '<div class="mcard"><div class="mt"><span class="ic">'+ic('check')+'</span>Điều kiện</div><div class="md"><ul class="dd-l">'+DD_COND+'</ul><div class="tier info" style="margin:12px 0 0;align-items:flex-start">'+ic('info')+'<span>Mỗi thuê bao chỉ nhận KM bằng tiền mặt <b>01 lần</b>; thuê bao không được nhận quà theo các chương trình khác cùng thời điểm.</span></div></div></div>'+
@@ -2579,7 +2580,7 @@ function ddHtml(){
         '<p><b>- Giá trị khuyến mại:</b> khách hàng hòa mạng mới thuê bao và thanh toán hết cước phát sinh sẽ được nhận quà tặng trị giá 50.000 đồng/01 thuê bao bằng tiền mặt/chuyển khoản.</p>'+
         '<p><b>- Điều kiện thuê bao được hưởng khuyến mại:</b><br>+ Thuê bao có đầy đủ thông tin trên hệ thống và thanh toán hết cước phát sinh theo quy định.<br>+ Thông tin thuê bao trên hệ thống và biên bản quà tặng phải trùng khớp.</p>'+
         '<p><b>- Lưu ý:</b><br>+ Mỗi thuê bao chỉ được nhận khuyến mại bằng tiền mặt 1 lần trong thời gian diễn ra chương trình. Mỗi khách hàng có thể nhận được nhiều khuyến mại tương ứng với số lượng thuê bao đăng ký đủ điều kiện của chương trình.<br>+ Thuê bao không được nhận quà theo các chương trình khác cùng thời điểm.</p>'+
-        '<p><b>- Quy định khác:</b><br>+ Thời gian khách hàng nhận khuyến mại bằng tiền mặt: Từ ngày 12/12/2026 đến 31/12/2026.<br>+ Thuê bao chỉ áp dụng cho các khách hàng doanh nghiệp.</p>'+
+        '<p><b>- Quy định khác:</b><br>+ Thời gian khách hàng nhận khuyến mại bằng tiền mặt: Từ ngày 01/12/2026 đến 31/12/2026.<br>+ Thuê bao chỉ áp dụng cho các khách hàng doanh nghiệp.</p>'+
       '</div></details>'+
     '</div>'+
   '</div>';
@@ -2590,13 +2591,13 @@ function ddHtml(){
     '<p class="dd-lead">Gõ tên gói hoặc lọc theo mức tiền. <b>Bấm vào một gói</b> để xem thẻ mức khuyến mại. Đơn vị: đồng.</p>'+
     '<div class="km-filters">'+
       '<div class="km-search">'+ic('search')+'<input type="search" id="ddq" placeholder="Tìm tên gói: YOLO100, VIP499…" autocomplete="off" aria-label="Tìm tên gói"></div>'+
-      '<select id="ddcyc" class="sel" aria-label="Chu kỳ gói"><option value="t1">Gói 1T</option><option value="t3">Gói 3T</option><option value="t6">Gói 6T</option><option value="t12" selected>Gói 12T</option></select>'+
+      '<select id="ddcyc" class="sel" aria-label="Chu kỳ gói"><option value="t1">Gói 1T</option><option value="t3">Gói 3T</option><option value="t6">Gói 6T</option><option value="t12" selected>Gói 12T</option><option value="t18">Gói 18T</option><option value="t24">Gói 24T</option><option value="t36">Gói 36T</option></select>'+
       '<div class="seg" id="ddrange"><button data-r="all" class="active">Tất cả</button><button data-r="0-50000">&lt; 50K</button><button data-r="50000-100000">50K – &lt;100K</button><button data-r="100000-200000">100K – &lt;200K</button><button data-r="200000-1e12">≥ 200K</button></div>'+
       '<button class="btn btn-ghost btn-sm" id="ddreset">'+ic('x')+'Xóa lọc</button>'+
     '</div>'+
     '<div class="tblwrap"><table class="tbl dd-tbl"><thead>'+
-      '<tr class="grp"><th></th><th colspan="4" style="text-align:center">Giá trị KM (đồng)</th><th colspan="2" style="text-align:center">Tỷ lệ KM</th></tr>'+
-      '<tr><th class="sortable" data-k="name">Gói cước <span class="arr">↕</span></th><th class="sortable r" data-k="t1">Gói 1T <span class="arr">↕</span></th><th class="sortable r" data-k="t3">Gói 3T <span class="arr">↕</span></th><th class="sortable r" data-k="t6">Gói 6T <span class="arr">↕</span></th><th class="sortable r" data-k="t12">Gói 12T <span class="arr">↕</span></th><th class="sortable r" data-k="r13">Tỷ lệ KM 1T/3T <span class="arr">↕</span></th><th class="sortable r" data-k="r612">Tỷ lệ KM 6T/12T <span class="arr">↕</span></th></tr>'+
+      '<tr class="grp"><th></th><th colspan="7" style="text-align:center">Giá trị KM (đồng)</th><th colspan="7" style="text-align:center">Tỷ lệ KM</th></tr>'+
+      '<tr><th class="sortable" data-k="name">Gói cước <span class="arr">↕</span></th>'+DD_K.map(k=>'<th class="sortable r" data-k="'+k+'">'+DD_CYC[k].replace('Gói ','')+' <span class="arr">↕</span></th>').join('')+DD_K.map(k=>'<th class="sortable r" data-k="'+DD_R[k]+'">'+DD_CYC[k].replace('Gói ','')+' <span class="arr">↕</span></th>').join('')+'</tr>'+
     '</thead><tbody id="ddbody"></tbody></table><div class="empty hidden" id="ddempty" style="margin:12px">Không tìm thấy gói phù hợp. Thử xóa bộ lọc.</div></div>'+
     '<div class="dd-meta"><span id="ddcount"></span><span>Trên điện thoại: vuốt ngang để xem đủ cột</span></div>'+
   '</div>';
@@ -2608,7 +2609,7 @@ function ddHtml(){
       '<div class="dd-wc g"><div class="wh"><span class="wi">'+ic('check')+'</span><h3>ĐỦ ĐIỀU KIỆN KHI</h3></div><ul class="dd-l"><li>Có đầy đủ thông tin trên hệ thống</li><li>Thanh toán hết cước phát sinh theo quy định</li><li>Thông tin thuê bao trên hệ thống và biên bản quà tặng phải trùng khớp</li></ul></div>'+
       '<div class="dd-wc o"><div class="wh"><span class="wi" style="font-weight:900">1×</span><h3>CHỈ NHẬN 1 LẦN / THUÊ BAO</h3></div><p style="margin:0 0 8px">Mỗi thuê bao chỉ được nhận khuyến mại bằng tiền mặt <b>01 lần trong thời gian diễn ra chương trình</b>.</p><p style="margin:0">Mỗi khách hàng có thể nhận nhiều khuyến mại tương ứng với <b>số lượng thuê bao đăng ký đủ điều kiện</b>.</p></div>'+
       '<div class="dd-wc r"><div class="wh"><span class="wi">'+ic('x')+'</span><h3>KHÔNG CỘNG DỒN</h3></div><p style="margin:0;font-size:16px;font-weight:600">Thuê bao <b class="dd-red">không được nhận quà</b> theo các chương trình khác cùng thời điểm.</p></div>'+
-      '<div class="dd-wc b"><div class="wh"><span class="wi">'+ic('calendar')+'</span><h3>THỜI GIAN NHẬN KHUYẾN MẠI BẰNG TIỀN MẶT</h3></div><div class="dd-cal"><div class="cp"><div class="m">THÁNG 12/2026</div><div class="d">12</div></div><span class="money" style="font-size:24px">→</span><div class="cp"><div class="m">THÁNG 12/2026</div><div class="d">30</div></div></div><p style="margin:12px 0 0;font-weight:700">Từ ngày 12/12/2026 đến 31/12/2026</p></div>'+
+      '<div class="dd-wc b"><div class="wh"><span class="wi">'+ic('calendar')+'</span><h3>THỜI GIAN NHẬN KHUYẾN MẠI BẰNG TIỀN MẶT</h3></div><div class="dd-cal"><div class="cp"><div class="m">THÁNG 12/2026</div><div class="d">01</div></div><span class="money" style="font-size:24px">→</span><div class="cp"><div class="m">THÁNG 12/2026</div><div class="d">31</div></div></div><p style="margin:12px 0 0;font-weight:700">Từ ngày 01/12/2026 đến 31/12/2026</p></div>'+
     '</div>'+
     '<div class="mcard" style="margin-top:16px"><div class="mt"><span class="ic" style="background:var(--red-l);color:var(--red)">'+ic('x')+'</span>Không thuộc đối tượng (cả 2 chương trình)</div>'+
       '<div class="grid3" style="margin-top:12px"><div class="dd-box bad"><b>Trả trước chuyển trả sau</b></div><div class="dd-box bad"><b>Thuê bao kích hoạt sẵn</b></div><div class="dd-box bad"><b>SIM bán qua ĐUQ / VnPost / Chuỗi TGDD</b></div></div></div>'+
@@ -2629,26 +2630,25 @@ function ddRender(){
   const q=ddS.q.trim().toUpperCase();
   let rows=DD_DATA.map((r,i)=>({r,i})).filter(o=>(!q||o.r.name.toUpperCase().indexOf(q)>=0)&&ddRangeOk(o.r));
   if(ddS.sortK){ const k=ddS.sortK,d=ddS.sortDir;
-    rows.sort((a,b)=>{ let x=a.r[k],y=b.r[k]; if(k==='r13'||k==='r612'){ x=x==null?null:parseFloat(x); y=y==null?null:parseFloat(y); }
+    rows.sort((a,b)=>{ let x=a.r[k],y=b.r[k]; if(/^r\d/.test(k)){ x=x==null?null:parseFloat(x); y=y==null?null:parseFloat(y); }
       if(x==null&&y==null) return a.i-b.i; if(x==null) return 1; if(y==null) return -1;
       if(k==='name') return d*String(x).localeCompare(String(y),'vi',{numeric:true}); return d*(x-y)||a.i-b.i; }); }
-  const cell=(v,k)=>{ const sel=k===ddS.cyc?' col-sel':''; if(v==null) return '<td class="r na'+sel+'">—</td>'; if(k==='r13'||k==='r612') return '<td class="r'+sel+'"><span class="dd-pct">'+v+'</span></td>'; return '<td class="r'+sel+'"><b class="money">'+ddf(v)+'</b></td>'; };
-  $('#ddbody').innerHTML=rows.map(o=>{ const r=o.r; return '<tr data-ddpkg="'+esc(r.name)+'" class="'+(q?'match':'')+'" tabindex="0" title="Bấm để xem mức khuyến mại"><td><b style="color:var(--blue-d)">'+kmHl(r.name,ddS.q.trim())+'</b></td>'+cell(r.t1,'t1')+cell(r.t3,'t3')+cell(r.t6,'t6')+cell(r.t12,'t12')+cell(r.r13,'r13')+cell(r.r612,'r612')+'</tr>'; }).join('');
+  const cell=(v,k)=>{ const sel=(k===ddS.cyc||k===DD_R[ddS.cyc])?' col-sel':''; if(v==null) return '<td class="r na'+sel+'">—</td>'; if(/^r\d/.test(k)) return '<td class="r'+sel+'"><span class="dd-pct">'+v+'</span></td>'; return '<td class="r'+sel+'"><b class="money">'+ddf(v)+'</b></td>'; };
+  $('#ddbody').innerHTML=rows.map(o=>{ const r=o.r; return '<tr data-ddpkg="'+esc(r.name)+'" class="'+(q?'match':'')+'" tabindex="0" title="Bấm để xem mức khuyến mại"><td><b style="color:var(--blue-d)">'+kmHl(r.name,ddS.q.trim())+'</b></td>'+DD_K.map(k=>cell(r[k],k)).join('')+DD_K.map(k=>cell(r[DD_R[k]],DD_R[k])).join('')+'</tr>'; }).join('');
   $('#ddempty').classList.toggle('hidden',!!rows.length);
   $('#ddcount').textContent='Hiển thị '+rows.length+'/'+DD_DATA.length+' gói cước';
 }
 function ddModal(name){
   const r=ddFind(name); if(!r) return;
-  const vals=['t1','t3','t6','t12'].filter(k=>r[k]!=null);
+  const vals=DD_K.filter(k=>r[k]!=null);
   const title=vals.length===1?'Khách hàng mua gói '+r.name+' ('+DD_CYC[vals[0]]+') được khuyến mại '+ddf(r[vals[0]])+' đồng'
     :'Khách hàng mua gói '+r.name+' được khuyến mại '+ddf(r[vals[0]])+' – '+ddf(r[vals[vals.length-1]])+' đồng (tùy chu kỳ gói)';
   let m=$('#ddmodal');
   if(!m){ m=document.createElement('div'); m.id='ddmodal'; m.className='dd-mbg'; document.body.appendChild(m);
     m.addEventListener('click',e=>{ if(e.target===m||e.target.closest('.dd-x')) m.classList.remove('open'); }); }
   m.innerHTML='<div class="dd-modal" role="dialog" aria-modal="true"><div class="mh"><small>CHƯƠNG TRÌNH 1 · Hòa mạng mới + mua gói từ 100.000đ</small><h3>'+esc(title)+'</h3><button class="dd-x" aria-label="Đóng">×</button></div><div class="mb">'+
-    '<div class="dd-mg">'+['t1','t3','t6','t12'].map(k=>{ const v=r[k]; return '<div class="mc'+(v==null?' na':'')+(k===ddS.cyc&&v!=null?' sel':'')+'"><div class="p">'+DD_CYC[k]+'</div><div class="v">'+(v==null?'—':ddf(v)+'đ')+'</div></div>'; }).join('')+'</div>'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><span class="chip">Tỷ lệ KM 1T/3T: '+(r.r13||'—')+'</span><span class="chip">Tỷ lệ KM 6T/12T: '+(r.r612||'—')+'</span></div>'+
-    '<div class="mf">Nhận quà tặng bằng tiền mặt từ <b>12/12/2026 – 31/12/2026</b> khi thuê bao đủ điều kiện: đầy đủ thông tin, thanh toán hết cước phát sinh, thông tin trùng khớp biên bản quà tặng. Mỗi thuê bao nhận 01 lần.</div></div></div>';
+    '<div class="dd-mg">'+vals.map(k=>{ const v=r[k]; return '<div class="mc'+(k===ddS.cyc?' sel':'')+'"><div class="p">'+DD_CYC[k]+'</div><div class="v">'+ddf(v)+'đ</div><div class="p" style="margin-top:2px">Tỷ lệ KM '+(r[DD_R[k]]||'—')+'</div></div>'; }).join('')+'</div>'+
+    '<div class="mf">Nhận quà tặng bằng tiền mặt từ <b>01/12/2026 – 31/12/2026</b> khi thuê bao đủ điều kiện: đầy đủ thông tin, thanh toán hết cước phát sinh, thông tin trùng khớp biên bản quà tặng. Mỗi thuê bao nhận 01 lần.</div></div></div>';
   m.classList.add('open'); const x=$('.dd-x',m); if(x) x.focus();
 }
 function ddCalc(){ const n=parseInt($('#dnN').value,10), out=$('#dnRes'); if(!n||n<1){ out.textContent=''; return; }
@@ -2670,9 +2670,9 @@ function ddBind(){
 }
 function ddIndex(){
   const out=[];
-  DD_DATA.forEach(r=>{ const raw='KM Di động T11 – gói '+r.name+' · '+['t1','t3','t6','t12'].filter(k=>r[k]!=null).map(k=>DD_CYC[k]+': '+ddf(r[k])+' đồng').join(' · ');
+  DD_DATA.forEach(r=>{ const raw='KM Di động T11 – gói '+r.name+' · '+DD_K.filter(k=>r[k]!=null).map(k=>DD_CYC[k]+': '+ddf(r[k])+' đồng').join(' · ');
     out.push({km:{title:'KM Di động T11 – gói '+r.name,sub:'dd-tc',subName:'Di động › Tra cứu KM',faq:null,ddq:r.name},raw,n:norm(raw),nt:norm(r.name+' khuyến mại di động')}); });
-  [['dd-ct','Di động – Chương trình 1: hòa mạng mới, mua gói cước từ 100.000đ','Thuê bao VinaPhone hòa mạng mới mua gói có giá trị gói tháng từ 100.000đ · 10.000đ – 600.000đ · quà tặng tiền mặt · nhận 12/12/2026 – 31/12/2026'],
+  [['dd-ct','Di động – Chương trình 1: hòa mạng mới, mua gói cước từ 100.000đ','Thuê bao VinaPhone hòa mạng mới mua gói có giá trị gói tháng từ 100.000đ · 10.000đ – 900.000đ · quà tặng tiền mặt · nhận 01/12/2026 – 31/12/2026'],
    ['dd-ct','Di động – Chương trình 2: khách hàng doanh nghiệp từ 50 thuê bao','Khách hàng VinaPhone hòa mạng mới từ 50 thuê bao · 50.000 đồng/01 thuê bao · tiền mặt/chuyển khoản · doanh nghiệp'],
    ['dd-ly','Di động – Điều kiện & lưu ý','Không cộng dồn · chỉ nhận 1 lần/thuê bao · không áp dụng trả trước chuyển trả sau, thuê bao kích hoạt sẵn, SIM bán qua ĐUQ/VnPost/Chuỗi TGDD']]
     .forEach(x=>out.push({km:{title:x[1],sub:x[0],subName:'Di động',faq:null},raw:x[1]+' · '+x[2],n:norm(x[1]+' · '+x[2]),nt:norm(x[1])}));
