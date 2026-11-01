@@ -1105,7 +1105,17 @@ window.VNPT_SSO = window.VNPT_SSO || (function(){
           <div class="cycles" id="cycles"></div>
           <p class="note" id="cycNote" style="margin:8px 0 0"></p>
         </div>
-        <div class="stepc">
+        <div class="stepc" id="stPos">
+          <h4><span class="n" data-n="pos">4</span>Thuê bao thứ mấy trong tháng?</h4>
+          <div class="stepper"><button type="button" id="pMinus">−</button><input type="number" id="pos" min="1" value="1" inputmode="numeric"><button type="button" id="pPlus">+</button><span class="unit" id="posUnit">trong tháng</span></div>
+          <p class="note" id="posNote" style="margin:8px 0 0"></p>
+          <div class="hint" id="posHint" hidden></div>
+          <details class="more" id="devMore">
+            <summary>Các thuê bao trước có số thiết bị khác gói này?</summary>
+            <label class="fld" style="margin-top:8px"><span>Số thiết bị Mesh + Camera đã bán <b>trước</b> thuê bao này trong tháng</span><input type="number" id="devBefore" min="0" placeholder="Để trống: mỗi thuê bao trước có cùng số thiết bị như gói này"></label>
+          </details>
+        </div>
+        <div class="stepc" id="stQty">
           <h4><span class="n" data-n="qty">4</span>Bán được bao nhiêu thuê bao?</h4>
           <div class="stepper"><button type="button" id="qMinus">−</button><input type="number" id="qty" min="1" value="1" inputmode="numeric"><button type="button" id="qPlus">+</button><span class="unit">thuê bao</span></div>
           <div class="hint" id="nextHint" hidden></div>
@@ -1914,7 +1924,7 @@ function renderHome(){
      [['Bạn thuộc đối tượng nào?'],['Bạn đang làm dịch vụ nào?'],['Điều kiện cần đạt?'],['Mức khuyến khích?'],['Thuê bao/dự án có được ghi nhận?'],['Làm đúng – hoàn công/nghiệm thu – nhận khuyến khích']].map((s,i)=>'<div class="st"><div class="n">'+'①②③④⑤⑥'[i]+'</div><b>'+s[0]+'</b></div>').join('')+'</div>';
 
   h+='<div class="sec-title">'+ic('zap')+'Thông điệp chính</div><div class="ticker">'+
-     ['VƯỢT NGƯỠNG – NHẬN KHUYẾN KHÍCH TỪ THUÊ BAO ĐẦU TIÊN','ĐẠT TRÊN 120% NGƯỠNG GIAO – KHUYẾN KHÍCH 1,5 LẦN MỨC HIỆN HÀNH','LÀM ĐÚNG QUY TRÌNH – GHI NHẬN ĐÚNG SẢN LƯỢNG','KHÔNG CHỈ PHÁT TRIỂN – HÃY ĐẢM BẢO ĐỦ ĐIỀU KIỆN GHI NHẬN']
+     ['VƯỢT NGƯỠNG – NHẬN KHUYẾN KHÍCH TỪ THUÊ BAO ĐẦU TIÊN','LÀM ĐÚNG QUY TRÌNH – GHI NHẬN ĐÚNG SẢN LƯỢNG','KHÔNG CHỈ PHÁT TRIỂN – HÃY ĐẢM BẢO ĐỦ ĐIỀU KIỆN GHI NHẬN']
        .map(t=>'<div class="tk">'+ic('zap')+'<span>'+t+'</span></div>').join('')+'</div>';
 
   h+='<div class="sec-title">'+ic('search')+'Tra cứu nhanh – Tôi muốn biết…</div>'+
@@ -2930,7 +2940,7 @@ function itemsFor(svc, mode) {
 }
 
 function defaultInput() {
-  return { role: 'KDDB', svc: 'FIBER', mode: 'rent', itemId: 'HI-02', cycle: '1', qty: 1, volume: null, apply120: true,
+  return { role: 'KDDB', svc: 'FIBER', mode: 'rent', itemId: 'HI-02', cycle: '1', qty: 1, volume: null, apply120: true, pos: 1, devBefore: null,
     rushWeek: false, lowShare: false, ccco: false, cam24h: false, xgspon: false, camPTM: false, vtci: false, camTTN: false, trongdiem: false,
     inst: { self: 0, wire: 0, addSvc: 0, svc2: 0, meshTB: 0, camTB: 0, tcTB: 0, tcDevices: 0 } };
 }
@@ -3269,6 +3279,7 @@ const CART = (store.get(CART_STORE, null) || store.get('vnpt_cart', []) || []).f
 function saveCart() { store.set(CART_STORE, CART); }
 function addToCart() {
   const e = {}; CART_KEYS.forEach(k => e[k] = JSON.parse(JSON.stringify(S[k])));
+  if (isPosMode()) e.qty = 1;
   CART.push(e); saveCart(); renderCart(); compute();
   toast('Đã thêm vào giỏ – ' + CART.length + ' mục');
 }
@@ -3479,19 +3490,48 @@ function renderPrograms() {
 function numberSteps() {
   let n = 1; $$('#mtSale .stepc').forEach(s => { if (s.hidden) return; const e = $('.n', s); if (e) e.textContent = n++; });
 }
+/* Fiber/Mesh/Camera: tính cho 1 thuê bao ở vị trí thứ n trong tháng (xác định giá gói & mức vượt ngưỡng của chính TB đó).
+   MyTV không có chính sách vượt ngưỡng → giữ cách nhập số lượng. */
+const POS_SVCS = ['FIBER', 'XGSPON', 'MESH', 'CAMERA'];
+const isPosMode = s => POS_SVCS.includes((s || S).svc);
+function posInfo(s) {
+  const n = Math.max(1, Math.floor(+s.pos || 1));
+  if (s.svc === 'MESH' || s.svc === 'CAMERA') {
+    const it = getItem(s.itemId); const dev = (it && it.devices) || 1;
+    const before = (s.devBefore !== null && s.devBefore !== undefined && s.devBefore !== '') ? Math.max(0, Math.floor(+s.devBefore)) : (n - 1) * dev;
+    return { n, dev, from: before + 1, end: before + dev };
+  }
+  return { n, dev: 1, from: n, end: n };
+}
+function calcInput(s) {
+  const x = Object.assign({}, s);
+  if (isPosMode(s)) { const p = posInfo(s); x.qty = 1; x.posEnd = p.end; x.volume = p.end; }
+  return x;
+}
 function renderCalc() {
   $('#stMode').hidden = !(S.svc === 'MESH' || S.svc === 'CAMERA');
   $$('#stMode [data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === S.mode));
   renderSvcTiles(); renderPkg(); renderCycles(); renderPrograms();
   $('#qty').value = S.qty; $('#volume').value = S.volume || '';
+  $('#pos').value = S.pos || 1; $('#devBefore').value = (S.devBefore === null || S.devBefore === undefined) ? '' : S.devBefore;
+  $('#stPos').hidden = !isPosMode(); $('#stQty').hidden = isPosMode();
+  $('#devMore').hidden = !(S.svc === 'MESH' || S.svc === 'CAMERA');
   $('#volLbl').textContent = (S.svc === 'MESH' || S.svc === 'CAMERA') ? 'Tổng số thiết bị Mesh + Camera cả tháng (để xét mốc)' : S.svc === 'MYTV' ? 'Tổng số TB MyTV cả tháng' : 'Tổng số TB Fiber (gồm XGSPON) cả tháng (để xét mốc)';
   $('#volMore').hidden = S.svc === 'MYTV';
   numberSteps();
   compute();
 }
 function compute() {
-  const r = calculateTotalIncome(S); lastRes = r;
+  const r = calculateTotalIncome(calcInput(S)); lastRes = r;
   renderResult(r);
+  if (isPosMode()) {
+    const p = posInfo(S); const mc = S.svc === 'MESH' || S.svc === 'CAMERA';
+    $('#posNote').innerHTML = mc ? `Gói ${esc(r.item ? r.item.name : '')} có <b>${p.dev} thiết bị</b> → thuê bao thứ ${p.n} là <b>thiết bị thứ ${p.from}${p.end > p.from ? '–' + p.end : ''}</b> Mesh/Camera trong tháng (ngưỡng Mesh/Camera xét theo số thiết bị).`
+      : `Tính lương cho <b>đúng 1 thuê bao</b> – thuê bao Fiber thứ <b>${p.n}</b> trong tháng, theo giá gói đã chọn.`;
+    const ph = $('#posHint');
+    if (r.next) { ph.hidden = false; ph.innerHTML = `🎯 Từ <b>${mc ? 'thiết bị' : 'thuê bao'} thứ ${r.next.n}</b> trong tháng → <b>${r.next.text}</b>.`; } else ph.hidden = true;
+    $('#nextHint').hidden = true; return;
+  }
   const h = $('#nextHint');
   if (r.next) { h.hidden = false; const mcU = S.svc === 'MESH' || S.svc === 'CAMERA'; h.innerHTML = `🎯 Bán thêm <b>${r.next.more} ${mcU ? 'thiết bị' : 'TB'}</b> nữa (đủ ${r.next.n} ${mcU ? 'thiết bị Mesh/Cam' : 'TB Fiber'}) → <b>${r.next.text}</b>.`; }
   else h.hidden = true;
@@ -3507,15 +3547,17 @@ function renderResult(r) {
   const wasOpen = !!$('.why.open', box);
   const dg = r.lines.filter(l => ['dg', 'flat', 'inst'].includes(l.cat));
   const kk = r.lines.filter(l => ['kk', 'k120'].includes(l.cat));
-  const qs = [1, 2, 3, 4, 5, 7, 10];
-  if (!qs.includes(r.q)) { qs.push(r.q); qs.sort((a, b) => a - b); }
-  const more = qs.map(n => { const x = calculateTotalIncome(Object.assign({}, S, { qty: n, volume: null, inst: {} })); return `<tr class="${n === r.q ? 'cur' : ''}"><td>${n} TB</td><td>${VND(x.salary)}</td><td>${VND(x.incentive)}</td><td><b>${VND(x.total)}</b></td></tr>`; }).join('');
+  const PM = isPosMode(); const pN = PM ? posInfo(S).n : 0;
+  const qs = PM ? [1, 2, 3, 4, 5, 6, 7, 8, 10] : [1, 2, 3, 4, 5, 7, 10];
+  const cur = PM ? pN : r.q;
+  if (!qs.includes(cur)) { qs.push(cur); qs.sort((a, b) => a - b); }
+  const more = qs.map(n => { const x = calculateTotalIncome(PM ? calcInput(Object.assign({}, S, { pos: n, devBefore: null, inst: {} })) : Object.assign({}, S, { qty: n, volume: null, inst: {} })); return `<tr class="${n === cur ? 'cur' : ''}"><td>${PM ? 'TB thứ ' + n : n + ' TB'}</td><td>${VND(x.salary)}</td><td>${VND(x.incentive)}</td><td><b>${VND(x.total)}</b></td></tr>`; }).join('');
   box.innerHTML = `
   <div class="res">
     <div class="res-top">
       <div class="lbl">BẠN NHẬN ĐƯỢC</div>
       <div class="big">${VND(r.total)}</div>
-      <div class="sub">${r.q} TB · ${esc(it ? it.name : '')}${it && it.kind !== 'ttn' ? ' · ' + esc(cycleLabel(it, r.cycle)) : ''} · ${ROLE_LABEL[S.role]}${r.q > 1 ? ` · bình quân ${VND(r.avgPerTB)}/TB` : ''}</div>
+      <div class="sub">${PM ? 'Thuê bao thứ ' + pN : r.q + ' TB'} · ${esc(it ? it.name : '')}${it && it.kind !== 'ttn' ? ' · ' + esc(cycleLabel(it, r.cycle)) : ''} · ${ROLE_LABEL[S.role]}${r.q > 1 ? ` · bình quân ${VND(r.avgPerTB)}/TB` : ''}</div>
     </div>
     <div class="split"><div><small>Lương đơn giá</small><strong>${VND(r.salary)}</strong></div><div><small>Thưởng (khuyến khích)</small><strong>${VND(r.incentive)}</strong></div></div>
     <div class="lines">
@@ -3532,8 +3574,8 @@ function renderResult(r) {
     </div>
     <div class="why ${wasOpen ? 'open' : ''}">
       <ol>${r.steps.map(s => `<li>${s}</li>`).join('')}</ol>
-      <details class="more" open><summary>Nếu bán số lượng khác (cùng gói, cùng chương trình)</summary>
-        <table class="mini" style="margin-top:6px"><tr><th>Số TB</th><th>Lương ĐG</th><th>Thưởng</th><th>Tổng</th></tr>${more}</table></details>
+      <details class="more" open><summary>${PM ? 'Nếu là thuê bao thứ khác trong tháng (cùng gói, cùng chương trình)' : 'Nếu bán số lượng khác (cùng gói, cùng chương trình)'}</summary>
+        <table class="mini" style="margin-top:6px"><tr><th>${PM ? 'Thứ tự' : 'Số TB'}</th><th>Lương ĐG</th><th>Thưởng</th><th>Tổng</th></tr>${more}</table></details>
     </div>
     <div class="alerts">${r.warns.map(w => `<div class="alert ${w.level}">${w.level === 'danger' ? '⛔ ' : '⚠️ '}${esc(w.t)}</div>`).join('')}</div>
   </div>`;
@@ -3542,7 +3584,7 @@ function renderResult(r) {
   $('[data-a="print"]', box).onclick = () => printEl($('.res', box));
   $('[data-a="reset"]', box).onclick = resetCalc;
   $('[data-a="cart"]', box).onclick = addToCart;
-  $('#mbar').innerHTML = `<span>Bạn nhận (${r.q} TB)<b>${VND(r.total)}</b></span><button class="mt-btn mbcart" type="button" data-mb="cart">🛒 Thêm${CART.length ? ' (' + CART.length + ')' : ''}</button><button class="mt-btn" type="button" data-mb="detail">Chi tiết ↓</button>`;
+  $('#mbar').innerHTML = `<span>Bạn nhận (${PM ? 'TB thứ ' + pN : r.q + ' TB'})<b>${VND(r.total)}</b></span><button class="mt-btn mbcart" type="button" data-mb="cart">🛒 Thêm${CART.length ? ' (' + CART.length + ')' : ''}</button><button class="mt-btn" type="button" data-mb="detail">Chi tiết ↓</button>`;
 }
 function resetCalc() {
   const role = S.role; Object.assign(S, defaultInput(), { role }); renderCalc(); toast('Đã làm lại');
@@ -3550,7 +3592,7 @@ function resetCalc() {
 function resultText(r) {
   const it = r.item; const L = [];
   L.push(`TÍNH LƯƠNG BÁN HÀNG – ${ROLE_LABEL[S.role]}`);
-  if (it) L.push(`${SVC[S.svc].label}: ${it.name} (${typeLabel(it.type)})${it.kind !== 'ttn' ? ' – ' + cycleLabel(it, r.cycle) : ' – mua đứt'} – ${r.q} TB`);
+  if (it) L.push(`${SVC[S.svc].label}: ${it.name} (${typeLabel(it.type)})${it.kind !== 'ttn' ? ' – ' + cycleLabel(it, r.cycle) : ' – mua đứt'} – ${isPosMode() ? 'thuê bao thứ ' + posInfo(S).n + ' trong tháng' : r.q + ' TB'}`);
   r.lines.filter(included).forEach(l => L.push(`• ${l.label}: ${VND(l.total)}`));
   L.push(`Lương đơn giá: ${VND(r.salary)} | Thưởng: ${VND(r.incentive)}`);
   L.push(`TỔNG NHẬN: ${VND(r.total)}`);
@@ -3571,11 +3613,15 @@ function printEl(el) {
 const mtInit = () => {
   $$('.rolechip').forEach(b => b.onclick = () => setRole(b.dataset.role));
   $$('[data-pick]').forEach(b => b.onclick = () => setRole(b.dataset.pick));
-  $('#svcTiles').addEventListener('click', e => { const t = e.target.closest('[data-svc]'); if (!t) return; S.svc = t.dataset.svc; S.mode = 'rent'; S.itemId = defaultItem(S.svc, 'rent'); S.cycle = '1'; S.volume = null; ['rushWeek', 'lowShare', 'ccco', 'cam24h', 'xgspon', 'camPTM', 'vtci', 'camTTN', 'trongdiem'].forEach(k => S[k] = false); S.inst = defaultInput().inst; renderCalc(); });
+  $('#svcTiles').addEventListener('click', e => { const t = e.target.closest('[data-svc]'); if (!t) return; S.svc = t.dataset.svc; S.mode = 'rent'; S.itemId = defaultItem(S.svc, 'rent'); S.cycle = '1'; S.volume = null; S.devBefore = null; ['rushWeek', 'lowShare', 'ccco', 'cam24h', 'xgspon', 'camPTM', 'vtci', 'camTTN', 'trongdiem'].forEach(k => S[k] = false); S.inst = defaultInput().inst; renderCalc(); });
   $('#stMode').addEventListener('click', e => { const t = e.target.closest('[data-mode]'); if (!t) return; S.mode = t.dataset.mode; S.itemId = defaultItem(S.svc, S.mode); renderCalc(); });
   $('#pkgSel').onchange = e => { S.itemId = e.target.value; renderCalc(); };
   $('#cycles').addEventListener('click', e => { const t = e.target.closest('[data-cyc]'); if (!t) return; S.cycle = t.dataset.cyc; renderCycles(); renderPrograms(); compute(); });
   $('#qty').addEventListener('input', e => { S.qty = Math.max(1, Math.floor(+e.target.value || 1)); compute(); });
+  $('#pos').addEventListener('input', e => { S.pos = Math.max(1, Math.floor(+e.target.value || 1)); compute(); });
+  $('#pMinus').onclick = () => { S.pos = Math.max(1, (S.pos || 1) - 1); $('#pos').value = S.pos; compute(); };
+  $('#pPlus').onclick = () => { S.pos = (S.pos || 1) + 1; $('#pos').value = S.pos; compute(); };
+  $('#devBefore').addEventListener('input', e => { S.devBefore = e.target.value === '' ? null : Math.max(0, Math.floor(+e.target.value)); compute(); });
   $('#qMinus').onclick = () => { S.qty = Math.max(1, S.qty - 1); $('#qty').value = S.qty; compute(); };
   $('#qPlus').onclick = () => { S.qty = S.qty + 1; $('#qty').value = S.qty; compute(); };
   $('#volume').addEventListener('input', e => { S.volume = e.target.value === '' ? null : +e.target.value; compute(); });
