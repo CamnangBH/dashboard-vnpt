@@ -3079,7 +3079,7 @@ function calculateIncentive(ctx) {
     } else { warn(ctx, 'warn', 'Tuần lễ tăng tốc chỉ thưởng khi khách đóng trước từ 6 tháng trở lên.'); step(ctx, `Tuần lễ tăng tốc: chu kỳ dưới 6 tháng → không được thưởng`); }
   }
   /* Nhóm "Option" (chỉ chọn 1): thị phần thấp, CCCO/NOXH, VTCI, gói trọng điểm */
-  const OPT = item.vtci ? 'vtci' : (['lowShare', 'ccco', 'trongdiem'].find(k => input[k]) || '');
+  const OPT = item.vtci ? 'vtci' : ((fiber && ctx.priceMonth >= RULE.tdMinPrice) ? 'trongdiem' : (['lowShare', 'ccco', 'trongdiem'].find(k => input[k]) || ''));   // gói ≥ 230.000đ: tự động áp dụng gói trọng điểm
   if (fiber && OPT === 'lowShare') {
     addLine(ctx, { key: 'low', cat: 'kk', row: 23, kk120: true, label: 'Thưởng khu vực thị phần thấp', per: RULE.lowShare, total: RULE.lowShare * q, formula: '200.000đ/TB' });
     step(ctx, `Khu vực thị phần thấp → <b>200.000 đ</b>/TB`);
@@ -3470,20 +3470,22 @@ function renderPrograms() {
   const it = getItem(S.itemId); const lockX = !!(it && it.tech === 'XGSPON'), lockV = !!(it && it.vtci);
   const defs = programDefs(); const optShown = defs.filter(d => d[3] === 'opt').map(d => d[0]);
   OPT_KEYS.forEach(k => { if (!optShown.includes(k)) S[k] = false; });
+  const lockT = !lockV && optShown.includes('trongdiem');   // gói Fiber ≥ 230.000đ
   if (lockV) OPT_KEYS.forEach(k => S[k] = k === 'vtci');
+  if (lockT) OPT_KEYS.forEach(k => S[k] = k === 'trongdiem');
   const m = cycleMonths(S.cycle);
   const row = ([k, t, d, ty]) => {
     if (ty === 'opt') {
       const dis = lockV && k !== 'vtci'; const tdBad = k === 'trongdiem' && m < 6;
-      const note = (lockV && k === 'vtci') ? 'Gói ' + esc(it.name) + ' thuộc chương trình VTCI – tự động áp dụng. ' : (dis ? 'Gói VTCI2 chỉ hưởng chương trình VTCI. ' : (tdBad ? 'Cần chọn chu kỳ đóng trước từ 6 tháng. ' : ''));
-      return `<label class="chk"><input type="radio" name="mtopt" data-opt="${k}" ${S[k] ? 'checked' : ''} ${lockV ? 'disabled' : ''}><span><b>${t}</b><small>${note}${d}</small></span></label>`;
+      const note = (lockV && k === 'vtci') ? 'Gói ' + esc(it.name) + ' thuộc chương trình VTCI – tự động áp dụng. ' : (lockT && k === 'trongdiem') ? 'Gói ' + esc(it.name) + ' có giá ≥ 230.000đ/tháng – tự động áp dụng. ' + (tdBad ? 'Cần chọn chu kỳ đóng trước từ 6 tháng để được hưởng. ' : '') : (dis ? 'Gói VTCI2 chỉ hưởng chương trình VTCI. ' : (tdBad ? 'Cần chọn chu kỳ đóng trước từ 6 tháng. ' : ''));
+      return `<label class="chk"><input type="radio" name="mtopt" data-opt="${k}" ${S[k] ? 'checked' : ''} ${(lockV || lockT) ? 'disabled' : ''}><span><b>${t}</b><small>${note}${d}</small></span></label>`;
     }
     const lk = k === 'xgspon' && lockX;
     return `<label class="chk"><input type="checkbox" data-prog="${k}" ${(S[k] || lk) ? 'checked' : ''} ${lk ? 'disabled' : ''}><span><b>${t}</b><small>${lk ? 'Gói ' + esc(it.name) + ' là gói XGSPON – tự động áp dụng. ' : ''}${d}</small></span></label>`;
   };
   const opts = defs.filter(d => d[3] === 'opt'), chks = defs.filter(d => d[3] !== 'opt');
   let h = '';
-  if (opts.length) h += `<div class="pgrp"><div class="pgh">Chọn <b>1</b> chương trình <small>(chỉ được hưởng một)</small></div>${opts.map(row).join('')}${lockV ? '' : `<label class="chk"><input type="radio" name="mtopt" data-opt="" ${opts.some(d => S[d[0]]) ? '' : 'checked'}><span><b>Không thuộc chương trình nào ở trên</b></span></label>`}</div>`;
+  if (opts.length) h += `<div class="pgrp"><div class="pgh">${(lockV || lockT) ? 'Chương trình áp dụng theo gói cước <small>(tự động)</small>' : 'Chọn <b>1</b> chương trình <small>(chỉ được hưởng một)</small>'}</div>${opts.map(row).join('')}</div>`;
   if (chks.length) h += `<div class="pgrp"><div class="pgh">Có thể chọn <b>nhiều</b> chương trình</div>${chks.map(row).join('')}</div>`;
   $('#progList').innerHTML = h;
 }
