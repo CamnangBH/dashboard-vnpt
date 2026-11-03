@@ -352,6 +352,8 @@ window.VNPT_SSO = window.VNPT_SSO || (function(){
 /* ============ CONSTANTS ============ */
 const SVC = ['Fiber','MyTV','Mesh','Cam'];
 const SVC_NAME = {Fiber:'Fiber',MyTV:'MyTV',Mesh:'Mesh',Cam:'Camera (Cam)'};
+/* Điểm quy đổi riêng theo gói cước (ghi đè hệ số chung của dịch vụ) */
+const PKG_PTS = { 'Fiber|VTCI2 FV80': 0.3 };
 const TL_DAYS = ['2026-11-02'];   // Tháng 11/2026
 const UNK = 'Chưa xác định địa bàn';
 const ND = 'Chưa xác định';
@@ -506,7 +508,8 @@ function normalize(raw){
       lap:clean(g(r,'lap'))||ND, pp, ppk, ec, en, emp:(ec||en)?`${en||'?'} (${ec||'?'})`:ND, unit:unit||'(trống)', area, st:clean(g(r,'st'))||ND,
       ward, street, kh:clean(g(r,'kh'))||ND, ht:clean(g(r,'ht'))||ND, cn:cnRaw||ND};
     rec.ws = ward+' › '+street;
-    rec.pts = grp ? (coef[grp]||0) : 0;
+    const pkgK=String(rec.pkg||'').toUpperCase().replace(/\s+/g,' ').trim();
+    rec.pts = grp ? (PKG_PTS[grp+'|'+pkgK]!=null ? PKG_PTS[grp+'|'+pkgK] : (coef[grp]||0)) : 0;
     if(!d){ nBadDate++; rec.why='Không xác định ngày'; bad.push(rec); continue; }
     if(!grp){ nUnkSvc++; svcUnknown.set(svcRaw,(svcUnknown.get(svcRaw)||0)+1); rec.why='Không xác định dịch vụ'; bad.push(rec); continue; }
     if(!d.startsWith('2026-11')) nOutMonth++;
@@ -572,7 +575,7 @@ function computeCtx(){
   return CX;
 }
 function newAcc(){ return {n:0,pts:0,svc:{Fiber:0,MyTV:0,Mesh:0,Cam:0},tt:0,ttt:0,st:{}}; }
-function addAcc(o,r){ o.n++; o.pts+=r.pts; o.svc[r.g]++; o.st[r.st]=(o.st[r.st]||0)+1; if(r.st===ST_TT)o.tt++; else if(r.st===ST_TTT)o.ttt++; }
+function addAcc(o,r){ o.n++; o.pts+=r.pts; o.svc[r.g]++; o.svcPts=o.svcPts||{}; o.svcPts[r.g]=(o.svcPts[r.g]||0)+r.pts; o.st[r.st]=(o.st[r.st]||0)+1; if(r.st===ST_TT)o.tt++; else if(r.st===ST_TTT)o.ttt++; }
 function accum(rows){ const o=newAcc(); for(const r of rows) addAcc(o,r); return o; }
 function groupBy(rows,keyFn){ const m=new Map(); for(const r of rows){ const k=keyFn(r); let o=m.get(k); if(!o){o=newAcc();o.k=k;m.set(k,o);} addAcc(o,r);} return m; }
 function areaStats(){
@@ -904,7 +907,7 @@ function renderOverview(){
   else if(S.chart1==='sl'){ const by={}; SVC.forEach(g=>by[g]=ds.map(o=>o.svc[g])); chartStackSvc('cDays',cats,by,{prev:true}); }
   else chartActPlan('cDays',cats,ds.map(o=>o.pts),ds.map(o=>o.plan),{dec:true,actName:'Điểm thực hiện',planName:'Điểm kế hoạch'});
   const tt=T();
-  chartDonut('cDonut',SVC.map(g=>({name:g,value:t.svc[g],color:tt.s[g]})).filter(o=>o.value>0),{extra:g=>`Điểm quy đổi: ${fP(t.svc[g]*(DB.coef[g]||0))}`});
+  chartDonut('cDonut',SVC.map(g=>({name:g,value:t.svc[g],color:tt.s[g]})).filter(o=>o.value>0),{extra:g=>`Điểm quy đổi: ${fP(t.svcPts&&t.svcPts[g]!=null?t.svcPts[g]:t.svc[g]*(DB.coef[g]||0))}`});
   chartBars('cMonth',dates.map(dLabel),dates.map(d=>byD.get(d)),{colorFn:(i,v,t)=>TL_DAYS.includes(dates[i])?t.accent:t.neutral,bw:26,
     tip:ps=>{const d=dates[ps[0].dataIndex];return `<b>${dLabelFull(d)}</b> ${TL_DAYS.includes(d)?'· Ngày tổng lực':'· Ngày thường'}<br>${fN(ps[0].value)} thuê bao`;}});
 }
@@ -1058,7 +1061,7 @@ function renderSvc(){
   $('#main').innerHTML=`${subTabs}
     <div class="kpis">
       ${kpi('Tổng sản lượng',fN(ac.n),`${fN(new Set(rows.map(r=>r.hd)).size)} hợp đồng duy nhất`,'acc')}
-      ${kpi('Điểm quy đổi',fP(ac.pts),`hệ số ${nf1.format(DB.coef[g]||0)} điểm/TB`)}
+      ${kpi('Điểm quy đổi',fP(ac.pts),`hệ số ${nf1.format(DB.coef[g]||0)} điểm/TB${g==='Fiber'?' · gói VTCI2 FV80: 0,3':''}`)}
       ${kpi('Kế hoạch thuê bao',hasPlan?fN(planT):'N/A',hasPlan?`${days.length} ngày × ${fN(planDay)} TB/ngày`:sub!=='all'?'Kế hoạch chỉ giao cho cả nhóm dịch vụ':'Ngoài phạm vi kế hoạch')}
       ${kpi('% hoàn thành KH thuê bao',hasPlan?fR(ratio(actPlanScope,planT)):'N/A',hasPlan?`${fN(actPlanScope)} TB ngày tổng lực`:'',hasPlan?rateCls(ratio(actPlanScope,planT)):'')}
       ${kpi('Tỷ trọng trong tổng SL',fR(share),'tất cả dịch vụ đang lọc')}
