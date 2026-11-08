@@ -460,6 +460,7 @@ const U = {
   daysInMonth: (y, m) => new Date(y, m, 0).getDate(),
 };
 
+const MON = (M) => { const c = M && ((M.mobile && M.mobile.cutoff) || (M.fiber && M.fiber.cutoff) || (M.dvs && M.dvs.cutoff)); const cur = c && c.m ? c.m : (new Date().getMonth() + 1); const prev = cur === 1 ? 12 : cur - 1; return { cur, prev, C: 'T' + cur, P: 'T' + prev, pn: 'tháng ' + prev }; };
 const Model = (() => {
   let warnings, unknown, fixes;
   const W = (group, msg) => warnings.push({ group, msg });
@@ -611,7 +612,7 @@ const Model = (() => {
       }
       const derivedAny = rows.some(r => r.prevDerived);
       out[key] = { key, label, unit: 'TB', unitLong: 'thuê bao', sheet: sh.name, cutoff: null, rows, total, extras,
-        prevLabel: derivedAny ? 'Cùng kỳ T9 (= LK − (+/−)CK)' : 'Tháng trước (cùng kỳ)',
+        prevLabel: derivedAny ? 'Cùng kỳ {P} (= LK − (+/−)CK)' : 'Tháng trước (cùng kỳ)',
         prevNote: derivedAny ? 'Excel không có cột "Tháng trước" cho ' + label + '; số kỳ so sánh = Lũy kế TH − cột "(+ - ) CK".' : 'Cột "Tháng trước" (KQ PTM trên địa bàn).',
         hasRM: !!rm, dec: 0 };
       if (derivedAny) W('Băng rộng', `${label}: Excel không có cột "Tháng trước"; kỳ so sánh được suy ra = Lũy kế TH − "(+ - ) CK".`);
@@ -777,8 +778,9 @@ const Model = (() => {
     const year = yearHint(Object.values(found));   // chỉ xét các sheet báo cáo
     if (missing.length) throw new Error('Thiếu sheet: ' + missing.join(', ') + '. Các sheet có trong file: ' + S.map(s => s.name).join(', ') + '.');
     const M = { meta, year };
-    M.mobile = parseMobile(found.mobile, year);
-    const br = parseBR(found.br, year); M.fiber = br.fiber; M.mytv = br.mytv; M.mesh = br.mesh; M.cam = br.cam;
+    M.mobile = parseMobile(found.mobile, year); M.mon = MON(M);
+    { const hm = /T(\d{1,2})/.exec(M.mobile.prevLabel || ''); if (!hm || +hm[1] !== M.mon.prev) { M.mobile.prevNote = 'Cột "' + M.mobile.prevLabel + '" trong Excel (số liệu kỳ so sánh = ' + M.mon.pn + ')'; M.mobile.prevLabel = 'Cùng kỳ ' + M.mon.P + '.' + (M.mobile.cutoff && M.mobile.cutoff.y || year); } }
+    const br = parseBR(found.br, year); M.fiber = br.fiber; M.mytv = br.mytv; M.mesh = br.mesh; M.cam = br.cam; ['fiber','mytv','mesh','cam'].forEach(k => { if (M[k] && M[k].prevLabel) M[k].prevLabel = M[k].prevLabel.replace('{P}', M.mon.P); });
     M.dvs = parseDVS(found.dvs, year);
     M.gh = parseGH(found.gh, year);
     M.tc = parseTC(found.tc, year);
@@ -798,9 +800,9 @@ const Model = (() => {
         const sum = s.rows.reduce((a, r) => a + (r[f] || 0), 0);
         if (s.total[f] !== null && Math.abs(sum - s.total[f]) > 0.51) W(s.label, `Dòng tổng Excel (${f === 'plan' ? 'Kế hoạch' : 'Thực hiện'} = ${s.total[f].toLocaleString('vi-VN')}) khác tổng các dòng thành phần (${(Math.round(sum * 10) / 10).toLocaleString('vi-VN')}); KPI toàn địa bàn dùng dòng tổng Excel, chênh lệch chưa được giải thích trong file.`);
       }
-      const exChecks = k === 'mobile' ? [['prev', 'Cùng kỳ T9', r => r.prev], ['pre', 'Trả trước QĐ', r => r.ex.pre], ['post', 'Trả sau QĐ', r => r.ex.post], ['dt', 'Doanh thu', r => r.ex.dt]] : [['prev', 'Kỳ so sánh', r => r.prev]];
+      const exChecks = k === 'mobile' ? [['prev', 'Cùng kỳ ' + M.mon.P, r => r.prev], ['pre', 'Trả trước QĐ', r => r.ex.pre], ['post', 'Trả sau QĐ', r => r.ex.post], ['dt', 'Doanh thu', r => r.ex.dt]] : [['prev', 'Kỳ so sánh', r => r.prev]];
       for (const [, lab, get] of exChecks) { const t = get(s.total); if (t === null || t === undefined) continue; const sum = s.rows.reduce((a, r) => a + (get(r) || 0), 0); if (Math.abs(sum - t) > 0.51) W(s.label, `Dòng tổng Excel (${lab} = ${t.toLocaleString('vi-VN')}) khác tổng các dòng thành phần (${(Math.round(sum * 10) / 10).toLocaleString('vi-VN')}); KPI toàn địa bàn dùng dòng tổng Excel, chênh lệch chưa được giải thích trong file.`); }
-      if (!s.rows.some(r => r.prev !== null)) W(s.label, 'Không đủ dữ liệu so sánh với tháng 9.');
+      if (!s.rows.some(r => r.prev !== null)) W(s.label, 'Không đủ dữ liệu so sánh với ' + M.mon.pn + '.');
       s.rows.forEach(r => { if (r.level === 'unit' && r.plan === null) W(s.label, `${r.name}: thiếu kế hoạch.`); if (r.level === 'unit' && r.actual === null) W(s.label, `${r.name}: thiếu sản lượng thực hiện.`); });
     }
     // ngày chốt
@@ -1135,7 +1137,7 @@ const App = (() => {
       { k: 'plan', l: 'KH', v: r => r.plan, f: r => F.n(r.plan, d), a: 'r' },
       { k: 'actual', l: 'TH', v: r => r.actual, f: r => F.n(r.actual, d), a: 'r' },
       { k: 'ht', l: '%HTKH', v: r => r.ht, f: r => `<b>${F.p(r.ht)}</b>`, a: 'r' },
-      { k: 'prev', l: 'T9', title: s.prevLabel, v: r => r.prev, f: r => F.n(r.prev, d), a: 'r' },
+      { k: 'prev', l: MON(S.M).P, title: s.prevLabel, v: r => r.prev, f: r => F.n(r.prev, d), a: 'r' },
       { k: 'diff', l: '±', title: 'Chênh lệch tuyệt đối so với kỳ so sánh', v: r => r.diff, f: r => F.arrow(r.diff, d), a: 'r' },
       { k: 'gr', l: '%±', v: r => r.gr, f: r => r.gr === null ? (r.prev === 0 ? '<span class="na" title="Kỳ so sánh = 0">n/a</span>' : '–') : F.arrow(r.gr, 1, true), a: 'r' },
     ];
@@ -1143,8 +1145,8 @@ const App = (() => {
     const parts = [
       ['best', 'Top 3 hoàn thành kế hoạch tốt nhất', COL.ok, best, 'g', 'Tiêu chí: tỷ lệ TH/KH (giảm dần).'],
       ['worst', 'Top 3 hoàn thành kế hoạch thấp nhất', COL.bad, worst, 'b', 'Tiêu chí: tỷ lệ TH/KH (tăng dần).'],
-      ['up', 'Top 3 tăng so với T9 tốt nhất', COL.ok, up, 'g', up.length < 3 ? `Chỉ có ${up.length} đơn vị tăng so với kỳ so sánh.` : 'Tiêu chí: chênh lệch tuyệt đối (giảm dần).'],
-      ['down', 'Top 3 giảm so với T9 nhiều nhất', COL.bad, down, 'b', down.length < 3 ? `Chỉ có ${down.length} đơn vị giảm so với kỳ so sánh.` : 'Tiêu chí: chênh lệch tuyệt đối (âm nhiều nhất).'],
+      ['up', 'Top 3 tăng so với ' + MON(S.M).P + ' tốt nhất', COL.ok, up, 'g', up.length < 3 ? `Chỉ có ${up.length} đơn vị tăng so với kỳ so sánh.` : 'Tiêu chí: chênh lệch tuyệt đối (giảm dần).'],
+      ['down', 'Top 3 giảm so với ' + MON(S.M).P + ' nhiều nhất', COL.bad, down, 'b', down.length < 3 ? `Chỉ có ${down.length} đơn vị giảm so với kỳ so sánh.` : 'Tiêu chí: chênh lệch tuyệt đối (âm nhiều nhất).'],
     ];
     const html = `<div class="grid g2">${parts.map(([id, t, c, rows, kind, note]) => box(`rk_${tag}_${id}`, t, c, rows, kind, note)).join('')}</div>`;
     return { html, after: () => parts.forEach(([id, t, c, rows, kind]) => { rows.forEach((r, i) => r._rk = i + 1); Tables.render($(`#rk_${tag}_${id}`), `rk_${tag}_${id}`, cols(kind), rows.map(r => ({ ...r })), { title: `<span class="dot" style="background:${c}"></span>${t}`, name: `${s.label}_${t}`, noscroll: true }); }) };
@@ -1160,7 +1162,7 @@ const App = (() => {
       kpi({ t: `Kế hoạch tháng ${s.cutoff ? s.cutoff.m : ''}`, v: A.plan === null ? NA : F.n(A.plan, d), u, lines: [['Phạm vi', A.scope === 'excel' ? 'Toàn địa bàn' : `${A.n} dòng lọc`]] }) +
       kpi({ t: 'Thực hiện lũy kế', v: A.actual === null ? NA : F.n(A.actual, d), u, lines: [['Đến ngày', F.dm(s.cutoff)], ['Bình quân/ngày', F.n(Fc.daily, 1)]] }) +
       kpi({ t: 'Tỷ lệ hoàn thành KH', v: A.ht === null ? NA : F.p(A.ht), cls: Fc.cls, lines: [['Tiến độ thời gian', F.p(tp)], ['Chênh so tiến độ (điểm %)', A.ht === null ? '–' : F.sd((A.ht - tp) * 100, 1)]], bar: A.ht, barCls: Fc.cls, mark: tp }) +
-      kpi({ t: 'So với tháng 9 (cùng kỳ)', v: A.diff === null ? NA : F.arrow(A.diff, d), lines: [[esc(s.prevLabel), F.n(A.prev, d)], ['Tăng/giảm %', A.gr === null ? (A.prev === 0 ? 'n/a (kỳ so sánh = 0)' : '–') : F.sp(A.gr)]], cls: A.diff === null ? 'na' : A.diff >= 0 ? 'ok' : 'bad' }) +
+      kpi({ t: 'So với ' + MON(S.M).pn + ' (cùng kỳ)', v: A.diff === null ? NA : F.arrow(A.diff, d), lines: [[esc(s.prevLabel), F.n(A.prev, d)], ['Tăng/giảm %', A.gr === null ? (A.prev === 0 ? 'n/a (kỳ so sánh = 0)' : '–') : F.sp(A.gr)]], cls: A.diff === null ? 'na' : A.diff >= 0 ? 'ok' : 'bad' }) +
       kpi({ t: 'Dự báo cuối tháng', v: Fc.fc === undefined || Fc.fc === null ? NA : F.n(Fc.fc, 0), u, cls: Fc.cls, lines: [['Dự báo %KH', F.p(Fc.fcPct)], ['Số ngày còn lại', F.n(Fc.left)]], foot: fcChip(Fc) }) +
       kpi({ t: 'Còn thiếu so với KH', v: Fc.gap === null || Fc.gap === undefined ? NA : F.n(Fc.gap, d), u, cls: Fc.cls, lines: [['Cần đạt/ngày còn lại', Fc.done ? 'Hết tháng' : F.n(Fc.need, 1)], ['Gấp tốc độ hiện tại', Fc.accel ? F.nd(Fc.accel, 1) + ' lần' : '–']] }) +
       `</div>`;
@@ -1169,7 +1171,7 @@ const App = (() => {
     h += `<div class="grid g2">
       <div class="card"><h4>Tỷ lệ hoàn thành kế hoạch theo đơn vị</h4><div class="cap">Thanh = %HTKH lũy kế; ◆ = dự báo cuối tháng; vạch đứt = tiến độ thời gian</div><div class="chart" id="c_${tag}_ht"></div></div>
       <div class="card"><h4>Dự báo cuối tháng so với kế hoạch</h4><div class="cap">Màu: xanh ≥100% · vàng 90–<100% · đỏ <90% (ngưỡng cảnh báo dự báo, không phải ngưỡng thi đua)</div><div class="chart" id="c_${tag}_fc"></div></div>
-      <div class="card"><h4>Tăng/giảm sản lượng so với T9</h4><div class="cap">Chênh lệch tuyệt đối (kèm % tăng/giảm)</div><div class="chart" id="c_${tag}_gr"></div></div>
+      <div class="card"><h4>Tăng/giảm sản lượng so với ${MON(S.M).P}</h4><div class="cap">Chênh lệch tuyệt đối (kèm % tăng/giảm)</div><div class="chart" id="c_${tag}_gr"></div></div>
       <div class="card"><h4>Kế hoạch và thực hiện theo đơn vị (${u})</h4><div class="cap">So sánh quy mô kế hoạch giao và sản lượng lũy kế</div><div class="chart" id="c_${tag}_kh"></div></div>
     </div>`;
     if (opt.extraMid) h += opt.extraMid(A);
@@ -1187,7 +1189,7 @@ const App = (() => {
     Chart.hbars($(`#c_${tag}_fc`), { series: [{ name: 'Dự báo %KH', color: COL.fc }], fmt: v => F.p(v), axisFmt: v => F.p(v, 0), refLines: [{ v: 0.9, label: '90%', color: '#B45309' }, { v: 1, label: '100% KH', color: '#15803D' }],
       items: sfc.map(r => ({ label: r.key, vals: [r.F.fcPct], colors: [COL[r.F.cls]], tip: `<b>${esc(r.name)}</b><br>Dự báo cuối tháng: <b>${F.n(r.F.fc)}</b> ${u} = ${F.p(r.F.fcPct)} KH<br>Còn thiếu: ${F.n(r.F.gap, d)} · Cần/ngày: ${F.n(r.F.need, 1)}<br>Bình quân hiện tại/ngày: ${F.n(r.F.daily, 1)}<br>${CLS_LABEL[r.F.cls]}` })) });
     const sgr = units.filter(r => r.diff !== null).sort((a, b) => b.diff - a.diff);
-    Chart.diverge($(`#c_${tag}_gr`), { fmt: v => F.sd(v, d), axisFmt: v => F.n(v, 0), items: sgr.map(r => ({ label: r.key, v: r.diff, lab: `${F.sd(r.diff, d)}${r.gr !== null ? ' (' + F.sp(r.gr, 0) + ')' : ''}`, tip: `<b>${esc(r.name)}</b><br>T10 lũy kế: ${F.n(r.actual, d)} · ${esc(s.prevLabel)}: ${F.n(r.prev, d)}<br>Chênh lệch: <b>${F.sd(r.diff, d)}</b>${r.gr !== null ? ' (' + F.sp(r.gr) + ')' : ' (không tính % do kỳ so sánh = 0)'}${r.prevDerived ? '<br><i>Kỳ so sánh suy ra từ LK − (+/−)CK</i>' : ''}` })) });
+    Chart.diverge($(`#c_${tag}_gr`), { fmt: v => F.sd(v, d), axisFmt: v => F.n(v, 0), items: sgr.map(r => ({ label: r.key, v: r.diff, lab: `${F.sd(r.diff, d)}${r.gr !== null ? ' (' + F.sp(r.gr, 0) + ')' : ''}`, tip: `<b>${esc(r.name)}</b><br>${MON(S.M).C} lũy kế: ${F.n(r.actual, d)} · ${esc(s.prevLabel)}: ${F.n(r.prev, d)}<br>Chênh lệch: <b>${F.sd(r.diff, d)}</b>${r.gr !== null ? ' (' + F.sp(r.gr) + ')' : ' (không tính % do kỳ so sánh = 0)'}${r.prevDerived ? '<br><i>Kỳ so sánh suy ra từ LK − (+/−)CK</i>' : ''}` })) });
     const skh = units.slice().sort((a, b) => (b.plan ?? 0) - (a.plan ?? 0));
     Chart.hbars($(`#c_${tag}_kh`), { series: [{ name: 'Kế hoạch', color: COL.plan }, { name: 'Thực hiện', color: COL.act }], fmt: v => F.n(v, d), axisFmt: v => F.n(v, 0), rowH: 30,
       items: skh.map(r => ({ label: r.key, vals: [r.plan, r.actual] })) });
@@ -1201,9 +1203,9 @@ const App = (() => {
       { k: 'plan', l: 'KH tháng', v: r => r.plan, f: r => F.n(r.plan, d), a: 'r' },
       { k: 'actual', l: 'TH lũy kế', v: r => r.actual, f: r => F.n(r.actual, d), a: 'r' },
       { k: 'ht', l: '%HTKH', v: r => r.ht, f: r => F.p(r.ht) + minibar(r.ht, r.F.cls), a: 'r' },
-      { k: 'prev', l: 'T9', title: s.prevLabel, v: r => r.prev, f: r => F.n(r.prev, d), a: 'r' },
-      { k: 'diff', l: '± T9', v: r => r.diff, f: r => F.arrow(r.diff, d), a: 'r' },
-      { k: 'gr', l: '%± T9', v: r => r.gr, f: r => r.gr === null ? '–' : F.sp(r.gr), a: 'r' },
+      { k: 'prev', l: MON(S.M).P, title: s.prevLabel, v: r => r.prev, f: r => F.n(r.prev, d), a: 'r' },
+      { k: 'diff', l: '± ' + MON(S.M).P, v: r => r.diff, f: r => F.arrow(r.diff, d), a: 'r' },
+      { k: 'gr', l: '%± ' + MON(S.M).P, v: r => r.gr, f: r => r.gr === null ? '–' : F.sp(r.gr), a: 'r' },
       { k: 'daily', l: 'BQ/ngày', v: r => r.F.daily, f: r => F.n(r.F.daily, 1), a: 'r' },
       { k: 'fc', l: 'Dự báo cuối tháng', v: r => r.F.fc, f: r => F.n(r.F.fc, 0), a: 'r' },
       { k: 'fcPct', l: 'Dự báo %KH', v: r => r.F.fcPct, f: r => `<b>${F.p(r.F.fcPct)}</b>`, a: 'r' },
@@ -1251,7 +1253,7 @@ const App = (() => {
     pageHead(el, 'Băng rộng cố định – PTM Fiber, MyTV, Mesh, Camera', s0, '· KQ PTM lấy theo <b>“KQ PTM trên địa bàn”</b> (khớp với kế hoạch giao), không cộng thêm số “theo kênh”.');
     const A = list.map(s => ({ s, A: agg(s) })); const tp = Calc.timeProgress(s0.cutoff);
     let h = sec('Kết quả chung 4 dịch vụ', 'Không cộng gộp các dịch vụ khác bản chất – mỗi dịch vụ đánh giá riêng');
-    h += `<div class="kgrid">` + A.map(({ s, A }) => kpi({ t: s.label, v: F.n(A.actual), u: 'TB', cls: A.F.cls, lines: [['KH tháng', F.n(A.plan)], ['%HTKH', `<span>${F.p(A.ht)}</span>`], ['So T9', A.diff === null ? '–' : `${F.sd(A.diff)} (${F.sp(A.gr)})`]], bar: A.ht, barCls: A.F.cls, mark: tp, foot: fcChip(A.F) })).join('') + `</div>`;
+    h += `<div class="kgrid">` + A.map(({ s, A }) => kpi({ t: s.label, v: F.n(A.actual), u: 'TB', cls: A.F.cls, lines: [['KH tháng', F.n(A.plan)], ['%HTKH', `<span>${F.p(A.ht)}</span>`], ['So ' + MON(S.M).P, A.diff === null ? '–' : `${F.sd(A.diff)} (${F.sp(A.gr)})`]], bar: A.ht, barCls: A.F.cls, mark: tp, foot: fcChip(A.F) })).join('') + `</div>`;
     h += `<div class="grid g2" style="margin-top:14px"><div class="card"><h4>Kế hoạch và thực hiện theo dịch vụ (TB)</h4><div class="chart" id="c_br_kh"></div></div>
       <div class="card"><h4>%HTKH lũy kế và dự báo cuối tháng</h4><div class="cap">Vạch đứt: tiến độ thời gian ${F.p(tp)} và 100% KH</div><div class="chart" id="c_br_ht"></div></div></div>`;
     // Rời mạng
@@ -1370,10 +1372,10 @@ const App = (() => {
     Tables.render($('#t_tc_all'), 'tc_all', [{ k: 'n', l: 'Đơn vị', v: r => r.key, f: r => esc(r.level === 'region' ? r.name : r.key) + tagLv(r), tdc: 'nm' }, { k: 'reg', l: 'Vùng', v: r => r.regionGroup || r.region || '' },
       { k: 'dk', l: 'Dư ĐK (tr.đ)', v: r => r.dkDT, f: r => r.dkDTKind === 'dash' ? '–' : F.tr(r.dkDT), a: 'r' }, { k: 'dkt', l: 'Đã thu ĐK', v: r => r.dkThu, f: r => r.dkThuKind === 'dash' ? '–' : F.tr(r.dkThu), a: 'r' }, { k: 'dkn', l: 'Còn nợ ĐK', v: r => r.dkNo, f: r => r.dkNoKind === 'dash' ? '–' : F.tr(r.dkNo), a: 'r' },
       { k: 'ps', l: 'PS (tr.đ)', v: r => r.psDT, f: r => F.tr(r.psDT), a: 'r' }, { k: 'pst', l: 'Đã thu PS', v: r => r.psThu, f: r => F.tr(r.psThu), a: 'r' }, { k: 'psn', l: 'Còn nợ PS', v: r => r.psNo, f: r => F.tr(r.psNo), a: 'r' },
-      { k: 'lk', l: 'Tỷ lệ LK', v: r => r.lkRate, f: r => F.p(r.lkRate, 2), a: 'r' }, { k: 'r', l: 'Tỷ lệ PS', v: r => r.psRate, f: r => `<b>${F.p(r.psRate, 2)}</b>`, a: 'r' }, { k: 'pv', l: 'Cùng kỳ T08', v: r => r.tlPrev, f: r => F.p(r.tlPrev, 2), a: 'r' }, { k: 'ck', l: '± cùng kỳ', v: r => r.soCK, f: r => r.soCK === null || r.soCK === undefined ? '–' : F.arrow(r.soCK, 2, true), a: 'r' },
+      { k: 'lk', l: 'Tỷ lệ LK', v: r => r.lkRate, f: r => F.p(r.lkRate, 2), a: 'r' }, { k: 'r', l: 'Tỷ lệ PS', v: r => r.psRate, f: r => `<b>${F.p(r.psRate, 2)}</b>`, a: 'r' }, { k: 'pv', l: (/T\d+/.exec(S.M.tc.prevLabel || '') ? 'Cùng kỳ ' + /T\d+/.exec(S.M.tc.prevLabel)[0] : 'Kỳ trước'), v: r => r.tlPrev, f: r => F.p(r.tlPrev, 2), a: 'r' }, { k: 'ck', l: '± cùng kỳ', v: r => r.soCK, f: r => r.soCK === null || r.soCK === undefined ? '–' : F.arrow(r.soCK, 2, true), a: 'r' },
       { k: 'nt', l: 'Đánh giá', v: r => r.note || '', f: r => r.note ? chip(Calc.statusCls(r.note), r.note) : '' }]
       .concat(t.thresholds.map((x, i) => ({ k: 'tu' + i, l: esc(x.label) + '<br><span class="mini">' + esc(x.cond) + '</span>', csvL: x.label + ' ' + x.cond, v: r => r.tuyen ? r.tuyen[i] : null, f: r => F.n(r.tuyen ? r.tuyen[i] : null), a: 'r' })))
-      .concat([{ k: 'tt', l: 'Tổng tuyến thu', v: r => r.tongTuyen, f: r => F.n(r.tongTuyen), a: 'r' }, { k: 'ng', l: 'TB nâng gói T10', v: r => r.nangGoi, f: r => F.n(r.nangGoi), a: 'r' }, { k: 'dn', l: 'TB đã nộp cước', v: r => r.daNop, f: r => F.n(r.daNop), a: 'r' }, { k: 'tng', l: 'Tỷ lệ HT nâng gói', v: r => r.tlNG, f: r => F.p(r.tlNG, 2), a: 'r' }]), all, { title: 'Chi tiết thu cước', name: 'Thu_cuoc_chi_tiet' });
+      .concat([{ k: 'tt', l: 'Tổng tuyến thu', v: r => r.tongTuyen, f: r => F.n(r.tongTuyen), a: 'r' }, { k: 'ng', l: 'TB nâng gói ' + MON(S.M).C, v: r => r.nangGoi, f: r => F.n(r.nangGoi), a: 'r' }, { k: 'dn', l: 'TB đã nộp cước', v: r => r.daNop, f: r => F.n(r.daNop), a: 'r' }, { k: 'tng', l: 'Tỷ lệ HT nâng gói', v: r => r.tlNG, f: r => F.p(r.tlNG, 2), a: 'r' }]), all, { title: 'Chi tiết thu cước', name: 'Thu_cuoc_chi_tiet' });
   }
 
   /* ---------- TRANG TỔNG QUAN ---------- */
@@ -1396,7 +1398,7 @@ const App = (() => {
     h += `<div class="cutoffs">${M.cutoffs.map(x => `<span class="co ${!M.cutoffUniform && x.c && M.cutoffs[0].c && (x.c.d !== M.cutoffs[0].c.d) ? 'diff' : ''}">${esc(x.label)}: <b>${x.c ? F.dm(x.c) : 'không đọc được'}</b></span>`).join('')}</div>`;
     if (!M.cutoffUniform) h += `<div class="banner warn">⚠ Ngày chốt số liệu không đồng nhất giữa các sheet (xem các ô viền vàng). Khi so sánh chéo giữa nhóm chỉ tiêu cần lưu ý độ lệch thời điểm.</div>`;
     h += `<div class="kgrid">` + A.map(({ s, A }) => kpi({ t: s.label === 'Di động' ? 'Di động (TB quy đổi)' : s.label === 'Dịch vụ số' ? 'Dịch vụ số (TB quy đổi)' : 'PTM ' + s.label, v: A.actual === null ? NA : F.n(A.actual, dec(s)), u: s.unit, cls: A.F.cls,
-      lines: [['KH tháng', F.n(A.plan, dec(s))], ['%HTKH', `${F.p(A.ht)}`], ['So T9', A.diff === null ? '<span class="na">Chưa đủ dữ liệu</span>' : `${F.arrow(A.diff, dec(s))}${A.gr !== null ? ' <span class="mini">(' + F.sp(A.gr) + ')</span>' : ''}`]], bar: A.ht, barCls: A.F.cls, mark: Calc.timeProgress(s.cutoff), foot: fcChip(A.F) })).join('') +
+      lines: [['KH tháng', F.n(A.plan, dec(s))], ['%HTKH', `${F.p(A.ht)}`], ['So ' + MON(S.M).P, A.diff === null ? '<span class="na">Chưa đủ dữ liệu</span>' : `${F.arrow(A.diff, dec(s))}${A.gr !== null ? ' <span class="mini">(' + F.sp(A.gr) + ')</span>' : ''}`]], bar: A.ht, barCls: A.F.cls, mark: Calc.timeProgress(s.cutoff), foot: fcChip(A.F) })).join('') +
       ['T', 'T1'].map(k => { const a = gh[k]; const cls = a.status ? Calc.statusCls(a.status) : 'na'; return kpi({ t: k === 'T' ? 'Tỷ lệ gia hạn tháng T' : 'Tỷ lệ gia hạn tháng T+1', v: F.p(a.rate, 2), cls, lines: [['Mức yêu cầu', F.p(a.req, 0)], ['HT mục tiêu', F.p(a.ht)], ['Gia hạn/Hết hạn', `${F.n(a.ren)}/${F.n(a.exp)}`]], bar: a.rate, barCls: cls, mark: a.req, foot: a.status ? chip(cls, 'Excel: ' + a.status) : '<span class="mini">Kỳ: ' + esc(k === 'T' ? M.gh.labelT : M.gh.labelT1) + '</span>' }); }).join('') +
       kpi({ t: 'Tỷ lệ thu cước phát sinh', v: F.p(tc.psRate, 2), cls: tk.cls, lines: [['Đã thu / PS', `${F.ty(tc.psThu)} / ${F.ty(tc.psDT)} tỷ`], ['Còn nợ PS', F.money(tc.psNo)], [esc(M.tc.prevLabel || 'Kỳ trước'), tc.tlPrev !== null && tc.tlPrev !== undefined ? F.p(tc.tlPrev, 2) : '<span class="na">Chưa đủ dữ liệu</span>']], bar: tc.psRate, barCls: tk.cls, foot: chip(tk.cls, 'Ngưỡng Excel: ' + tk.label) }) +
       kpi({ t: 'Tỷ lệ thu lũy kế (dư ĐK + PS)', v: F.p(tc.lkRate, 2), lines: [['Dư ĐK từ T01/2026', F.money(tc.dkDT)], ['Còn nợ ĐK + PS', F.money((tc.dkNo || 0) + (tc.psNo || 0))]], foot: '<span class="mini">Không phải “lũy kế năm” – Excel không có chỉ tiêu lũy kế năm</span>' }) +
@@ -1404,7 +1406,7 @@ const App = (() => {
     h += `<div class="grid g3" style="margin-top:14px">
       <div class="card"><h4>Kế hoạch và thực hiện theo dịch vụ</h4><div class="cap">Đơn vị: TB (Fiber, MyTV, Mesh, Camera) · TBQĐ (Di động, DVS)</div><div class="chart" id="c_ov_kh"></div></div>
       <div class="card"><h4>Tỷ lệ hoàn thành KH & dự báo cuối tháng</h4><div class="cap">Vạch đứt: tiến độ thời gian, 100% KH</div><div class="chart" id="c_ov_ht"></div></div>
-      <div class="card"><h4>Tăng/giảm so với T9 (cùng kỳ)</h4><div class="cap">% tăng trưởng; nhãn kèm chênh lệch tuyệt đối</div><div class="chart" id="c_ov_gr"></div></div></div>`;
+      <div class="card"><h4>Tăng/giảm so với ${MON(S.M).P} (cùng kỳ)</h4><div class="cap">% tăng trưởng; nhãn kèm chênh lệch tuyệt đối</div><div class="chart" id="c_ov_gr"></div></div></div>`;
     h += sec('ĐIỂM NHẤN GIAO BAN TUẦN', 'Tự động tạo từ số liệu Excel theo bộ lọc hiện hành') + `<div id="hl"></div>`;
     h += sec('ACTION CENTER — TRỌNG TÂM CHỈ ĐẠO') + `<div id="ac"></div>`;
     h += sec('Bản đồ kết quả đơn vị × chỉ tiêu', 'Ô màu: dịch vụ có KH theo dự báo (xanh ≥100%, vàng 90–<100%, đỏ <90%); Gia hạn & Thu cước theo trạng thái Excel. Số nhỏ = thứ hạng trong phạm vi lọc.') + `<div class="card" id="t_mx"></div>`;
@@ -1414,7 +1416,7 @@ const App = (() => {
     // charts
     Chart.vbars($('#c_ov_kh'), { cats: A.map(x => x.s.label), series: [{ name: 'Kế hoạch', color: COL.plan, vals: A.map(x => x.A.plan) }, { name: 'Thực hiện', color: COL.act, vals: A.map(x => x.A.actual) }], fmt: v => F.n(v), height: 300 });
     Chart.hbars($('#c_ov_ht'), { series: [{ name: '%HTKH', color: COL.act }, { name: 'Dự báo %KH', color: COL.fc }], fmt: v => F.p(v), axisFmt: v => F.p(v, 0), rowH: 40, labelW: 82, refLines: [{ v: tp, label: 'Tiến độ TG', color: '#334155' }, { v: 1, label: '100%', color: '#15803D' }], items: A.map(({ s, A }) => ({ label: s.label, vals: [A.ht, A.F.fcPct] })) });
-    Chart.diverge($('#c_ov_gr'), { fmt: v => F.sp(v), axisFmt: v => F.p(v, 0), rowH: 34, labelW: 82, items: A.map(({ s, A }) => ({ label: s.label, v: A.gr, lab: A.gr === null ? '' : `${F.sp(A.gr, 1)} (${F.sd(A.diff, dec(s))})`, tip: `<b>${esc(s.label)}</b><br>T10 lũy kế: ${F.n(A.actual, dec(s))} · ${esc(s.prevLabel)}: ${F.n(A.prev, dec(s))}<br>Chênh lệch: ${F.sd(A.diff, dec(s))} (${F.sp(A.gr)})` })) });
+    Chart.diverge($('#c_ov_gr'), { fmt: v => F.sp(v), axisFmt: v => F.p(v, 0), rowH: 34, labelW: 82, items: A.map(({ s, A }) => ({ label: s.label, v: A.gr, lab: A.gr === null ? '' : `${F.sp(A.gr, 1)} (${F.sd(A.diff, dec(s))})`, tip: `<b>${esc(s.label)}</b><br>${MON(S.M).C} lũy kế: ${F.n(A.actual, dec(s))} · ${esc(s.prevLabel)}: ${F.n(A.prev, dec(s))}<br>Chênh lệch: ${F.sd(A.diff, dec(s))} (${F.sp(A.gr)})` })) });
     // matrix
     const MX = matrixData();
     Tables.render($('#t_mx'), 'mx', [{ k: 'n', l: 'Đơn vị', v: r => r.key, tdc: 'nm' }, { k: 'reg', l: 'Vùng', v: r => r.region }]
@@ -1436,7 +1438,7 @@ const App = (() => {
   }
   function highlights(el, A, gh, tc, MX) {
     const M = S.M; const li = (s) => `<li>${s}</li>`;
-    const pool = A.filter(x => x.A.F.fcPct !== null && x.A.F.fcPct !== undefined).map(({ s, A }) => ({ score: A.F.fcPct, txt: `<b>${esc(s.label)}</b>: dự báo cuối tháng đạt <b>${F.p(A.F.fcPct)}</b> KH (lũy kế ${F.n(A.actual, dec(s))}/${F.n(A.plan, dec(s))} ${s.unit}, HTKH ${F.p(A.ht)})${A.diff !== null ? `; so T9 ${F.sd(A.diff, dec(s))}${A.gr !== null ? ' (' + F.sp(A.gr) + ')' : ''}` : ''}.` }));
+    const pool = A.filter(x => x.A.F.fcPct !== null && x.A.F.fcPct !== undefined).map(({ s, A }) => ({ score: A.F.fcPct, txt: `<b>${esc(s.label)}</b>: dự báo cuối tháng đạt <b>${F.p(A.F.fcPct)}</b> KH (lũy kế ${F.n(A.actual, dec(s))}/${F.n(A.plan, dec(s))} ${s.unit}, HTKH ${F.p(A.ht)})${A.diff !== null ? `; so ${MON(S.M).P} ${F.sd(A.diff, dec(s))}${A.gr !== null ? ' (' + F.sp(A.gr) + ')' : ''}` : ''}.` }));
     ['T', 'T1'].forEach(k => { const a = gh[k]; if (a && a.ht !== null) pool.push({ score: a.ht, txt: `<b>Gia hạn ${k === 'T' ? 'tháng T' : 'tháng T+1'}</b>: tỷ lệ ${F.p(a.rate, 2)} / mức yc ${F.p(a.req, 0)} → hoàn thành <b>${F.p(a.ht)}</b> mục tiêu${a.status ? ' (Excel: ' + esc(a.status) + ')' : ''}.` }); });
     const acc = M.tc.cutPoints[1]; if (tc.psRate !== null && acc) pool.push({ score: tc.psRate / acc, txt: `<b>Thu cước PS</b>: tỷ lệ thu <b>${F.p(tc.psRate, 2)}</b>, bằng ${F.p(tc.psRate / acc, 0)} ngưỡng “${esc(M.tc.thresholds[2] ? M.tc.thresholds[2].label : '')}” (${F.p(acc, 1)}) của Excel.` });
     pool.sort((a, b) => b.score - a.score);
@@ -1453,19 +1455,19 @@ const App = (() => {
       box('neg', '⚠ 3 chỉ tiêu có nguy cơ không hoàn thành', risks, 'Không có dịch vụ nào dự báo dưới 100% KH') +
       box('neu', '★ 3 đơn vị dẫn đầu', lead.map(t => `<b>${esc(t.key)}</b> (${t.region}): Top 3 ở ${t.top}/${MX.crit.length} chỉ tiêu${t.top ? ' – ' + t.c.map((x, j) => x && x.rank && x.rank <= 3 ? nm(t, j) + ' #' + x.rank : null).filter(Boolean).join(', ') : ''}.`), 'Chưa đủ dữ liệu') +
       box('wrn', '⚑ 3 đơn vị cần tập trung chỉ đạo', focus.map(t => `<b>${esc(t.key)}</b> (${t.region}): Bottom 3 ở ${t.bot}/${MX.crit.length} chỉ tiêu${t.bot ? ' – ' + t.c.map((x, j) => x && x.rank && x.n >= 6 && x.rank > x.n - 3 ? nm(t, j) + ' #' + x.rank + '/' + x.n : null).filter(Boolean).join(', ') : ''}.`), 'Chưa đủ dữ liệu') +
-      box('neg', '▼ Dịch vụ đang giảm so với T9', dec_, 'Không có dịch vụ nào giảm so với T9 trong phạm vi lọc') +
+      box('neg', '▼ Dịch vụ đang giảm so với ' + MON(S.M).P, dec_, 'Không có dịch vụ nào giảm so với ' + MON(S.M).P + ' trong phạm vi lọc') +
       box('neu', '➜ Dự báo cuối tháng & mức cần bổ sung/ngày', fc, 'Chưa đủ dữ liệu') + `</div>
       <div class="mini" style="margin-top:6px">Căn cứ xếp “kết quả tốt nhất”: mức đạt so với mục tiêu tương ứng (dự báo %KH với dịch vụ có kế hoạch; tỷ lệ hoàn thành mục tiêu gia hạn; tỷ lệ thu PS so với ngưỡng “Chấp nhận” trong Excel). Đơn vị dẫn đầu/cần chỉ đạo: số lần nằm trong Top 3 / Bottom 3 của ${MX.crit.length} chỉ tiêu ở bản đồ bên dưới (hòa thì xét thứ hạng bình quân).</div>`;
   }
   function actionCenter(el, A, MX) {
     const M = S.M; const g1 = [], g2 = [], g3 = [], g4 = [];
     A.forEach(({ s }) => { const us = unitsPlan(s).filter(r => r.ht !== null); if (!us.length) return; const b = us.slice().sort((a, b) => b.ht - a.ht)[0]; const gw = us.filter(r => r.diff !== null).sort((a, b) => b.diff - a.diff)[0];
-      g1.push(`<b>${esc(s.label)}</b>: HTKH cao nhất <b>${esc(b.key)}</b> ${F.p(b.ht)} (${F.n(b.actual, dec(s))}/${F.n(b.plan, dec(s))})${gw && gw.diff > 0 ? `; tăng mạnh nhất <b>${esc(gw.key)}</b> ${F.sd(gw.diff, dec(s))}${gw.gr !== null ? ' (' + F.sp(gw.gr, 0) + ')' : ''} so T9` : ''}.`);
+      g1.push(`<b>${esc(s.label)}</b>: HTKH cao nhất <b>${esc(b.key)}</b> ${F.p(b.ht)} (${F.n(b.actual, dec(s))}/${F.n(b.plan, dec(s))})${gw && gw.diff > 0 ? `; tăng mạnh nhất <b>${esc(gw.key)}</b> ${F.sd(gw.diff, dec(s))}${gw.gr !== null ? ' (' + F.sp(gw.gr, 0) + ')' : ''} so ${MON(S.M).P}` : ''}.`);
       const w = us.slice().sort((a, b) => a.ht - b.ht)[0]; g2.push(`<b>${esc(s.label)}</b>: HTKH thấp nhất <b>${esc(w.key)}</b> ${F.p(w.ht)} (${F.n(w.actual, dec(s))}/${F.n(w.plan, dec(s))}), dự báo ${F.p(w.F.fcPct)}.`); });
-    const best = A.filter(x => x.A.F.fcPct !== null && x.A.F.fcPct !== undefined).sort((a, b) => b.A.F.fcPct - a.A.F.fcPct)[0]; if (best) g1.push(`Dịch vụ có kết quả nổi bật nhất: <b>${esc(best.s.label)}</b> – dự báo ${F.p(best.A.F.fcPct)} KH${best.A.gr !== null ? ', ' + F.sp(best.A.gr) + ' so T9' : ''}.`);
+    const best = A.filter(x => x.A.F.fcPct !== null && x.A.F.fcPct !== undefined).sort((a, b) => b.A.F.fcPct - a.A.F.fcPct)[0]; if (best) g1.push(`Dịch vụ có kết quả nổi bật nhất: <b>${esc(best.s.label)}</b> – dự báo ${F.p(best.A.F.fcPct)} KH${best.A.gr !== null ? ', ' + F.sp(best.A.gr) + ' so ' + MON(S.M).P : ''}.`);
     // đơn vị giảm ở nhiều dịch vụ
     const decl = {}; A.forEach(({ s }) => unitsPlan(s).forEach(r => { if (r.diff !== null && r.diff < 0) (decl[r.key] = decl[r.key] || []).push(`${s.label} ${F.sd(r.diff, dec(s))}`); }));
-    Object.entries(decl).filter(([, v]) => v.length >= 3).sort((a, b) => b[1].length - a[1].length).slice(0, 5).forEach(([k, v]) => g2.push(`<b>${esc(k)}</b> giảm so T9 ở ${v.length}/${A.length} dịch vụ: ${v.join(', ')}.`));
+    Object.entries(decl).filter(([, v]) => v.length >= 3).sort((a, b) => b[1].length - a[1].length).slice(0, 5).forEach(([k, v]) => g2.push(`<b>${esc(k)}</b> giảm so ${MON(S.M).P} ở ${v.length}/${A.length} dịch vụ: ${v.join(', ')}.`));
     const low = {}; A.forEach(({ s }) => unitsPlan(s).forEach(r => { if (r.F.cls === 'bad') low[r.key] = (low[r.key] || 0) + 1; }));
     const lowAll = Object.entries(low).filter(([, n]) => n === A.length).map(([k]) => k); if (lowAll.length) g2.push(`${lowAll.length} đơn vị dự báo dưới 90% KH ở cả ${A.length} dịch vụ: ${lowAll.map(esc).join(', ')}.`);
     A.slice().sort((a, b) => (b.A.F.accel ?? 0) - (a.A.F.accel ?? 0)).forEach(({ s, A }) => { if (A.F.gap === null || A.F.gap === undefined) return; g3.push(`<b>${esc(s.label)}</b>: còn thiếu <b>${F.n(A.F.gap, dec(s))}</b> ${s.unit} (${F.p(Calc.ratio(A.F.gap, A.plan))} KH) → cần <b>${F.n(A.F.need, 1)}/ngày</b> trong ${A.F.left} ngày, gấp ${F.nd(A.F.accel || 0, 1)} lần tốc độ hiện tại (${F.n(A.F.daily, 1)}/ngày).`); });
@@ -1481,11 +1483,11 @@ const App = (() => {
   function dataMap(el) {
     const M = S.M;
     const map = [
-      ['Di động T10', M.mobile.cutoff, 'Dòng “Tổng” (toàn địa bàn); 17 đơn vị “VNPT …” (xếp hạng); 2 Trung tâm (tính tổng, không xếp hạng)', 'KH = Giao/Tổng TB quy đổi · TH = Tổng TB quy đổi (QĐ) · Trả sau QĐ / Trả trước QĐ · DT: Giao/Doanh thu, Tổng DT cả HM · T9 = “cùng kỳ T9.2026” · Chênh lệch = TH − T9'],
-      ['BR-CĐ T10', M.fiber.cutoff, 'Dòng “Tổng”; 17 “Địa bàn …” (vùng theo cột Tây HP/Đông HP); CSKH/Khác/KDGP chỉ có số theo kênh', 'Fiber/MyTV: KH tháng 10 · TH = KQ PTM trên địa bàn (Lũy kế TH) · T9 = cột “Tháng trước” · không dùng “TLHT so cùng kỳ” làm %HTKH · Mesh/Camera: KH, Lũy kế TH, (+ - ) CK → T9 = LK − CK · Rời mạng Fiber/MyTV: RM tối đa, Lũy kế RM, Tỷ lệ'],
-      ['DVS T10', M.dvs.cutoff, 'Dòng “CỘNG”; 17 “VNPT …” (xếp hạng); TT Kinh doanh Giải pháp (tính tổng, không xếp hạng)', 'KH TBQĐ · TH TBQĐ · TH TBQĐ tháng trước · DT bán hàng / phân bổ (đồng) · Xếp hạng Excel chỉ để tham khảo'],
-      ['GHTT T10', M.gh.cutoff, 'Dòng Tổng, Đông, Tây (không xếp hạng); 17 “ĐB …”', 'Mỗi khối T / T+1: SLTB hết hạn, SLTB gia hạn, Tỷ lệ gia hạn, Tỷ trọng gói, Mức yc, Tỷ lệ hoàn thành mục tiêu, Ngưỡng so mức yêu cầu (trạng thái)'],
-      ['Thu cước T9', M.tc.cutoff, 'TOÀN ĐỊA BÀN; ĐB-ĐÔNG/TÂY HP (vùng); Phòng KHDN 1/2 (không xếp hạng); 17 “VNPT …”', 'Đầu kỳ (từ T01/2026): Dư, Đã thu, Còn nợ · PS kỳ cước T09: DT, Đã thu, Còn nợ · Tỷ lệ LK, Tỷ lệ PS, Tỷ lệ T08 cùng kỳ, Ghi chú (đánh giá), Tuyến thu theo ngưỡng, TB nâng gói'],
+      [M.mobile.sheet + ' (Di động)', M.mobile.cutoff, 'Dòng “Tổng” (toàn địa bàn); 17 đơn vị “VNPT …” (xếp hạng); 2 Trung tâm (tính tổng, không xếp hạng)', 'KH = Giao/Tổng TB quy đổi · TH = Tổng TB quy đổi (QĐ) · Trả sau QĐ / Trả trước QĐ · DT: Giao/Doanh thu, Tổng DT cả HM · ' + MON(M).P + ' = “' + M.mobile.prevLabel + '” · Chênh lệch = TH − ' + MON(M).P + ''],
+      [M.fiber.sheet + ' (BR-CĐ)', M.fiber.cutoff, 'Dòng “Tổng”; 17 “Địa bàn …” (vùng theo cột Tây HP/Đông HP); CSKH/Khác/KDGP chỉ có số theo kênh', 'Fiber/MyTV: KH ' + MON(M).C + ' · TH = KQ PTM trên địa bàn (Lũy kế TH) · ' + MON(M).P + ' = cột “Tháng trước” · không dùng “TLHT so cùng kỳ” làm %HTKH · Mesh/Camera: KH, Lũy kế TH, (+ - ) CK → ' + MON(M).P + ' = LK − CK · Rời mạng Fiber/MyTV: RM tối đa, Lũy kế RM, Tỷ lệ'],
+      [M.dvs.sheet + ' (DVS)', M.dvs.cutoff, 'Dòng “CỘNG”; 17 “VNPT …” (xếp hạng); TT Kinh doanh Giải pháp (tính tổng, không xếp hạng)', 'KH TBQĐ · TH TBQĐ · TH TBQĐ tháng trước · DT bán hàng / phân bổ (đồng) · Xếp hạng Excel chỉ để tham khảo'],
+      [M.gh.sheet + ' (GHTT)', M.gh.cutoff, 'Dòng Tổng, Đông, Tây (không xếp hạng); 17 “ĐB …”', 'Mỗi khối T / T+1: SLTB hết hạn, SLTB gia hạn, Tỷ lệ gia hạn, Tỷ trọng gói, Mức yc, Tỷ lệ hoàn thành mục tiêu, Ngưỡng so mức yêu cầu (trạng thái)'],
+      [M.tc.sheet + ' (Thu cước)', M.tc.cutoff, 'TOÀN ĐỊA BÀN; ĐB-ĐÔNG/TÂY HP (vùng); Phòng KHDN 1/2 (không xếp hạng); 17 “VNPT …”', 'Đầu kỳ (từ T01/2026): Dư, Đã thu, Còn nợ · PS kỳ cước T09: DT, Đã thu, Còn nợ · Tỷ lệ LK, Tỷ lệ PS, Tỷ lệ T08 cùng kỳ, Ghi chú (đánh giá), Tuyến thu theo ngưỡng, TB nâng gói'],
     ];
     el.innerHTML = `<div class="card" style="margin-bottom:12px"><div id="t_dmap"></div></div><div class="grid g2"><div class="card"><h4>Phương pháp tính</h4><ul style="margin:6px 0 0;padding-left:18px;font-size:13px;color:#334155">
       <li>Tỷ lệ hoàn thành = Thực hiện ÷ Kế hoạch × 100% (KH = 0 hoặc trống → “Chưa đủ dữ liệu”).</li><li>Chênh lệch = TH kỳ hiện tại − TH kỳ so sánh; Tăng trưởng = Chênh lệch ÷ kỳ so sánh (kỳ so sánh = 0 → chỉ hiện chênh lệch).</li>
