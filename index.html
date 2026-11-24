@@ -379,7 +379,7 @@ footer.foot{text-align:center;font-size:12px;color:var(--ink-3);padding:0 16px 2
         <p>Truy cập nhanh các ứng dụng điều hành nghiệp vụ</p>
       </div>
       <div class="legend">
-        <span class="tag tag-ok"><i></i>Đăng nhập một lần (SSO) cho 5 ứng dụng</span>
+        <span class="tag tag-ok"><i></i>Đăng nhập một lần (SSO) cho 4 ứng dụng</span>
       </div>
     </div>
 
@@ -393,9 +393,9 @@ footer.foot{text-align:center;font-size:12px;color:var(--ink-3);padding:0 16px 2
         Đăng nhập một lần
       </h2>
       <ul>
-        <li>Đã đăng nhập tại Cổng thì mở cả 5 ứng dụng <b>không cần nhập lại</b> tài khoản.</li>
+        <li>Đã đăng nhập tại Cổng thì mở cả 4 ứng dụng <b>không cần nhập lại</b> tài khoản.</li>
         <li><b>Đăng xuất trong ứng dụng con</b>: rời ứng dụng đó và quay về Cổng, vẫn giữ đăng nhập.</li>
-        <li><b>Sign out tại Cổng</b>: kết thúc phiên ở Cổng và cả 5 ứng dụng.</li>
+        <li><b>Sign out tại Cổng</b>: kết thúc phiên ở Cổng và cả 4 ứng dụng.</li>
         <li>Cổng dành cho tài khoản đăng nhập một lần. Các tài khoản khác đăng nhập trực tiếp tại từng ứng dụng.</li>
         <li>Phiên chỉ tồn tại trong tab này; đóng tab/trình duyệt, hoặc <span id="idleMins">30</span> phút không thao tác, phải đăng nhập lại.</li>
       </ul>
@@ -435,9 +435,9 @@ const ACCOUNTS = Object.freeze({
    Bản công khai gốc: https://camnangbh.github.io/<thư mục>/ */
 const APPS = Object.freeze([
   { id: 'coche', no: 1, name: 'Cơ chế - Chính sách', url: 'Coche-Tinhluong/index.html', desc: 'Tra cứu nội dung cơ chế, chính sách.', icon: 'doc', notice: 'Áp dụng trong Tháng 11/2026' },
-  { id: '90nd',  no: 2, name: '90 Ngày đêm',         url: '90Ngaydem/index.html',       desc: 'Theo dõi chương trình 90 Ngày đêm.', icon: 'target', asOf: 'ngày 14/11/2026' },
+  { id: '90nd',  no: 2, name: '90 Ngày đêm',         url: '90Ngaydem/index.html',       desc: 'Theo dõi chương trình 90 Ngày đêm.', icon: 'target', asOf: 'ngày 21/11/2026' },
   { id: 'bhtl',  no: 3, name: 'Bán hàng tổng lực',   url: 'Banhangtongluc/index.html',  desc: 'Theo dõi chương trình Bán hàng tổng lực.', icon: 'growth', asOf: 'ngày 19/11/2026' },
-  { id: 'dtt',   no: 4, name: 'Điểm tin tuần',       url: 'Diemtintuan/index.html',     desc: 'Xem điểm tin tổng hợp hằng tuần.', icon: 'news', asOf: 'ngày 14/11/2026' },
+  { id: 'dtt',   no: 4, name: 'Điểm tin tuần',       url: 'Diemtintuan/index.html',     desc: 'Xem điểm tin tổng hợp hằng tuần.', icon: 'news', asOf: 'ngày 14/11/2026', hidden: true },
   { id: 'bcs',   no: 5, name: 'Kết quả BCS điều hành', url: 'BCS-Dieuhanh/index.html',   desc: 'Dashboard điều hành sản xuất kinh doanh VNPT Hải Phòng.', icon: 'dash', asOf: 'tháng 09/2026' },
   { id: 'luong', no: 6, name: 'Tạm tính lương trong tháng', url: 'TamTinhLuong/index.html', desc: 'Dashboard theo dõi sản lượng và tạm tính tiền lương.', icon: 'wallet', notice: 'Số liệu lương Tháng 11/2026 dịch vụ BR-CĐ (tạm tính đến 21/11/2026)', noSso: true, tag: 'Đăng nhập bằng mã HRM' }
 ]);
@@ -515,7 +515,8 @@ function deriveSsoKey(user, pass) {
 }
 function safeEqual(a, b) { if (a.length !== b.length) return false; let x = 0; for (let i = 0; i < a.length; i++) x |= a.charCodeAt(i) ^ b.charCodeAt(i); return x === 0; }
 const normUser = u => String(u || '').trim().toLowerCase();
-const appById = id => APPS.find(a => a.id === id) || null;
+const SHOWN = Object.freeze(APPS.filter(a => !a.hidden));   /* mục có hidden:true không hiển thị */
+const appById = id => SHOWN.find(a => a.id === id) || null;
 
 /* =====================================================================
    C. PHIÊN SSO
@@ -561,7 +562,7 @@ function renderBrand() {
   document.querySelectorAll('.brand-mark img').forEach(img => img.addEventListener('error', () => {
     const m = img.parentElement; m.classList.remove('has-logo'); m.innerHTML = ICONS.portal;
   }, { once: true }));
-  $('#heroApps').innerHTML = APPS.map(a => `<div class="hero-app"><span>${a.no}</span>${esc(a.name)}</div>`).join('');
+  $('#heroApps').innerHTML = SHOWN.map((a, i) => `<div class="hero-app"><span>${i + 1}</span>${esc(a.name)}</div>`).join('');
   $('#idleMins').textContent = CONFIG.SESSION_IDLE_MINUTES;
 }
 function setEye(show) {
@@ -661,9 +662,9 @@ function checkSession() {
   return false;
 }
 function renderApps() {
-  $('#appGrid').innerHTML = APPS.map((a, i) => `
-    <a class="card c${a.no}" href="${esc(a.url)}" data-i="${i}" style="animation-delay:${i * 70}ms" aria-label="${esc(a.no + '. ' + a.name)} – Truy cập">
-      <div class="card-head"><div class="card-icon" aria-hidden="true">${ICONS[a.icon]}</div><div class="card-no" aria-hidden="true">${String(a.no).padStart(2, '0')}</div></div>
+  $('#appGrid').innerHTML = SHOWN.map((a, i) => `
+    <a class="card c${a.no}" href="${esc(a.url)}" data-i="${i}" style="animation-delay:${i * 70}ms" aria-label="${esc((i + 1) + '. ' + a.name)} – Truy cập">
+      <div class="card-head"><div class="card-icon" aria-hidden="true">${ICONS[a.icon]}</div><div class="card-no" aria-hidden="true">${String(i + 1).padStart(2, '0')}</div></div>
       <h3>${esc(a.name)}</h3>
       <p class="desc">${esc(a.desc)}</p>
       ${a.asOf ? `<div class="asof"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Số liệu tính đến <b>${esc(a.asOf)}</b></div>` : ''}
@@ -682,7 +683,7 @@ $('#appGrid').addEventListener('click', (e) => {
   if (!checkSession()) return;
   if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1)
     toast('Ứng dụng được mở trong tab hiện tại vì phiên đăng nhập một lần chỉ có hiệu lực trong tab này.', 'info', 3000);
-  goApp(APPS[+card.dataset.i], card);
+  goApp(SHOWN[+card.dataset.i], card);
 });
 
 /* Mở ứng dụng: trên http(s) kiểm tra trước file đích tồn tại (cùng origin, không gửi thông tin đăng nhập) */
