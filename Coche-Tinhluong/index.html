@@ -1261,7 +1261,7 @@ const TYPE_INFO = {
 const TABS = [
   {id:'home', name:'TRANG CHỦ', icon:'home'},
   {id:'br', name:'BĂNG RỘNG', icon:'wifi', title:'Băng rộng cố định', desc:'',
-   subs:[['canhan','Thi đua Cá nhân - vượt ngưỡng','user'],['vtci','Chương trình VTCI','heart'],['trongdiem','Gói cước trọng điểm','medal']]},
+   subs:[['canhan','Thi đua Cá nhân - vượt ngưỡng','user'],['vtci','Chương trình VTCI','heart'],['trongdiem','Gói cước trọng điểm','medal'],['chukydai','Gói chu kỳ dài','calendar']]},
   {id:'dd', name:'DI ĐỘNG', icon:'phone', title:'Di động', desc:'Bứt phá thuê bao mới · Gói cước mục tiêu · Phân hạng ĐUQ · CTV liên kết PSSL',
    subs:[['ptm','Tăng tốc PTM','zap'],['goi','Gói cước mục tiêu','box'],['duq','Phân hạng ĐUQ','store'],['ctv','CTV liên kết PSSL','users']]},
   {id:'cntt', name:'SỐ DOANH NGHIỆP', icon:'cpu', title:'Số doanh nghiệp', desc:'Dịch vụ số · HKD · eContract · Loa thanh toán · TLS/INTT · Y tế số · Giáo dục số · Dự án',
@@ -1433,9 +1433,37 @@ const PROGRAMS = [
     how:'<ul><li>Thuê bao Internet <b>đơn lẻ hoặc tích hợp</b> phát triển mới, sử dụng gói cước có giá <b>từ 230.000 đồng/tháng trở lên</b> (giá đã gồm VAT).</li><li>Đóng trước cước (ĐTC) <b>từ 6 tháng trở lên</b>, <u>thời gian ghi nhận ĐTC cùng tháng với tháng hoàn công</u>; số tiền ĐTC bắt đầu trừ vào tháng T hoặc T+1 (T là tháng hoàn công).</li><li>Đã hoàn công, bàn giao dịch vụ cho khách hàng sử dụng và phát sinh cước từ <b>01/11/2026 đến 31/12/2026</b>.</li></ul>',
     reach:'<ul><li>ĐTC 6 tháng: <b>từ 06 tháng đến dưới 12 tháng</b>.</li><li>ĐTC 12 tháng: <b>từ 12 tháng trở lên</b>.</li></ul>',
     money:'<ul><li>ĐTC 6 tháng: <b class="money">100.000 đồng/TB</b></li><li>ĐTC 12 tháng: <b class="money">200.000 đồng/TB</b></li></ul>',
-    note:'<p>Không tính:</p><ul><li>Thuê bao tạm dừng/hủy trong thời gian diễn ra chương trình.</li><li>Thuê bao dùng thử.</li><li>Thuê bao hủy cũ lắp mới trong vòng 30 ngày kể từ ngày hoàn công (cùng địa chỉ lắp đặt hoặc cùng CCCD với thuê bao BRCĐ đã thanh hủy).</li><li>Thuê bao bị loại sau hậu kiểm của VTHP.</li></ul>'+SRC
+    note:'<p>Không tính:</p><ul><li>Thuê bao tạm dừng/hủy trong thời gian diễn ra chương trình.</li><li>Thuê bao dùng thử.</li><li>Thuê bao hủy cũ lắp mới trong vòng 30 ngày kể từ ngày hoàn công (cùng địa chỉ lắp đặt hoặc cùng CCCD với thuê bao BRCĐ đã thanh hủy).</li><li>Thuê bao bị loại sau hậu kiểm của VTHP.</li></ul><p><b>Lưu ý:</b> thuê bao gói chu kỳ dài (Home 1/HomeTV 1/Home Cam 1…) đóng trước cước <b>từ 18 tháng</b> đủ điều kiện được <b>ưu tiên hưởng chương trình Gói chu kỳ dài</b> (mỗi thuê bao chỉ ghi nhận 01 lần trong 01 chương trình thúc đẩy/khuyến khích).</p>'+SRC
   },
   remember:['Gói FiberVNN từ 230.000đ/tháng (đã gồm VAT)','ĐTC 6–<12 tháng: 100.000đ; từ 12 tháng: 200.000đ/TB','Ghi nhận ĐTC cùng tháng với tháng hoàn công']
+},
+
+{
+  id:'br-chukydai', tab:'br', sub:'chukydai', icon:'calendar',
+  title:'Chương trình khuyến khích phát triển mới thuê bao BRCĐ sử dụng gói cước chu kỳ dài từ 18 tháng',
+  headline:'ĐÓNG TRƯỚC CƯỚC TỪ 18 THÁNG – 500.000đ ĐẾN 900.000đ/TB',
+  types:['canhan','sanluong'], roles:['NVKD','NVKT','LDTL','KHAC'], services:['fiber','mytv','mesh','camera'],
+  time:'01/11/2026 – 31/12/2026',
+  who:'Toàn bộ CBCNV, LĐTL… tại các đơn vị trực thuộc',
+  visual: function(){ return '<div class="grid3">'+
+      '<div class="mcard"><div class="mt"><span class="ic">'+ic('calendar')+'</span>ĐTC 18 đến dưới 21 tháng</div><div class="mv">500.000<small>đồng/TB</small></div><div class="md">Gói chu kỳ <b>18/20 tháng</b>.</div></div>'+
+      '<div class="mcard"><div class="mt"><span class="ic">'+ic('calendar')+'</span>ĐTC 21 đến dưới 36 tháng</div><div class="mv">700.000<small>đồng/TB</small></div><div class="md">Gói chu kỳ <b>24/27 tháng</b>.</div></div>'+
+      '<div class="mcard hl"><div class="mt"><span class="ic">'+ic('medal')+'</span>ĐTC từ 36 tháng trở lên</div><div class="mv">900.000<small>đồng/TB</small></div><div class="md">Gói chu kỳ <b>36/41 tháng</b>.</div></div>'+
+    '</div>'+
+    '<div class="vflow" style="margin-top:14px">'+
+      '<div class="vnode n0"><div class="vl">① Địa bàn</div><div class="vv" style="font-size:17px">Thực tăng BRCĐ &gt; 0</div><div class="vd">tại tháng xét khuyến khích</div></div><div class="varrow">'+ic('arrow')+'</div>'+
+      '<div class="vnode n0"><div class="vl">② TB PTM gói chu kỳ dài</div><div class="vv" style="font-size:17px">ĐTC từ 18 tháng</div><div class="vd">không tính tháng khuyến mại; ghi nhận ĐTC cùng tháng hoàn công</div></div><div class="varrow">'+ic('arrow')+'</div>'+
+      '<div class="vnode n1"><div class="vl">③ Hoàn công, PSC</div><div class="vv" style="font-size:17px">01/11 – 31/12/2026</div></div>'+
+    '</div>'; },
+  blocks:{
+    what:'<p>Chương trình <b>khuyến khích phát triển mới thuê bao BRCĐ sử dụng gói cước chu kỳ dài từ 18 tháng</b>.</p><ul><li><b>Mục tiêu:</b> tăng tỉ lệ thuê bao trả cước trước khi phát triển mới, tập trung vào gói cước chu kỳ dài từ 18 tháng, góp phần ổn định doanh thu, duy trì thuê bao và hạn chế khách hàng rời mạng.</li><li>Khuyến khích các đơn vị đẩy mạnh tư vấn bán gói chu kỳ dài khi phát triển mới.</li></ul>',
+    who:'<p><b>Đối tượng nhân viên:</b> toàn bộ CBCNV, LĐTL… tại các đơn vị trực thuộc.</p><p><b>Đối tượng thuê bao:</b> thuê bao BRCĐ <b>khách hàng cá nhân, hộ gia đình phát triển mới</b> đăng ký gói cước đóng trước cước (ĐTC) chu kỳ <b>18/20 tháng, 24/27 tháng, 36/41 tháng</b> thuộc danh mục ban hành tại Văn bản số 6880/VNPT-HPG-ĐHKD ngày 23/10/2026, gồm các gói: <b>Home 1, Home 1 (Mesh), Home 1 (2 Mesh), HomeTV 1, HomeTV 1 (Mesh), Home Cam 1, Home Cam 1 (Mesh)</b> (thuê bao chu kỳ dài).</p><ul><li><b>Không áp dụng</b> đối với thuê bao hiện hữu chuyển đổi sang gói cước chu kỳ dài.</li></ul>',
+    how:'<p><b>Địa bàn đạt thực tăng thuê bao BRCĐ &gt; 0 tại tháng xét khuyến khích</b> và thuê bao đáp ứng các điều kiện:</p><ul><li>TB phát triển mới <b>đóng trước cước từ 18 tháng trở lên</b> <i>(không bao gồm tháng khuyến mại)</i>; <u>thời gian ghi nhận ĐTC cùng tháng với tháng hoàn công</u>; số tiền ĐTC bắt đầu trừ vào tháng T hoặc T+1 (T là tháng hoàn công).</li><li>TB đã hoàn công, bàn giao dịch vụ cho khách hàng sử dụng và phát sinh cước; hoàn công, bàn giao và phát sinh cước từ <b>01/11/2026 đến 31/12/2026</b>.</li><li>Đối với cá nhân ghi nhận tại trường <b>“Cộng tác viên”</b> trên hợp đồng phát triển mới; đối với nhân viên TTHT, TTKD GP, TTCSKH, khối gián tiếp: xét điều kiện thực tăng theo <b>địa bàn của thuê bao PTM</b>.</li></ul>',
+    reach:'<ul><li>Số tháng ĐTC được xác định theo <b>số tháng cước khách hàng thanh toán</b>, <b>không bao gồm tháng khuyến mại</b>.</li><li>Từ 18 đến dưới 21 tháng · Từ 21 đến dưới 36 tháng · Từ 36 tháng trở lên.</li></ul>',
+    money:'<table class="tbl"><thead><tr><th>Kỳ ĐTC</th><th>Đơn giá thúc đẩy (đồng/thuê bao)</th></tr></thead><tbody><tr><td>Từ 18 đến dưới 21 tháng</td><td><b class="money">500.000</b></td></tr><tr><td>Từ 21 đến dưới 36 tháng</td><td><b class="money">700.000</b></td></tr><tr><td>Từ 36 tháng trở lên</td><td><b class="money">900.000</b></td></tr></tbody></table>',
+    note:'<p><b>KHÔNG TÍNH:</b></p><ul><li>TB PTM tạm dừng/hủy trong thời gian diễn ra chương trình.</li><li>TB dùng thử.</li><li>TB hủy cũ lắp mới trong vòng 30 ngày kể từ ngày hoàn công (cùng địa chỉ lắp đặt hoặc cùng CCCD với TB BRCĐ đã hủy).</li><li>TB bị loại sau hậu kiểm.</li></ul><ul><li>Sau khi khen thưởng, các thuê bao chu kỳ dài <b>dừng, hạ gói hoặc hoàn cước trước thời hạn</b> trong thời gian ĐTC sẽ bị <b>giảm trừ số tiền đã quyết toán</b>.</li><li><i>Mỗi thuê bao chỉ được ghi nhận 01 lần trong 01 chương trình thúc đẩy/khuyến khích; đối với thuê bao chu kỳ dài từ 18 tháng <b>ưu tiên hưởng theo chính sách này</b> khi đạt đủ điều kiện của chương trình.</i></li></ul>'+SRC
+  },
+  remember:['Gói Home 1 / HomeTV 1 / Home Cam 1 (kể cả Mesh) chu kỳ 18/20, 24/27, 36/41 tháng – chỉ PTM, không áp dụng chuyển đổi','ĐTC 18–<21 tháng: 500.000đ · 21–<36 tháng: 700.000đ · từ 36 tháng: 900.000đ/TB','Địa bàn phải thực tăng BRCĐ > 0 trong tháng xét; ưu tiên hơn các chương trình khuyến khích khác']
 },
 
 /* ======================= DI ĐỘNG ======================= */
@@ -1890,7 +1918,7 @@ const QUICK = [
 ];
 const TIMELINE = [
   ['Băng rộng – Thi đua cá nhân (Fiber · Mesh/Camera · Thi công)', 11,11,''],
-  ['Băng rộng – VTCI · Gói cước trọng điểm', 11,12,''],
+  ['Băng rộng – VTCI · Gói cước trọng điểm · Gói chu kỳ dài', 11,12,''],
   ['Di động – Tăng tốc PTM', 11,12,''],
   ['Di động – Bán gói cước mục tiêu', 11,12,'q'],
   ['ĐUQ – Thăng/giữ hạng (kỳ Quý II, III, IV)', 9,12,'o'],
@@ -1913,7 +1941,7 @@ function renderHome(){
      '</div>';
 
   h+='<div class="sec-title">'+ic('layers')+'Chọn mảng dịch vụ</div><div class="groups">'+
-     grp('br','wifi','BĂNG RỘNG',[['Cá nhân','canhan'],['VTCI','vtci'],['Gói trọng điểm','trongdiem']],'Thi đua cá nhân · VTCI · Gói trọng điểm')+
+     grp('br','wifi','BĂNG RỘNG',[['Cá nhân','canhan'],['VTCI','vtci'],['Gói trọng điểm','trongdiem'],['Chu kỳ dài','chukydai']],'Thi đua cá nhân · VTCI · Gói trọng điểm · Gói chu kỳ dài')+
      grp('dd','phone','DI ĐỘNG',[['PTM','ptm'],['Gói cước mục tiêu','goi'],['ĐUQ','duq'],['CTV','ctv']],'Bứt phá thuê bao mới · Bán gói · Phân hạng kênh')+
      grp('cntt','cpu','SỐ DOANH NGHIỆP',[['17 VNPT KV','dvs'],['Dự thầu TTKDGP','ttkd'],['HKD','hkd'],['eContract','hkd'],['Loa thanh toán','hkd'],['TLS/INTT','tls'],['Y tế số','ytegd'],['Giáo dục số','ytegd']],'Dịch vụ số · Y tế số · Giáo dục số · Dự án')+
      '</div>'+
